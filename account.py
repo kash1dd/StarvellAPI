@@ -143,7 +143,7 @@ class Account:
 
     def get_reviews(self, offset: int, limit: int) -> list[ReviewInfo]:
         """
-        Получает отзывы своего профиля
+        Получает отзывы профиля
 
         :param offset: С какого отзыва начинать
         :param limit: Количество отзывов, которое надо получить
@@ -249,7 +249,7 @@ class Account:
         :param chat_id: ID Чата
         :param limit: Количество сообщений, которое надо получить
 
-        :return: Список с сообщениями
+        :return: Список с сообщениями в чате
         """
 
         url = "https://starvell.com/api/messages/list"
@@ -275,13 +275,15 @@ class Account:
 
         return messages
 
-    def send_message(self, content: str, chat_id: str, read_chat: bool = True):
+    def send_message(self, content: str, chat_id: str, read_chat: bool = True) -> None:
         """
-        Отправляет сообщение в переданный чат
+        Отправляет сообщение в чат
 
         :param content: Текст, который нужно отправить
         :param chat_id: ID Чата
         :param read_chat: Прочитывать-ли чат, после отправки сообщения?
+
+        :return: None
         """
 
         url = "https://starvell.com/api/messages/send"
@@ -294,11 +296,13 @@ class Account:
         if read_chat:
             self.read_chat(chat_id)
 
-    def read_chat(self, chat_id: str):
+    def read_chat(self, chat_id: str) -> None:
         """
         Помечает чат прочитанным
 
         :param chat_id: ID Чата
+
+        :return: None
         """
 
         url = "https://starvell.com/api/chats/read"
@@ -310,12 +314,13 @@ class Account:
 
     def get_category_lots(self, category_id: int, limit: int, offset: int, only_online: bool = False) -> list[OfferTableInfo]:
         """
-        Получает лоты переданной категории
+        Получает лоты категории
 
         :param category_id: ID Категории
         :param limit: Количество лотов, которое нужно получить
         :param offset: С какого лота начинать
         :param only_online: Только онлайн продавцы
+
         :return: Список с лотами
         """
 
@@ -343,10 +348,11 @@ class Account:
 
     def get_my_category_lots(self, game: str, game_category: str) -> list[LotFields]:
         """
-        Получает свои лоты переданной категории
+        Получает свои лоты категории
 
         :param game: Название категории (slug)
         :param game_category: Категория в игре (slug)
+
         :return: Список с лотами
         """
 
@@ -360,11 +366,13 @@ class Account:
 
         return list_with_my_lots
 
-    def save_lot(self, lot: LotFields):
+    def save_lot(self, lot: LotFields) -> None:
         """
-        Сохраняет лот с переданными параметрами
+        Сохраняет лот с переданными филдами
 
-        :param lot: Нужен для доступа к полям лота
+        :param lot: Поля лота (Класс LotFields)
+
+        :return: None
         """
 
         url = f"https://starvell.com/api/offers-operations/{lot.lot_id}/update"
@@ -379,12 +387,14 @@ class Account:
 
         self.request.post(url, data, raise_not_200=True)
 
-    def send_review(self, review_id: str, content: str):
+    def send_review(self, review_id: str, content: str) -> None:
         """
-        Создаёт ответ на отзыв только в том случае, если на отзыв ещё нет ответа
+        Отправляет ответ на отзыв только в том случае, если на отзыв ещё нет ответа
 
         :param review_id: ID Отзыва на который нужно ответить
         :param content: Текст ответа
+
+        :return: None
         """
 
         url = "https://starvell.com/api/review-responses/create"
@@ -394,11 +404,13 @@ class Account:
         }
         self.request.post(url, body, raise_not_200=True)
 
-    def refund(self, order_id: str):
+    def refund(self, order_id: str) -> None:
         """
-        Делает возврат в заказе
+        Оформляет возврат в заказе
 
         :param order_id: ID Заказа
+
+        :return: None
         """
 
         url = "https://starvell.com/api/orders/refund"
@@ -410,9 +422,10 @@ class Account:
 
     def get_user(self, user_id: str | int) -> User:
         """
-        Получает информацию об пользователе
+        Получает информацию об профиле пользователя
 
         :param user_id: ID Пользователя
+
         :return: Полная информация об пользователе
         """
 
