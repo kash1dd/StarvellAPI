@@ -19,6 +19,7 @@ from StarvellAPI.models.chat import Message
 from StarvellAPI.models.offers_list import OfferTableInfo
 from StarvellAPI.models.offer_fields import LotFields
 from StarvellAPI.models.user import User
+from StarvellAPI.models.settings import PreviewSettings
 
 class Account:
     def __init__(self, session_id: str):
@@ -415,3 +416,14 @@ class Account:
         response = self.request.get(url=url, raise_not_200=True).json()
 
         return User.model_validate(response)
+
+    def get_settings(self) -> PreviewSettings:
+        """
+        Получает настройки аккаунта
+
+        :return: Настройки пользователя
+        """
+
+        url = "https://starvell.com/api/user/settings"
+        response = self.request.get(url=url, raise_not_200=True).json()
+        return PreviewSettings.model_validate(response)
