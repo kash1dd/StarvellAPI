@@ -23,7 +23,7 @@ class MetaData(BaseConfig):
     notification_type: str = Field(None, alias="notificationType")
 
 class Message(BaseConfig):
-    msg_id: str = Field(alias="id")
+    id: str
     text: str = Field(alias="content")
     metadata: Optional[MetaData]
     chat_id: str = Field(alias="chatId")
