@@ -7,7 +7,7 @@ class BaseConfig(BaseModel):
         validate_by_name = True
 
 class Game(BaseConfig):
-    game_id: int = Field(alias="id")
+    id: int
     name: str
     slug: str
 
@@ -55,7 +55,7 @@ class Chat(BaseConfig):
     is_me_black_listed: bool = Field(alias="isMeBlacklisted")
 
 class Order(BaseConfig):
-    order_id: str = Field(alias="id")
+    id: str
     price_wo_comission: int = Field(alias="basePrice")
     price_w_comission: int = Field(alias="totalPrice")
     lot_id: int = Field(alias="offerId")

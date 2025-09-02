@@ -7,7 +7,7 @@ class BaseConfig(BaseModel):
         validate_by_name = True
 
 class User(BaseConfig):
-    user_id: int = Field(alias="id")
+    id: int
     username: str
     avatar_id: Optional[str] = Field(alias="avatar")
     is_online: bool = Field(alias="isOnline")
@@ -15,7 +15,7 @@ class User(BaseConfig):
     last_online_at: datetime = Field(alias="lastOnlineAt")
 
 class Message(BaseConfig):
-    msg_id: str = Field(alias="id")
+    id: str
     text: str = Field(alias="content")
     created_at: datetime = Field(alias="createdAt")
     type: str
@@ -27,7 +27,7 @@ class Message(BaseConfig):
     images: Optional[list]
 
 class ChatInfo(BaseConfig):
-    chat_id: str = Field(alias="id")
+    id: str
     users_info: list[User] = Field(alias="participants")
     last_message: Message = Field(alias="lastMessage")
     unread_message_count: int = Field(alias="unreadMessageCount")

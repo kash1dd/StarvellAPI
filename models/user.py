@@ -7,7 +7,7 @@ class BaseConfig(BaseModel):
         validate_by_name = True
 
 class User(BaseConfig):
-    user_id: int = Field(alias="id")
+    id: int
     username: str
     last_online_at: Optional[datetime] = Field(alias="lastOnlineAt")
     created_at: Optional[datetime] = Field(alias="createdAt")
