@@ -2,11 +2,8 @@ import threading
 
 class TaskManager:
     def __init__(self):
-        self.tasks: list[threading.Thread] = []
+        self.tasks: list[object] = []
 
     def add_task(self, **kwargs):
-        self.tasks.append(threading.Thread(**kwargs))
-
-    def run_tasks(self):
-        for task in self.tasks:
-            task.start()
+        task = threading.Thread(**kwargs).start()
+        self.tasks.append(task)
