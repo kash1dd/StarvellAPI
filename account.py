@@ -5,8 +5,9 @@ from datetime import datetime
 import re
 import json
 
-from StarvellAPI.session import StarvellSession
+from StarvellAPI.task_manager import TaskManager
 
+from StarvellAPI.session import StarvellSession
 from StarvellAPI.common.utils import format_directions, format_types, format_statuses, format_order_status, format_message_types
 from StarvellAPI.common.enums import MessageTypes
 from StarvellAPI.models.order import OrderFullInfo
@@ -23,6 +24,7 @@ from StarvellAPI.models.settings import PreviewSettings
 
 class Account:
     def __init__(self, session_id: str):
+        # инфа об аккаунте
         self.username: str | None = None
         self.user_id: int | None = None
         self.build_id: str | None = None
@@ -40,9 +42,15 @@ class Account:
         self.active_sales: int | None = None
         self.offers: list | list[OfferInfoShortCut] = []
         self.last_20_reviews: list[ReviewInfo] = []
+
+        # прочее
         self.request = StarvellSession(session_id)
+        self.tasks: TaskManager = TaskManager()
+
+        # авто запуск
         self.get_global_info()
         self.get_info()
+        self.tasks.run_tasks()
 
     def get_global_info(self) -> None:
         """
