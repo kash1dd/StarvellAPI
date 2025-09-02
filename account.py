@@ -50,7 +50,6 @@ class Account:
         # авто запуск
         self.get_global_info()
         self.get_info()
-        self.tasks.run_tasks()
 
     def get_global_info(self) -> None:
         """
