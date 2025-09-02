@@ -44,9 +44,11 @@ class Account:
         self.get_global_info()
         self.get_info()
 
-    def get_global_info(self):
+    def get_global_info(self) -> None:
         """
         Инициализирует API, для того чтобы оно могло функционировать
+
+        :return: None
         """
 
         url = "https://starvell.com"
@@ -58,9 +60,11 @@ class Account:
         self.username = data['props']['pageProps']['user']['username']
         self.user_id = data['props']['pageProps']['user']['id']
 
-    def get_info(self):
+    def get_info(self) -> None:
         """
         Получает и присваивает ко всем переменным полученные значения, с информацией об аккаунте
+
+        :return: None
         """
 
         url = f"https://starvell.com/_next/data/{self.build_id}/users/{self.user_id}.json?user_id={self.user_id}"
