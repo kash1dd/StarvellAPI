@@ -404,6 +404,24 @@ class Account:
         }
         self.request.post(url, body, raise_not_200=True)
 
+    def edit_review(self, review_id: str, content: str) -> None:
+        """
+        Редактирует ответ на отзыв\n
+        Именно редактирует, если на отзыв ещё нет ответа, может возникнуть ошибка
+
+        :param review_id: ID Отзыва на который нужно ответить
+        :param content: Текст ответа
+
+        :return: None
+        """
+
+        url = f"https://starvell.com/api/review-responses/{review_id}/update"
+        body = {
+            "content": content,
+            "reviewId": review_id
+        }
+        self.request.post(url, body, raise_not_200=True)
+
     def refund(self, order_id: str) -> None:
         """
         Оформляет возврат в заказе
