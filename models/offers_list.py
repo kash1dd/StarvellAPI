@@ -8,7 +8,7 @@ class BaseConfig(BaseModel):
         validate_by_name = True
 
 class OfferTableInfo(BaseConfig):
-    lot_id: int = Field(alias="id")
+    id: int
     price: str
     descriptions: Descriptions
     availability: int

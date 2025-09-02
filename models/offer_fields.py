@@ -9,7 +9,7 @@ class BaseConfig(BaseModel):
         validate_by_name = True
 
 class LotFields(BaseConfig):
-    lot_id: int = Field(alias="id")
+    id: int
     type: str
     price: str
     price_type: str = Field(alias="priceType")

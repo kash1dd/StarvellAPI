@@ -9,7 +9,7 @@ class BaseConfig(BaseModel):
         validate_by_name = True
 
 class ReviewAuthor(BaseConfig):
-    user_id: int = Field(alias='id')
+    id: int
     username: str
     avatar_id: Optional[str] = Field(alias='avatar')
 
@@ -18,11 +18,11 @@ class ReviewShortcutOrder(BaseConfig):
     amount: int
 
 class ReviewResponse(BaseConfig):
-    response_id: str = Field(alias="id")
+    id: str
     text: str = Field(alias="content")
 
 class ReviewInfo(BaseConfig):
-    review_id: str = Field(alias="id")
+    id: str
     text: str = Field(alias="content")
     rating: int
     buyer_id: int = Field(alias="authorId")

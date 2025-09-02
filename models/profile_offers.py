@@ -8,7 +8,7 @@ class BaseConfig(BaseModel):
         validate_by_name = True
 
 class OfferInfoShortCut(BaseConfig):
-    lot_id: int = Field(alias="id")
+    id: int
     price: float
     attributes: Optional[list[str]]
     sub_category: SubCategory = Field(alias="subCategory")

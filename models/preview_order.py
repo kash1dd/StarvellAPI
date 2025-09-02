@@ -10,12 +10,12 @@ class BaseConfig(BaseModel):
         validate_by_name = True
 
 class Game(BaseConfig):
-    game_id: int = Field(alias="id")
+    id: int
     name: str
     slug: str
 
 class Category(BaseConfig):
-    category_id: int = Field(alias="id")
+    id: int
     name: str
     slug: str
 
@@ -31,7 +31,7 @@ class OfferDetails(BaseConfig):
     is_auto_delivery: bool = Field(alias="instantDelivery")
 
 class User(BaseConfig):
-    user_id: int = Field(alias="id")
+    id: int
     username: str
     avatar: Optional[str]
     banner: Optional[str]
@@ -48,7 +48,7 @@ class User(BaseConfig):
     created_at: datetime = Field(alias="createdAt")
 
 class OrderInfo(BaseConfig):
-    order_id: str = Field(alias="id")
+    id: str
     status: OrderStatuses
     base_price: int = Field(alias="basePrice")
     total_price: int = Field(alias="totalPrice")
