@@ -33,7 +33,7 @@ class Runner:
                     currently = datetime(year, month, date, hour, minute, second, tzinfo=pytz.UTC) - timedelta(
                         seconds=10, hours=3)
 
-                    chat_history = self.acc.get_chat_history(chats.id, 15)
+                    chat_history = self.acc.get_chat(chats.id, 15)
 
                     for h in chat_history[::-1]:
                         if h.created_at > currently and h.id not in message_ids:
