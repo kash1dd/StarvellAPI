@@ -15,7 +15,7 @@ class Runner:
         """
         Добавляет хэндлер в обработчики класса Socket
 
-        :param func: Функция (хэндлер), которая будет обрабатывать ивент (Должна принимать только 1 аргумент - NewMessageEvent)
+        :param func: Функция (хэндлер), которая будет обрабатывать ивент (Должна принимать только 1 аргумент - NewMessageEvent)s
         """
 
         self.socket.event_handlers.append(func)
