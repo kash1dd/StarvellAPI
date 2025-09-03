@@ -6,8 +6,8 @@ import re
 import json
 
 from StarvellAPI.task_manager import TaskManager
-
 from StarvellAPI.session import StarvellSession
+
 from StarvellAPI.common.utils import format_directions, format_types, format_statuses, format_order_status, format_message_types
 from StarvellAPI.common.enums import MessageTypes
 from StarvellAPI.models.order import OrderFullInfo
@@ -249,7 +249,7 @@ class Account:
             chats.append(ChatInfo.model_validate(r))
         return chats
 
-    def get_chat_history(self, chat_id: str, limit: int) -> list[Message]:
+    def get_chat(self, chat_id: str, limit: int) -> list[Message]:
         """
         Получает историю сообщений чата
 
@@ -469,3 +469,11 @@ class Account:
         url = "https://starvell.com/api/user/settings"
         response = self.request.get(url=url, raise_not_200=True).json()
         return PreviewSettings.model_validate(response)
+
+    def get_test_info(self):
+        url = "https://starvell.com/api/users-profile"
+        response = self.request.get(url=url, raise_not_200=True).json()
+
+        with open('json_response.json', 'w', encoding='utf-8') as json_f:
+            print("сохранил")
+            json.dump(response, json_f, ensure_ascii=False, indent=2)
