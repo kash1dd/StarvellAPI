@@ -2,7 +2,7 @@ from StarvellAPI.account import Account
 from StarvellAPI.socket import Socket
 
 class Runner:
-    def __init__(self, acc: Account):
+    def __init__(self, acc: Account, always_online: bool = True):
         self.acc = acc
         self.socket = Socket(acc.session_id)
 

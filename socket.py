@@ -7,9 +7,10 @@ from StarvellAPI.common.utils import format_message_types
 from StarvellAPI.common.enums import MessageTypes
 
 class Socket:
-    def __init__(self, session_id: str):
+    def __init__(self, session_id: str, online: bool = True):
         self.s = session_id
         self.event_handlers = []
+        self.online = online
         self.run_socket()
 
     def on_message(self, ws: websocket.WebSocket, msg: str):
@@ -30,9 +31,11 @@ class Socket:
         elif msg == "2":
             ws.send("3")
 
-    @staticmethod
-    def on_open(ws: websocket.WebSocket):
+    def on_open(self, ws: websocket.WebSocket):
         ws.send("40/chats,")
+
+        if self.online:
+            ws.send('40/online,')
 
     def init(self, **kwargs):
         url = "wss://starvell.com/socket.io/?EIO=4&transport=websocket"
