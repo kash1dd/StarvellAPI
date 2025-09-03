@@ -471,6 +471,11 @@ class Account:
         return PreviewSettings.model_validate(response)
 
     def get_test_info(self):
+        """
+        Получает профиль, пока-что не реализована в мейне
+
+        :return: Может-быть нон, хз, посмотрю
+        """
         url = "https://starvell.com/api/users-profile"
         response = self.request.get(url=url, raise_not_200=True).json()
 
