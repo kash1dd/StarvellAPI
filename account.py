@@ -1,6 +1,9 @@
 # todo
 # https://starvell.com/api/users-profile (GET)
 
+# todo
+# удалить StarvellAPI.models.profile_offers import OfferInfoShortCut
+
 from datetime import datetime
 import re
 import json
@@ -14,19 +17,19 @@ from StarvellAPI.models.order import OrderFullInfo
 from StarvellAPI.models.preview_order import OrderInfo
 from StarvellAPI.models.review import ReviewInfo
 from StarvellAPI.models.transaction import TransactionInfo
-from StarvellAPI.models.profile_offers import OfferInfoShortCut
 from StarvellAPI.models.chats import ChatInfo
 from StarvellAPI.models.chat import Message
 from StarvellAPI.models.offers_list import OfferTableInfo
 from StarvellAPI.models.offer_fields import LotFields
 from StarvellAPI.models.user import User
 from StarvellAPI.models.settings import PreviewSettings
+from StarvellAPI.models.profile import Profile
 
 class Account:
     def __init__(self, session_id: str):
         # инфа об аккаунте
         self.username: str | None = None
-        self.user_id: int | None = None
+        self.id: int | None = None
         self.build_id: str | None = None
         self.session_id: str | None = session_id
         self.email: str | None = None
@@ -39,9 +42,7 @@ class Account:
         self.reviews_count: int | None = None
         self.balance_hold: float | None = None
         self.balance: float | None = None
-        self.active_sales: int | None = None
-        self.offers: list | list[OfferInfoShortCut] = []
-        self.last_20_reviews: list[ReviewInfo] = []
+        self.active_orders: int | None = None
 
         # прочее
         self.request = StarvellSession(session_id)
@@ -65,51 +66,33 @@ class Account:
         data = json.loads(match.group(1))
         self.build_id = data['buildId']
         self.username = data['props']['pageProps']['user']['username']
-        self.user_id = data['props']['pageProps']['user']['id']
+        self.id = data['props']['pageProps']['user']['id']
 
-    def get_info(self) -> None:
+    def get_info(self) -> Profile:
         """
-        Получает и присваивает ко всем переменным полученные значения, с информацией об аккаунте
+        Получает профиль, пока-что не реализована в мейне
 
-        :return: None
+        :return: Возвращает модель Profile
         """
 
-        url = f"https://starvell.com/_next/data/{self.build_id}/users/{self.user_id}.json?user_id={self.user_id}"
-        body = {
-            "user_id": self.user_id
-        }
+        url = "https://starvell.com/api/users-profile"
+        response = Profile.model_validate(self.request.get(url=url, raise_not_200=True).json())
 
-        response = self.request.get(url, body, raise_not_200=True)
+        self.username = response.user.username
+        self.id = response.user.id
+        self.email = response.user.email
+        self.created_date = response.user.created_at
+        self.avatar_id = response.user.avatar
+        self.banner_id = response.user.banner
+        self.description = response.user.description
+        self.is_verified = response.user.is_kyc_verified
+        self.rating = response.user.rating
+        self.reviews_count = response.user.reviews_count
+        self.balance_hold = response.holded_balance
+        self.balance = response.balance.rub_balance
+        self.active_orders = response.active_orders
 
-        obj = response.json()['pageProps']['user']
-        self.email = obj['email']
-        self.created_date = datetime.strptime(obj['createdAt'], '%Y-%m-%dT%H:%M:%S.%fZ')
-        self.avatar_id = obj['avatar']
-        self.banner_id = obj['banner']
-        self.description = obj['description']
-        self.is_verified = obj['isKycVerified']
-        self.rating = obj['rating']
-        self.reviews_count = obj['reviewsCount']
-        self.balance_hold = obj['holdedAmount'] / 100 if obj['holdedAmount'] > 0 else 0
-        self.balance = obj['balance']['rubBalance'] / 100 if obj['balance']['rubBalance'] > 0 else 0
-        self.active_sales = obj['ordersCount']['salesOrdersCount']
-
-        cwo = response.json()['pageProps']['categoriesWithOffers']
-        reviews = response.json()['pageProps']['reviews']
-        list_with_offers = []
-        list_with_reviews = []
-
-        for c in cwo:
-            for lot in c['offers']:
-                my_lot = OfferInfoShortCut.model_validate(lot)
-                list_with_offers.append(my_lot)
-        self.offers = list_with_offers
-
-        for review in reviews:
-            r = ReviewInfo.model_validate(review)
-            list_with_reviews.append(r)
-
-        self.last_20_reviews = list_with_reviews
+        return response
 
     def get_sales(self, offset: int, limit: int) -> list[OrderInfo]:
         """
@@ -161,7 +144,7 @@ class Account:
         url = "https://starvell.com/api/reviews/list"
         body = {
   "filter": {
-    "recipientId": self.user_id
+    "recipientId": self.id
   },
   "pagination": {
     "offset": offset,
@@ -469,16 +452,3 @@ class Account:
         url = "https://starvell.com/api/user/settings"
         response = self.request.get(url=url, raise_not_200=True).json()
         return PreviewSettings.model_validate(response)
-
-    def get_test_info(self):
-        """
-        Получает профиль, пока-что не реализована в мейне
-
-        :return: Может-быть нон, хз, посмотрю
-        """
-        url = "https://starvell.com/api/users-profile"
-        response = self.request.get(url=url, raise_not_200=True).json()
-
-        with open('json_response.json', 'w', encoding='utf-8') as json_f:
-            print("сохранил")
-            json.dump(response, json_f, ensure_ascii=False, indent=2)
