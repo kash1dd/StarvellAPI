@@ -1,5 +1,6 @@
 from StarvellAPI.account import Account
 from StarvellAPI.socket import Socket
+from StarvellAPI.common.enums import MessageTypes
 
 class Runner:
     def __init__(self, acc: Account, always_online: bool = True):
@@ -11,11 +12,12 @@ class Runner:
         self.acc = acc
         self.socket = Socket(acc.session_id, always_online)
 
-    def msg_handler(self, func) -> None:
+    def add_handler(self, func, event_type: MessageTypes) -> None:
         """
         Добавляет хэндлер в обработчики класса Socket
 
         :param func: Функция (хэндлер), которая будет обрабатывать ивент (Должна принимать только 1 аргумент - NewMessageEvent)
+        :param event_type: Тип ивента (хэндлера)
         """
 
-        self.socket.event_handlers.append(func)
+        self.socket.handlers[event_type].append(func)

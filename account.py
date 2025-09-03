@@ -8,7 +8,6 @@ from datetime import datetime
 import re
 import json
 
-from StarvellAPI.task_manager import TaskManager
 from StarvellAPI.session import StarvellSession
 
 from StarvellAPI.common.utils import format_directions, format_types, format_statuses, format_order_status, format_message_types
@@ -46,7 +45,6 @@ class Account:
 
         # прочее
         self.request = StarvellSession(session_id)
-        self.tasks: TaskManager = TaskManager()
 
         # авто запуск
         self.get_global_info()
