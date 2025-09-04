@@ -43,8 +43,7 @@ class UnauthorizedError(RequestFailedError):
         self.session_id = self.response.cookies
 
     def __str__(self):
-        return ("Не авторизирован (возможно, введен неверный session_id?).\n"
-                f"Куки: {self.session_id}")
+        return "Ошибка авторизации (возможно, введен неверный session_id?)."
 
 class WithdrawError(Exception):
     """
@@ -53,6 +52,72 @@ class WithdrawError(Exception):
 
     def __init__(self, msg_from_response: str):
         self.msg = msg_from_response
+
+    def __str__(self):
+        return self.msg
+
+class SendMessageError(Exception):
+    """
+    Возбуждается при какой-либо ошибке на отправку сообщения
+    """
+
+    def __init__(self, msg: str):
+        self.msg = msg
+
+    def __str__(self):
+        return self.msg
+
+class ReadChatError(Exception):
+    """
+    Возбуждается при какой-либо ошибке прочтения чата
+    """
+
+    def __init__(self, msg: str):
+        self.msg = msg
+
+    def __str__(self):
+        return self.msg
+
+class RefundError(Exception):
+    """
+    Возбуждается при какой-либо ошибке в возврате заказа
+    """
+
+    def __init__(self, msg: str):
+        self.msg = msg
+
+    def __str__(self):
+        return self.msg
+
+class EditReviewError(Exception):
+    """
+    Возбуждается при какой-либо ошибке в редактировании ответа на отзыв
+    """
+
+    def __init__(self, msg: str):
+        self.msg = msg
+
+    def __str__(self):
+        return self.msg
+
+class SendReviewError(Exception):
+    """
+    Возбуждается при какой-либо ошибке отправки ответа на отзыв
+    """
+
+    def __init__(self, msg: str):
+        self.msg = msg
+
+    def __str__(self):
+        return self.msg
+
+class SaveLotError(Exception):
+    """
+    Возбуждается при какой-либо ошибке сохранения лота
+    """
+
+    def __init__(self, msg: str):
+        self.msg = msg
 
     def __str__(self):
         return self.msg

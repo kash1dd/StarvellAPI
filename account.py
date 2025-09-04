@@ -9,7 +9,8 @@ from StarvellAPI.session import StarvellSession
 
 from StarvellAPI.common.utils import format_directions, format_types, format_statuses, format_order_status, format_message_types, format_payment_methods
 from StarvellAPI.common.enums import MessageTypes, PaymentTypes
-from StarvellAPI.common.exceptions import WithdrawError
+from StarvellAPI.common.exceptions import WithdrawError, SendMessageError, ReadChatError, RefundError, EditReviewError, \
+    SendReviewError, SaveLotError
 from StarvellAPI.models.order import OrderFullInfo
 from StarvellAPI.models.preview_order import OrderInfo
 from StarvellAPI.models.review import ReviewInfo
@@ -45,12 +46,12 @@ class Account:
         self.request = StarvellSession(session_id)
 
         # авто запуск
-        self.get_global_info()
         self.get_info()
+        self.get_build()
 
-    def get_global_info(self) -> None:
+    def get_build(self) -> None:
         """
-        Инициализирует API, для того чтобы оно могло функционировать
+        Получает BUILD ID для некоторых запросов
 
         :return: None
         """
@@ -61,8 +62,6 @@ class Account:
         match = re.search(r'<script id="__NEXT_DATA__" type="application/json">(.*?)</script>', response, re.S)
         data = json.loads(match.group(1))
         self.build_id = data['buildId']
-        self.username = data['props']['pageProps']['user']['username']
-        self.id = data['props']['pageProps']['user']['id']
 
     def get_info(self) -> Profile:
         """
@@ -89,6 +88,17 @@ class Account:
         self.active_orders = response.active_orders
 
         return response
+
+    def get_settings(self) -> PreviewSettings:
+        """
+        Получает настройки аккаунта
+
+        :return: Настройки пользователя
+        """
+
+        url = "https://starvell.com/api/user/settings"
+        response = self.request.get(url=url, raise_not_200=True).json()
+        return PreviewSettings.model_validate(response)
 
     def get_sales(self, offset: int, limit: int) -> list[OrderInfo]:
         """
@@ -277,7 +287,10 @@ class Account:
             "chatId": chat_id,
             "content": f"{content} ",
         }
-        self.request.post(url, body, raise_not_200=True)
+        response = self.request.post(url, body, raise_not_200=False).json()
+
+        if not response['success']:
+            raise SendMessageError(response['message'])
 
         if read_chat:
             self.read_chat(chat_id)
@@ -296,7 +309,11 @@ class Account:
             "chatId": chat_id
         }
 
-        self.request.post(url, body, raise_not_200=True)
+        response = self.request.post(url, body, raise_not_200=False).json()
+
+        if not response['success']:
+            raise ReadChatError(response['message'])
+
 
     def get_category_lots(self, category_id: int, limit: int, offset: int, only_online: bool = False) -> list[OfferTableInfo]:
         """
@@ -352,6 +369,20 @@ class Account:
 
         return list_with_my_lots
 
+    def get_user(self, user_id: str | int) -> User:
+        """
+        Получает информацию об профиле пользователя
+
+        :param user_id: ID Пользователя
+
+        :return: Полная информация об пользователе
+        """
+
+        url = f"https://starvell.com/api/users/{user_id}"
+        response = self.request.get(url=url, raise_not_200=True).json()
+
+        return User.model_validate(response)
+
     def save_lot(self, lot: LotFields) -> None:
         """
         Сохраняет лот с переданными филдами
@@ -371,7 +402,10 @@ class Account:
             if type(value) is datetime:
                 data[key] = value.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
 
-        self.request.post(url, data, raise_not_200=True)
+        response = self.request.post(url, data, raise_not_200=False).json()
+
+        if not response['success']:
+            raise SaveLotError(response['message'])
 
     def send_review(self, review_id: str, content: str) -> None:
         """
@@ -388,14 +422,18 @@ class Account:
             "content": content,
             "reviewId": review_id
         }
-        self.request.post(url, body, raise_not_200=True)
+        response = self.request.post(url, body, raise_not_200=False).json()
+
+        if not response['success']:
+            raise SendReviewError(response['message'])
 
     def edit_review(self, review_id: str, content: str) -> None:
         """
-        Редактирует ответ на отзыв\n
+        Редактирует ответ на отзыв
+
         Именно редактирует, если на отзыв ещё нет ответа, может возникнуть ошибка
 
-        :param review_id: ID Отзыва на который нужно ответить
+        :param review_id: ID Отзыва на который нужно изменить ответ
         :param content: Текст ответа
 
         :return: None
@@ -406,7 +444,10 @@ class Account:
             "content": content,
             "reviewId": review_id
         }
-        self.request.post(url, body, raise_not_200=True)
+        response = self.request.post(url, body, raise_not_200=False).json()
+
+        if not response['success']:
+            raise EditReviewError(response['message'])
 
     def refund(self, order_id: str) -> None:
         """
@@ -422,32 +463,10 @@ class Account:
             "orderId": order_id
         }
 
-        self.request.post(url, body, raise_not_200=True)
+        response = self.request.post(url, body, raise_not_200=False).json()
 
-    def get_user(self, user_id: str | int) -> User:
-        """
-        Получает информацию об профиле пользователя
-
-        :param user_id: ID Пользователя
-
-        :return: Полная информация об пользователе
-        """
-
-        url = f"https://starvell.com/api/users/{user_id}"
-        response = self.request.get(url=url, raise_not_200=True).json()
-
-        return User.model_validate(response)
-
-    def get_settings(self) -> PreviewSettings:
-        """
-        Получает настройки аккаунта
-
-        :return: Настройки пользователя
-        """
-
-        url = "https://starvell.com/api/user/settings"
-        response = self.request.get(url=url, raise_not_200=True).json()
-        return PreviewSettings.model_validate(response)
+        if not response['success']:
+            raise RefundError(response['message'])
 
     def withdraw(self, payment_system: PaymentTypes, requisite: str, amount: float, bank=None) -> None:
         """
