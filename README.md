@@ -14,7 +14,7 @@ from StarvellAPI.models.new_msg import NewMessageEvent
 from StarvellAPI.models.order_event import OrderEvent
 from StarvellAPI.common.enums import MessageTypes
 
-acc = Account("f5cf2925-8e01-4188-9454-cc8d93bc53de") # создаём экземпляр аккаунта, указывая session_id полученный со starvell.com
+acc = Account("session_id") # создаём экземпляр аккаунта, указывая session_id полученный со starvell.com
 
 print(f"Никнейм - {acc.username}")
 print(f"ID - {acc.id}\n")
