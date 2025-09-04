@@ -36,7 +36,6 @@ class Socket:
             MessageTypes.REVIEW_DELETED: OrderEvent,
             MessageTypes.REVIEW_CHANGED: OrderEvent
         }
-        self.event_types_tuple = ('ORDER_PAYMENT', 'REVIEW_CREATED', 'ORDER_COMPLETED', 'ORDER_REFUND', 'REVIEW_UPDATED', 'REVIEW_DELETED')
 
     def on_message(self, ws: websocket.WebSocket, msg: str) -> None:
         """
@@ -53,9 +52,9 @@ class Socket:
 
                 if dict_with_data['metadata'] is None or 'notificationType' not in dict_with_data['metadata']:
                     dict_with_data['type'] = MessageTypes.NEW_MESSAGE
-                elif dict_with_data['metadata']['notificationType'] in self.event_types_tuple:
-                    dict_with_data['type'] = format_message_types(dict_with_data['metadata']['notificationType'])
-
+                else:
+                    if dict_with_data['metadata']['notificationType'] in ('ORDER_PAYMENT', 'REVIEW_CREATED', 'ORDER_COMPLETED', 'ORDER_REFUND', 'REVIEW_UPDATED', 'REVIEW_DELETED'):
+                            dict_with_data['type'] = format_message_types(dict_with_data['metadata']['notificationType'])
                 dict_with_data['author'] = dict_with_data['author'] if 'author' in dict_with_data else dict_with_data['buyer']
 
                 for event in self.handlers[dict_with_data['type']]:
