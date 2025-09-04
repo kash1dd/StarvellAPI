@@ -110,14 +110,3 @@ class SendReviewError(Exception):
 
     def __str__(self):
         return self.msg
-
-class SaveLotError(Exception):
-    """
-    Возбуждается при какой-либо ошибке сохранения лота
-    """
-
-    def __init__(self, msg: str):
-        self.msg = msg
-
-    def __str__(self):
-        return self.msg

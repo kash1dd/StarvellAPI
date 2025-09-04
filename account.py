@@ -10,7 +10,7 @@ from StarvellAPI.session import StarvellSession
 from StarvellAPI.common.utils import format_directions, format_types, format_statuses, format_order_status, format_message_types, format_payment_methods
 from StarvellAPI.common.enums import MessageTypes, PaymentTypes
 from StarvellAPI.common.exceptions import WithdrawError, SendMessageError, ReadChatError, RefundError, EditReviewError, \
-    SendReviewError, SaveLotError
+    SendReviewError
 from StarvellAPI.models.order import OrderFullInfo
 from StarvellAPI.models.preview_order import OrderInfo
 from StarvellAPI.models.review import ReviewInfo
@@ -402,7 +402,7 @@ class Account:
             if type(value) is datetime:
                 data[key] = value.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
 
-        response = self.request.post(url, data, raise_not_200=False)
+        self.request.post(url, data, raise_not_200=False)
 
     def send_review(self, review_id: str, content: str) -> None:
         """
