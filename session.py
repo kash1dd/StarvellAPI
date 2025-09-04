@@ -1,10 +1,7 @@
 import requests
 from requests import Session
-import urllib3
 
 from StarvellAPI.common.exceptions import RequestFailedError, UnauthorizedError
-
-urllib3.disable_warnings()
 
 class StarvellSession:
     def __init__(self, session_id: str):
@@ -19,10 +16,10 @@ class StarvellSession:
                      raise_not_200: bool = False) -> requests.Response:
         if body:
             response: requests.Response = getattr(self.request, method)(url, headers=self.request.headers, json=body,
-                                                     allow_redirects=False, verify=False)
+                                                     allow_redirects=False)
         else:
             response: requests.Response = getattr(self.request, method)(url, headers=self.request.headers,
-                                                     allow_redirects=False, verify=False)
+                                                     allow_redirects=False)
 
         if response.status_code == 403:
             raise UnauthorizedError(response)
