@@ -7,27 +7,44 @@
 * __Все JSON Ответы от Starvell валидируются pydantic'ом__
 ---
 ### _🤖 Пример использования_
-```
+```python
 from StarvellAPI.account import Account
 from StarvellAPI.events.events import Runner
 from StarvellAPI.models.new_msg import NewMessageEvent
+from StarvellAPI.models.order_event import OrderEvent
+from StarvellAPI.common.enums import MessageTypes
 
-acc = Account("session_id") # создаём экземпляр аккаунта, указывая session_id полученный со starvell.com
+acc = Account("f5cf2925-8e01-4188-9454-cc8d93bc53de") # создаём экземпляр аккаунта, указывая session_id полученный со starvell.com
 
 print(f"Никнейм - {acc.username}")
-print(f"ID - {acc.id}")
+print(f"ID - {acc.id}\n")
 
 runner = Runner(acc) # создаём экземпляр раннера
 
-def message(msg: NewMessageEvent):
+def msg_handler(msg: NewMessageEvent):
     """
-    Хэндлер, который обрабатывает новое сообщение
+    Хэндлер новых сообщений
     """
 
-    if msg.type is msg.type.NEW_MESSAGE: # проверяем, является ли тип сообщения, именно сообщением
-        print(msg.author.username, msg.content, sep=': ') # выводим новое сообщение
+    print(msg.author.username, msg.content, sep=': ')
 
-runner.msg_handler(message) # добавляем функцию в хэндлеры
+def review_handler(order: OrderEvent):
+    """
+    Хэндлер новых отзывов
+    """
+
+    print(f"Новый отзыв в заказе: {order.order.id}")
+
+def review_changed(order: OrderEvent):
+    """
+    Хэндлер ивента на изменение отзыва
+    """
+
+    print(f"Пользователь {order.buyer.username} изменил отзыв в заказе {order.order.id}")
+
+runner.add_handler(msg_handler, MessageTypes.NEW_MESSAGE) # добавляем наш хэндлер новых сообщений
+runner.add_handler(review_handler, MessageTypes.NEW_REVIEW) # добавляем наш хэндлер новых отзывов
+runner.add_handler(review_changed, MessageTypes.REVIEW_CHANGED) # добавляем наш хэндлер на ивент изменения отзыва
 ```
 ___
 ### ❓ _Прочее_
