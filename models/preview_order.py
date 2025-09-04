@@ -37,9 +37,6 @@ class User(BaseConfig):
     banner: Optional[str]
     description: Optional[str]
     is_online: bool = Field(alias="isOnline")
-    is_instant_payout_enabled: bool = Field(alias="isInstantPayoutEnabled")
-    is_payout_enabled: bool = Field(alias="isPayoutEnabled")
-    is_kyc_verified: bool = Field(alias="isKycVerified")
     is_banned: bool = Field(alias="isBanned")
     roles: list[str]
     rating: int
@@ -52,7 +49,6 @@ class OrderInfo(BaseConfig):
     status: OrderStatuses
     base_price: int = Field(alias="basePrice")
     total_price: int = Field(alias="totalPrice")
-    buyer_id: int = Field(alias="buyerId")
     offer_id: Optional[int] = Field(alias="offerId")
     offer_details: OfferDetails = Field(alias="offerDetails")
     order_args: list[str] = Field(alias="orderArgs")
@@ -61,4 +57,4 @@ class OrderInfo(BaseConfig):
     refunded_at: Optional[datetime] = Field(alias="refundedAt")
     created_at: Optional[datetime] = Field(alias="createdAt")
     updated_at: Optional[datetime] = Field(alias="updatedAt")
-    user: User
+    buyer: User = Field(alias="user")
