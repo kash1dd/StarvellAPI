@@ -45,3 +45,14 @@ class UnauthorizedError(RequestFailedError):
     def __str__(self):
         return ("Не авторизирован (возможно, введен неверный session_id?).\n"
                 f"Куки: {self.session_id}")
+
+class WithdrawError(Exception):
+    """
+    Возбуждается при какой-либо ошибке на вывод средств
+    """
+
+    def __init__(self, msg_from_response: str):
+        self.msg = msg_from_response
+
+    def __str__(self):
+        return self.msg

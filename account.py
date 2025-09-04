@@ -1,7 +1,4 @@
 # todo
-# https://starvell.com/api/users-profile (GET)
-
-# todo
 # удалить StarvellAPI.models.profile_offers import OfferInfoShortCut
 
 from datetime import datetime
@@ -10,8 +7,9 @@ import json
 
 from StarvellAPI.session import StarvellSession
 
-from StarvellAPI.common.utils import format_directions, format_types, format_statuses, format_order_status, format_message_types
-from StarvellAPI.common.enums import MessageTypes
+from StarvellAPI.common.utils import format_directions, format_types, format_statuses, format_order_status, format_message_types, format_payment_methods
+from StarvellAPI.common.enums import MessageTypes, PaymentTypes
+from StarvellAPI.common.exceptions import WithdrawError
 from StarvellAPI.models.order import OrderFullInfo
 from StarvellAPI.models.preview_order import OrderInfo
 from StarvellAPI.models.review import ReviewInfo
@@ -450,3 +448,30 @@ class Account:
         url = "https://starvell.com/api/user/settings"
         response = self.request.get(url=url, raise_not_200=True).json()
         return PreviewSettings.model_validate(response)
+
+    def withdraw(self, payment_system: PaymentTypes, requisite: str, amount: float, bank=None) -> None:
+        """
+        Создаёт заявку на вывод средств
+
+        При ошибке вывода возбуждается WithdrawError
+
+        :param payment_system: Тип платежной системы для вывода
+        :param requisite: Реквизиты для вывода (Номер карты / Номер СБП / Адрес крипты)
+        :param amount: Сумма для вывода
+        :param bank: Только если вывод с помощью СБП, тогда указывай там айди банка, иначе даже не трогай
+
+        :return: None
+        """
+
+        url = "https://starvell.com/api/payouts/create"
+        body = {
+            "paymentSystemId": format_payment_methods(payment_system),
+            "amount": amount * 100,
+            "address": requisite,
+            'cardHolder' if payment_system is not PaymentTypes.SBP else 'sbpBankId': "StarvellAPI" if payment_system is not PaymentTypes.SBP else bank
+        }
+
+        response = self.request.post(url, body, raise_not_200=False).json()
+
+        if not response['success']:
+            raise WithdrawError(response.get('message'))

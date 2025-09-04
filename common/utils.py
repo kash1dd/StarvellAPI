@@ -1,4 +1,10 @@
-from StarvellAPI.common.enums import TransactionDirections, TransactionTypes, TransactionStatuses, OrderStatuses, MessageTypes
+from StarvellAPI.common.enums import (
+    TransactionDirections,
+    TransactionTypes,
+    TransactionStatuses,
+    OrderStatuses,
+    MessageTypes,
+    PaymentTypes)
 
 def format_directions(direction: str) -> TransactionDirections:
     directions = {
@@ -48,3 +54,13 @@ def format_message_types(msg_type: str) -> MessageTypes:
     }
 
     return msg_types.get(msg_type, MessageTypes.UNKNOWN)
+
+def format_payment_methods(method: PaymentTypes) -> int:
+    p_types = {
+        PaymentTypes.BANK_CARD_RU: 13,
+        PaymentTypes.SBP: 15,
+        PaymentTypes.USDT_TRC20: 11,
+        PaymentTypes.LTC: 12
+    }
+
+    return p_types.get(method)
