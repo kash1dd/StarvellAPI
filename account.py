@@ -392,7 +392,7 @@ class Account:
         :return: None
         """
 
-        url = f"https://starvell.com/api/offers-operations/{lot.lot_id}/update"
+        url = f"https://starvell.com/api/offers-operations/{lot.id}/update"
         data = lot.model_dump(by_alias=True)
 
         if 'subCategory' in data:
@@ -402,10 +402,7 @@ class Account:
             if type(value) is datetime:
                 data[key] = value.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
 
-        response = self.request.post(url, data, raise_not_200=False).json()
-
-        if not response['success']:
-            raise SaveLotError(response['message'])
+        response = self.request.post(url, data, raise_not_200=False)
 
     def send_review(self, review_id: str, content: str) -> None:
         """
