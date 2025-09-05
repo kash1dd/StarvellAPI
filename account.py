@@ -309,6 +309,20 @@ class Account:
 
         return [LotFields.model_validate(i) for i in response['pageProps']['offers']]
 
+    def get_lot_fields(self, lot_id: int) -> LotFields:
+        """
+        Получает все поля лота
+
+        :param lot_id: ID Лота
+
+        :return: LotFields
+        """
+
+        url = f"https://starvell.com/_next/data/{self.build_id}/offers/edit/{lot_id}.json?offer_id={lot_id}"
+        response = self.request.get(url, raise_not_200=True).json()
+
+        return LotFields.model_validate(response['pageProps']['offer'])
+
     def get_black_list(self) -> list[BlockListedUser]:
         """
         Получает список заблокированных пользователей на Starvell

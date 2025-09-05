@@ -8,6 +8,10 @@ class BaseConfig(BaseModel):
     class Config:
         validate_by_name = True
 
+class Attributes(BaseModel):
+    id: str
+    numericValue: int
+
 class LotFields(BaseConfig):
     id: int
     type: str
@@ -16,7 +20,7 @@ class LotFields(BaseConfig):
     availability: int
     descriptions: Descriptions
     delivery_time: Optional[DeliveryTime] = Field(None, alias="deliveryTime")
-    attributes: list = None
+    attributes: list[dict] = None
     message_after_pay: Optional[str] = Field(None, alias="postPaymentMessage")
     lot_profile_position: Optional[int] = Field(alias="profilePosition")
     is_auto_delivery: bool = Field(alias="instantDelivery")
