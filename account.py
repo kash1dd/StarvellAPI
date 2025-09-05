@@ -10,7 +10,7 @@ from StarvellAPI.session import StarvellSession
 from StarvellAPI.common.utils import format_directions, format_types, format_statuses, format_order_status, format_message_types, format_payment_methods
 from StarvellAPI.common.enums import MessageTypes, PaymentTypes
 from StarvellAPI.common.exceptions import WithdrawError, SendMessageError, ReadChatError, RefundError, EditReviewError, \
-    SendReviewError
+    SendReviewError, BlockError, UnBlockError
 from StarvellAPI.models.order import OrderFullInfo
 from StarvellAPI.models.preview_order import OrderInfo
 from StarvellAPI.models.review import ReviewInfo
@@ -22,6 +22,7 @@ from StarvellAPI.models.offer_fields import LotFields
 from StarvellAPI.models.user import User
 from StarvellAPI.models.settings import PreviewSettings
 from StarvellAPI.models.profile import Profile
+from StarvellAPI.models.blocklist import BlockListedUser
 
 class Account:
     def __init__(self, session_id: str):
@@ -100,31 +101,31 @@ class Account:
         response = self.request.get(url=url, raise_not_200=True).json()
         return PreviewSettings.model_validate(response)
 
-    def get_sales(self, offset: int, limit: int) -> list[OrderInfo]:
+    def get_sales(self, offset: int = 0, limit: int = 100000000) -> list[OrderInfo]:
         """
         Получает продажи
 
-        :param offset: С какой продажи начинать
-        :param limit: Количество продаж, которое надо получить
+        :param offset: С какой продажи начинать? (По умолчанию с 0)
+        :param limit: Количество продаж, которое надо получить (По умолчанию все)
 
         :return: Список с продажами
         """
 
         url = "https://starvell.com/api/orders/list"
         body = {
-  "filter": {
-    "userType": "seller"
-  },
-  "with": {
-    "buyer": True
-  },
-  "orderBy": {
-    "field": "createdAt",
-    "order": "DESC"
-  },
-  "limit": limit,
-  "offset": offset
-}
+            "filter": {
+                "userType": "seller"
+            },
+            "with": {
+                "buyer": True
+            },
+            "orderBy": {
+                "field": "createdAt",
+                "order": "DESC"
+            },
+            "limit": limit,
+            "offset": offset
+        }
         response = self.request.post(url, body, raise_not_200=True)
 
         list_with_sales = []
@@ -137,53 +138,46 @@ class Account:
 
         return list_with_sales
 
-    def get_reviews(self, offset: int, limit: int) -> list[ReviewInfo]:
+    def get_reviews(self, offset: int = 0, limit: int = 100000000) -> list[ReviewInfo]:
         """
         Получает отзывы профиля
 
-        :param offset: С какого отзыва начинать
-        :param limit: Количество отзывов, которое надо получить
+        :param offset: С какого отзыва начинать? (По умолчанию с 0)
+        :param limit: Количество отзывов, которое надо получить (По умолчанию все)
 
         :return: Список с отзывами
         """
 
         url = "https://starvell.com/api/reviews/list"
         body = {
-  "filter": {
-    "recipientId": self.id
-  },
-  "pagination": {
-    "offset": offset,
-    "limit": limit
-  }
-}
-        response = self.request.post(url, body, raise_not_200=True)
+            "filter": {
+                "recipientId": self.id
+            },
+            "pagination": {
+                "offset": offset,
+                "limit": limit
+            }
+        }
+        response = self.request.post(url, body, raise_not_200=True).json()
 
-        list_with_reviews = []
-        reviews = response.json()
+        return [ReviewInfo.model_validate(i) for i in response]
 
-        for review in reviews:
-            r = ReviewInfo.model_validate(review)
-            list_with_reviews.append(r)
-
-        return list_with_reviews
-
-    def get_transactions(self, offset: int, limit: int) -> list[TransactionInfo]:
+    def get_transactions(self, offset: int = 0, limit: int = 100000000) -> list[TransactionInfo]:
         """
         Получает транзакции
 
-        :param offset: С какой транзакции начинать
-        :param limit: Количество транзакций, которое надо получить
+        :param offset: С какой транзакции начинать? (По умолчанию с 0)
+        :param limit: Количество транзакций, которое надо получить (По умолчанию все)
 
         :return: Список с транзакциями
         """
 
         url = "https://starvell.com/api/transactions/list"
         body = {
-  "filter": {},
-  "limit": limit,
-  "offset": offset
-}
+            "filter": {},
+            "limit": limit,
+            "offset": offset
+        }
         response = self.request.post(url, body, raise_not_200=True)
 
         list_with_transactions = []
@@ -226,7 +220,6 @@ class Account:
         :return: Список с чатами
         """
 
-        chats = []
         url = "https://starvell.com/api/chats/list"
         body = {
             "offset": offset,
@@ -234,9 +227,7 @@ class Account:
         }
         response = self.request.post(url, body=body, raise_not_200=True).json()
 
-        for r in response:
-            chats.append(ChatInfo.model_validate(r))
-        return chats
+        return [ChatInfo.model_validate(i) for i in response]
 
     def get_chat(self, chat_id: str, limit: int) -> list[Message]:
         """
@@ -270,6 +261,79 @@ class Account:
             messages.append(Message.model_validate(r))
 
         return messages
+
+    def get_category_lots(self, category_id: int,
+                          offset: int = 0,
+                          limit: int = 100000000,
+                          only_online: bool = False) -> list[OfferTableInfo]:
+        """
+        Получает лоты категории
+
+        :param category_id: ID Категории
+        :param offset: С какого лота начинать (По умолчанию с 0)
+        :param limit: Количество лотов, которое нужно получить (По умолчанию все лоты)
+        :param only_online: Только онлайн продавцы? (По умолчанию False)
+
+        :return: Список с лотами
+        """
+
+        url = "https://starvell.com/api/offers/list-by-category"
+        body = {
+            "categoryId": category_id,
+            "onlyOnlineUsers": only_online,
+            "attributes": [],
+            "numericRangeFilters": [],
+            "limit": limit,
+            "offset": offset,
+            "sortBy": "price",
+            "sortDir": "ASC",
+            "sortByPriceAndBumped": True
+        }
+
+        response = self.request.post(url, body, raise_not_200=True).json()
+
+        return [OfferTableInfo.model_validate(i) for i in response]
+
+    def get_my_category_lots(self, game: str, game_category: str) -> list[LotFields]:
+        """
+        Получает свои лоты категории
+
+        :param game: Название категории (slug)
+        :param game_category: Категория в игре (slug)
+
+        :return: Список с лотами
+        """
+
+        url = f"https://starvell.com/_next/data/{self.build_id}/{game}/{game_category}/trade.json?game={game}&game={game_category}&game=trade"
+        response = self.request.get(url, raise_not_200=True).json()
+
+        return [LotFields.model_validate(i) for i in response['pageProps']['offers']]
+
+    def get_black_list(self) -> list[BlockListedUser]:
+        """
+        Получает список заблокированных пользователей на Starvell
+
+        :return: list[BlockListedUser]
+        """
+
+        url = "https://starvell.com/api/blacklisted-users/list"
+        response = self.request.post(url).json()
+
+        return [BlockListedUser.model_validate(i) for i in response]
+
+    def get_user(self, user_id: str | int) -> User:
+        """
+        Получает информацию об профиле пользователя
+
+        :param user_id: ID Пользователя
+
+        :return: Полная информация об пользователе
+        """
+
+        url = f"https://starvell.com/api/users/{user_id}"
+        response = self.request.get(url=url, raise_not_200=True).json()
+
+        return User.model_validate(response)
 
     def send_message(self, content: str, chat_id: str, read_chat: bool = True) -> None:
         """
@@ -313,75 +377,6 @@ class Account:
 
         if not response['success']:
             raise ReadChatError(response['message'])
-
-
-    def get_category_lots(self, category_id: int, limit: int, offset: int, only_online: bool = False) -> list[OfferTableInfo]:
-        """
-        Получает лоты категории
-
-        :param category_id: ID Категории
-        :param limit: Количество лотов, которое нужно получить
-        :param offset: С какого лота начинать
-        :param only_online: Только онлайн продавцы
-
-        :return: Список с лотами
-        """
-
-        url = "https://starvell.com/api/offers/list-by-category"
-        body = {
-            "categoryId": category_id,
-            "onlyOnlineUsers": only_online,
-            "attributes": [],
-            "numericRangeFilters": [],
-            "limit": limit,
-            "offset": offset,
-            "sortBy": "price",
-            "sortDir": "ASC",
-            "sortByPriceAndBumped": True
-        }
-        list_with_offers = []
-
-        response = self.request.post(url, body, raise_not_200=True).json()
-
-        for r in response:
-            obj = OfferTableInfo.model_validate(r)
-            list_with_offers.append(obj)
-
-        return list_with_offers
-
-    def get_my_category_lots(self, game: str, game_category: str) -> list[LotFields]:
-        """
-        Получает свои лоты категории
-
-        :param game: Название категории (slug)
-        :param game_category: Категория в игре (slug)
-
-        :return: Список с лотами
-        """
-
-        url = f"https://starvell.com/_next/data/{self.build_id}/{game}/{game_category}/trade.json?game={game}&game={game_category}&game=trade"
-        response = self.request.get(url, raise_not_200=True).json()
-        list_with_my_lots = []
-
-        for r in response['pageProps']['offers']:
-            obj = LotFields.model_validate(r)
-            list_with_my_lots.append(obj)
-
-        return list_with_my_lots
-
-    def get_user(self, user_id: str | int) -> User:
-        """
-        Получает информацию об профиле пользователя
-
-        :param user_id: ID Пользователя
-
-        :return: Полная информация об пользователе
-        """
-
-        url = f"https://starvell.com/api/users/{user_id}"
-        response = self.request.get(url=url, raise_not_200=True).json()
-
-        return User.model_validate(response)
 
     def save_lot(self, lot: LotFields) -> None:
         """
@@ -491,3 +486,41 @@ class Account:
 
         if not response['success']:
             raise WithdrawError(response.get('message'))
+
+    def block(self, user_id: int) -> None:
+        """
+        Отправляет пользователя в ЧС на Starvell
+
+        :param user_id: ID Пользователя, которого нужно заблокировать
+
+        :return: None
+        """
+
+        url = "https://starvell.com/api/blacklisted-users/block"
+        body = {
+            "targetId": user_id
+        }
+
+        response = self.request.post(url, body, raise_not_200=False).json()
+
+        if not response['success']:
+            raise BlockError(response['message'])
+
+    def unblock(self, user_id: int) -> None:
+        """
+        Удаляет пользователя из ЧС на Starvell
+
+        :param user_id: ID Пользователя, которого нужно удалить
+
+        :return: None
+        """
+
+        url = "https://starvell.com/api/blacklisted-users/unblock"
+        body = {
+            "targetId": user_id
+        }
+
+        response = self.request.post(url, body, raise_not_200=False).json()
+
+        if not response['success']:
+            raise UnBlockError(response['message'])

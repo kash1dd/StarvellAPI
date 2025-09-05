@@ -110,3 +110,25 @@ class SendReviewError(Exception):
 
     def __str__(self):
         return self.msg
+
+class BlockError(Exception):
+    """
+    Возбуждается при какой-либо ошибке отправки пользователя в ЧС
+    """
+
+    def __init__(self, msg: str):
+        self.msg = msg
+
+    def __str__(self):
+        return self.msg
+
+class UnBlockError(Exception):
+    """
+    Возбуждается при какой-либо ошибке удаления пользователя из ЧС
+    """
+
+    def __init__(self, msg: str):
+        self.msg = msg
+
+    def __str__(self):
+        return self.msg
