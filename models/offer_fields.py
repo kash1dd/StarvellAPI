@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 
 from StarvellAPI.models.order import Descriptions, DeliveryTime, SubCategory
 
@@ -20,7 +20,7 @@ class LotFields(BaseConfig):
     availability: int
     descriptions: Descriptions
     delivery_time: Optional[DeliveryTime] = Field(None, alias="deliveryTime")
-    attributes: list[dict] = None
+    attributes: List[Attributes]
     message_after_pay: Optional[str] = Field(None, alias="postPaymentMessage")
     lot_profile_position: Optional[int] = Field(alias="profilePosition")
     is_auto_delivery: bool = Field(alias="instantDelivery")
@@ -35,5 +35,5 @@ class LotFields(BaseConfig):
     created_at: datetime = Field(alias="createdAt")
     updated_at: datetime = Field(alias="updatedAt")
     basic_attributes: list = Field([], alias="basicAttributes")
-    numeric_attributes: list = Field([], alias="numericAttributes")
+    numeric_attributes: list[Attributes] = Field([], alias="numericAttributes")
     sub_category: Optional[SubCategory] = Field(None, alias="subCategory")

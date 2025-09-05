@@ -10,7 +10,7 @@ from StarvellAPI.session import StarvellSession
 from StarvellAPI.common.utils import format_directions, format_types, format_statuses, format_order_status, format_message_types, format_payment_methods
 from StarvellAPI.common.enums import MessageTypes, PaymentTypes
 from StarvellAPI.common.exceptions import WithdrawError, SendMessageError, ReadChatError, RefundError, EditReviewError, \
-    SendReviewError, BlockError, UnBlockError
+    SendReviewError, BlockError, UnBlockError, CreateLotError, DeleteLotError
 from StarvellAPI.models.order import OrderFullInfo
 from StarvellAPI.models.preview_order import OrderInfo
 from StarvellAPI.models.review import ReviewInfo
@@ -19,6 +19,7 @@ from StarvellAPI.models.chats import ChatInfo
 from StarvellAPI.models.chat import Message
 from StarvellAPI.models.offers_list import OfferTableInfo
 from StarvellAPI.models.offer_fields import LotFields
+from StarvellAPI.models.create_lot import CreateLotFields
 from StarvellAPI.models.user import User
 from StarvellAPI.models.settings import PreviewSettings
 from StarvellAPI.models.profile import Profile
@@ -349,6 +350,44 @@ class Account:
 
         return User.model_validate(response)
 
+    def create_lot(self, fields: LotFields) -> LotFields:
+        """
+        Создаёт лот на Starvell
+
+        :param fields: LotFields
+
+        :return: LotFields созданного лота
+        """
+
+        url = "https://starvell.com/api/offers-operations/create"
+
+        lot_fields = json.loads(fields.model_dump_json(by_alias=True))
+        lot_fields['numericAttributes'] = lot_fields['attributes']
+        create_fields = json.loads(CreateLotFields.model_validate(lot_fields).model_dump_json(by_alias=True))
+
+        response = self.request.post(url, create_fields, raise_not_200=False)
+
+        if response.status_code != 201:
+            raise CreateLotError(response.json().get('message'))
+
+        return LotFields.model_validate(response.json())
+
+    def delete_lot(self, lot_id: int) -> None:
+        """
+        Удаляет лот со Starvell
+
+        :param lot_id: ID Лота
+
+        :return: None
+        """
+
+        url = f"https://starvell.com/api/offers/{lot_id}/delete"
+        response = self.request.post(url, raise_not_200=False)
+        js = response.json()
+
+        if response.status_code != 200:
+            raise DeleteLotError(js.get('message'))
+
     def send_message(self, content: str, chat_id: str, read_chat: bool = True) -> None:
         """
         Отправляет сообщение в чат
@@ -365,10 +404,10 @@ class Account:
             "chatId": chat_id,
             "content": f"{content} ",
         }
-        response = self.request.post(url, body, raise_not_200=False).json()
+        response = self.request.post(url, body, raise_not_200=False)
 
-        if not response['success']:
-            raise SendMessageError(response['message'])
+        if response.status_code != 200:
+            raise SendMessageError(response.json().get('message'))
 
         if read_chat:
             self.read_chat(chat_id)
@@ -387,10 +426,10 @@ class Account:
             "chatId": chat_id
         }
 
-        response = self.request.post(url, body, raise_not_200=False).json()
+        response = self.request.post(url, body, raise_not_200=False)
 
-        if not response['success']:
-            raise ReadChatError(response['message'])
+        if response.status_code != 200:
+            raise ReadChatError(response.json().get('message'))
 
     def save_lot(self, lot: LotFields) -> None:
         """
@@ -428,10 +467,10 @@ class Account:
             "content": content,
             "reviewId": review_id
         }
-        response = self.request.post(url, body, raise_not_200=False).json()
+        response = self.request.post(url, body, raise_not_200=False)
 
-        if not response['success']:
-            raise SendReviewError(response['message'])
+        if response.status_code != 200:
+            raise SendReviewError(response.json().get('message'))
 
     def edit_review(self, review_id: str, content: str) -> None:
         """
@@ -450,10 +489,10 @@ class Account:
             "content": content,
             "reviewId": review_id
         }
-        response = self.request.post(url, body, raise_not_200=False).json()
+        response = self.request.post(url, body, raise_not_200=False)
 
-        if not response['success']:
-            raise EditReviewError(response['message'])
+        if response.status_code != 200:
+            raise EditReviewError(response.json().get('message'))
 
     def refund(self, order_id: str) -> None:
         """
@@ -469,10 +508,10 @@ class Account:
             "orderId": order_id
         }
 
-        response = self.request.post(url, body, raise_not_200=False).json()
+        response = self.request.post(url, body, raise_not_200=False)
 
-        if not response['success']:
-            raise RefundError(response['message'])
+        if response.status_code != 200:
+            raise RefundError(response.json().get('message'))
 
     def withdraw(self, payment_system: PaymentTypes, requisite: str, amount: float, bank=None) -> None:
         """
@@ -496,9 +535,9 @@ class Account:
             'cardHolder' if payment_system is not PaymentTypes.SBP else 'sbpBankId': "StarvellAPI" if payment_system is not PaymentTypes.SBP else bank
         }
 
-        response = self.request.post(url, body, raise_not_200=False).json()
+        response = self.request.post(url, body, raise_not_200=False)
 
-        if not response['success']:
+        if response.status_code != 200:
             raise WithdrawError(response.get('message'))
 
     def block(self, user_id: int) -> None:
@@ -515,10 +554,10 @@ class Account:
             "targetId": user_id
         }
 
-        response = self.request.post(url, body, raise_not_200=False).json()
+        response = self.request.post(url, body, raise_not_200=False)
 
-        if not response['success']:
-            raise BlockError(response['message'])
+        if response.status_code != 200:
+            raise BlockError(response.json().get('message'))
 
     def unblock(self, user_id: int) -> None:
         """
@@ -534,7 +573,7 @@ class Account:
             "targetId": user_id
         }
 
-        response = self.request.post(url, body, raise_not_200=False).json()
+        response = self.request.post(url, body, raise_not_200=False)
 
-        if not response['success']:
-            raise UnBlockError(response['message'])
+        if response.status_code != 200:
+            raise UnBlockError(response.json().get('message'))

@@ -61,8 +61,11 @@ class Socket:
                 dict_with_data['author'] = dict_with_data['author'] if 'author' in dict_with_data else dict_with_data['buyer']
 
                 for event in self.handlers[dict_with_data['type']]:
-                    data = self.event_types[dict_with_data['type']].model_validate(dict_with_data)
-                    event(data)
+                    try:
+                        data = self.event_types[dict_with_data['type']].model_validate(dict_with_data)
+                        event(data)
+                    except Exception as e:
+                        print(f"Произошла ошибка в хэндлере {event.__name__}: {e}")
 
             except Exception as e:
                 print(e)

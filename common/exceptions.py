@@ -132,3 +132,25 @@ class UnBlockError(Exception):
 
     def __str__(self):
         return self.msg
+
+class CreateLotError(Exception):
+    """
+    Возбуждается при какой-либо ошибке создания лота
+    """
+
+    def __init__(self, msg: str):
+        self.msg = msg
+
+    def __str__(self):
+        return self.msg
+
+class DeleteLotError(Exception):
+    """
+    Возбуждается при какой-либо ошибке удаления лота
+    """
+
+    def __init__(self, msg: str):
+        self.msg = msg
+
+    def __str__(self):
+        return self.msg
