@@ -44,6 +44,8 @@ class Socket:
 
         :param ws: Экземпляр класса WebSocket
         :param msg: Сообщение веб сокета
+
+        :return: None
         """
 
         if msg.startswith('42/chats'):
@@ -73,6 +75,8 @@ class Socket:
         Вызывается при открытии веб сокета
 
         :param ws: Экземпляр класса WebSocket
+
+        :return: None
         """
 
         ws.send("40/chats,")
@@ -84,7 +88,9 @@ class Socket:
         """
         Запускает веб сокет
 
-        :param kwargs: Аргументы, которые можно указать в классе WebSocketApp (Не используется)
+        :param kwargs: Аргументы, которые можно указать в классе WebSocketApp (Не используется на данный момент)
+
+        :return: None
         """
 
         url = "wss://starvell.com/socket.io/?EIO=4&transport=websocket"
@@ -100,6 +106,8 @@ class Socket:
     def run_socket(self) -> None:
         """
         Запускает веб сокет в отдельном потоке
+
+        :return: None
         """
 
         threading.Thread(target=self.init).start()
