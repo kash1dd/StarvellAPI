@@ -45,112 +45,79 @@ class UnauthorizedError(RequestFailedError):
     def __str__(self):
         return "Ошибка авторизации (возможно, введен неверный session_id?)."
 
-class WithdrawError(Exception):
-    """
-    Возбуждается при какой-либо ошибке на вывод средств
-    """
-
+class StarvellAPIError(Exception):
     def __init__(self, msg_from_response: str):
         self.msg = msg_from_response
 
     def __str__(self):
         return self.msg
 
-class SendMessageError(Exception):
+class WithdrawError(StarvellAPIError):
+    """
+    Возбуждается при какой-либо ошибке на вывод средств
+    """
+
+    ...
+
+class SendMessageError(StarvellAPIError):
     """
     Возбуждается при какой-либо ошибке на отправку сообщения
     """
 
-    def __init__(self, msg: str):
-        self.msg = msg
+    ...
 
-    def __str__(self):
-        return self.msg
-
-class ReadChatError(Exception):
+class ReadChatError(StarvellAPIError):
     """
     Возбуждается при какой-либо ошибке прочтения чата
     """
 
-    def __init__(self, msg: str):
-        self.msg = msg
+    ...
 
-    def __str__(self):
-        return self.msg
-
-class RefundError(Exception):
+class RefundError(StarvellAPIError):
     """
     Возбуждается при какой-либо ошибке в возврате заказа
     """
 
-    def __init__(self, msg: str):
-        self.msg = msg
+    ...
 
-    def __str__(self):
-        return self.msg
-
-class EditReviewError(Exception):
+class EditReviewError(StarvellAPIError):
     """
     Возбуждается при какой-либо ошибке в редактировании ответа на отзыв
     """
 
-    def __init__(self, msg: str):
-        self.msg = msg
+    ...
 
-    def __str__(self):
-        return self.msg
-
-class SendReviewError(Exception):
+class SendReviewError(StarvellAPIError):
     """
     Возбуждается при какой-либо ошибке отправки ответа на отзыв
     """
 
-    def __init__(self, msg: str):
-        self.msg = msg
+    ...
 
-    def __str__(self):
-        return self.msg
-
-class BlockError(Exception):
+class BlockError(StarvellAPIError):
     """
     Возбуждается при какой-либо ошибке отправки пользователя в ЧС
     """
 
-    def __init__(self, msg: str):
-        self.msg = msg
+    ...
 
-    def __str__(self):
-        return self.msg
-
-class UnBlockError(Exception):
+class UnBlockError(StarvellAPIError):
     """
     Возбуждается при какой-либо ошибке удаления пользователя из ЧС
     """
 
-    def __init__(self, msg: str):
-        self.msg = msg
+    ...
 
-    def __str__(self):
-        return self.msg
-
-class CreateLotError(Exception):
+class CreateLotError(StarvellAPIError):
     """
     Возбуждается при какой-либо ошибке создания лота
     """
 
-    def __init__(self, msg: str):
-        self.msg = msg
+    ...
 
-    def __str__(self):
-        return self.msg
-
-class DeleteLotError(Exception):
+class DeleteLotError(StarvellAPIError):
     """
     Возбуждается при какой-либо ошибке удаления лота
     """
 
-    def __init__(self, msg: str):
-        self.msg = msg
-
-    def __str__(self):
-        return self.msg
+    ...
