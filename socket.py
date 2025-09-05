@@ -11,7 +11,7 @@ class Socket:
     def __init__(self, session_id: str, online: bool = True):
         """
         :param session_id: session_id со Starvell
-        :param online: Поддерживать-ли постоянный онлайн? (Да - при использовании API, аккаунт всегда будет в онлайне)
+        :param online: Поддерживать-ли постоянный онлайн? (True - при использовании API, аккаунт всегда будет в онлайне)
         """
 
         self.s = session_id

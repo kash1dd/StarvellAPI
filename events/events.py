@@ -6,7 +6,7 @@ class Runner:
     def __init__(self, acc: Account, always_online: bool = True):
         """
         :param acc: Экземпляр класса Account
-        :param always_online: Поддерживать-ли постоянный онлайн? (Да - при использовании API, аккаунт всегда будет в онлайне)
+        :param always_online: Поддерживать-ли постоянный онлайн? (True - при использовании API, аккаунт всегда будет в онлайне)
         """
 
         self.acc = acc
