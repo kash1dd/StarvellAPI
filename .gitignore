@@ -1,0 +1,6 @@
+/.git
+/.DS_STORE
+/__pycache__
+/common/__pycache__
+/events/__pycache__
+/models/__pycache__
