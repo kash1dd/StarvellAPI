@@ -357,6 +357,7 @@ class Account:
         :param fields: LotFields
 
         :return: LotFields созданного лота
+        :raise CreateLotError: Если произошла ошибка при создании лота
         """
 
         url = "https://starvell.com/api/offers-operations/create"
@@ -379,6 +380,7 @@ class Account:
         :param lot_id: ID Лота
 
         :return: None
+        :raise DeleteLotError: Если произошла ошибка при удалении лота
         """
 
         url = f"https://starvell.com/api/offers/{lot_id}/delete"
@@ -397,6 +399,7 @@ class Account:
         :param read_chat: Прочитывать-ли чат, после отправки сообщения?
 
         :return: None
+        :raise SendMessageError: Если произошла ошибка при отправке сообщения
         """
 
         url = "https://starvell.com/api/messages/send"
@@ -419,6 +422,7 @@ class Account:
         :param chat_id: ID Чата
 
         :return: None
+        :raise ReadChatError: Если произошла ошибка при чтении чата
         """
 
         url = "https://starvell.com/api/chats/read"
@@ -443,8 +447,8 @@ class Account:
         url = f"https://starvell.com/api/offers-operations/{lot.id}/update"
         data = lot.model_dump(by_alias=True)
 
-        if 'subCategory' in data:
-            data.pop('subCategory')
+        if "subCategory" in data:
+            data.pop("subCategory")
 
         for key, value in data.items():
             if type(value) is datetime:
@@ -460,6 +464,7 @@ class Account:
         :param content: Текст ответа
 
         :return: None
+        :raise SendReviewError: Если произошла ошибка при отправке отзыва
         """
 
         url = "https://starvell.com/api/review-responses/create"
@@ -482,6 +487,7 @@ class Account:
         :param content: Текст ответа
 
         :return: None
+        :raise EditReviewError: Если произошла ошибка при редактировании отзыва
         """
 
         url = f"https://starvell.com/api/review-responses/{review_id}/update"
@@ -501,6 +507,7 @@ class Account:
         :param order_id: ID Заказа
 
         :return: None
+        :raise RefundError: Если произошла ошибка при возврате
         """
 
         url = "https://starvell.com/api/orders/refund"
@@ -517,14 +524,13 @@ class Account:
         """
         Создаёт заявку на вывод средств
 
-        При ошибке вывода возбуждается WithdrawError
-
         :param payment_system: Тип платёжной системы для вывода
         :param requisite: Реквизиты для вывода (Номер карты / Номер СБП / Адрес крипты)
         :param amount: Сумма для вывода
         :param bank: Только если вывод с помощью СБП, тогда указывай там айди банка, иначе даже не трогай
 
         :return: None
+        :raise WithdrawError: Если произошла ошибка при выводе
         """
 
         url = "https://starvell.com/api/payouts/create"
@@ -547,6 +553,7 @@ class Account:
         :param user_id: ID Пользователя, которого нужно заблокировать
 
         :return: None
+        :raise BlockError: Если произошла ошибка при блокировке
         """
 
         url = "https://starvell.com/api/blacklisted-users/block"
@@ -563,9 +570,12 @@ class Account:
         """
         Удаляет пользователя из ЧС на Starvell
 
+        При ошибке разблокировки возбуждается
+
         :param user_id: ID Пользователя, которого нужно удалить
 
         :return: None
+        :raise UnBlockError: Если произошла ошибка при разблокировке
         """
 
         url = "https://starvell.com/api/blacklisted-users/unblock"
