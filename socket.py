@@ -63,7 +63,7 @@ class Socket:
                 for event in self.handlers[dict_with_data['type']]:
                     try:
                         data = self.event_types[dict_with_data['type']].model_validate(dict_with_data)
-                        event(data)
+                        threading.Thread(target=event, args=[data]).start()
                     except Exception as e:
                         print(f"Произошла ошибка в хэндлере {event.__name__}: {e}")
 
