@@ -1,6 +1,6 @@
 from StarvellAPI.account import Account
 from StarvellAPI.socket import Socket
-from StarvellAPI.common.enums import MessageTypes
+from StarvellAPI.common.enums import MessageTypes, SocketTypes
 
 from typing import Callable
 
@@ -14,12 +14,26 @@ class Runner:
         self.acc = acc
         self.socket = Socket(acc.session_id, always_online)
 
-    def add_handler(self, func: Callable, event_type: MessageTypes) -> None:
+    def msg_handler(self, func: Callable, event_type: MessageTypes) -> None:
         """
-        Добавляет хэндлер в обработчики класса Socket
+        Добавляет хэндлер в обработчики новых сообщений вебсокета класса Socket
 
         :param func: Функция (хэндлер), которая будет обрабатывать ивент (Должна принимать только 1 аргумент)
         :param event_type: Тип ивента (хэндлера)
+
+        :return: None
         """
 
-        self.socket.handlers[event_type].append(func)
+        self.socket.msg_handlers[event_type].append(func)
+
+    def socket_handler(self, func: Callable, handler_type: SocketTypes) -> None:
+        """
+        Добавляет хэндлер в хэндлеры сокета
+
+        :param func: Функция (хэндлер), которая будет вызываться при определённом событии сокета
+        :param handler_type: Тип хэндлера (На запуск/Ошибку), SocketTypes
+
+        :return: None
+        """
+
+        self.socket.other_handlers[handler_type].append(func)

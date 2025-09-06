@@ -5,7 +5,7 @@ import json
 from StarvellAPI.models.new_msg import NewMessageEvent
 from StarvellAPI.models.order_event import OrderEvent
 from StarvellAPI.common.utils import format_message_types
-from StarvellAPI.common.enums import MessageTypes
+from StarvellAPI.common.enums import MessageTypes, SocketTypes
 
 class Socket:
     def __init__(self, session_id: str, online: bool = True):
@@ -18,7 +18,7 @@ class Socket:
         self.online = online
         self.run_socket()
 
-        self.handlers = {
+        self.msg_handlers = {
             MessageTypes.NEW_MESSAGE: [],
             MessageTypes.NEW_ORDER: [],
             MessageTypes.CONFIRM_ORDER: [],
@@ -36,6 +36,12 @@ class Socket:
             MessageTypes.REVIEW_DELETED: OrderEvent,
             MessageTypes.REVIEW_CHANGED: OrderEvent
         }
+
+        self.other_handlers = {
+            SocketTypes.OPEN: [],
+            SocketTypes.ERROR: [] # todo добавить
+        }
+
         self.event_types_tuple = ('ORDER_PAYMENT', 'REVIEW_CREATED', 'ORDER_COMPLETED', 'ORDER_REFUND', 'REVIEW_UPDATED', 'REVIEW_DELETED')
 
     def on_message(self, ws: websocket.WebSocket, msg: str) -> None:
@@ -60,7 +66,7 @@ class Socket:
 
                 dict_with_data['author'] = dict_with_data['author'] if 'author' in dict_with_data else dict_with_data['buyer']
 
-                for event in self.handlers[dict_with_data['type']]:
+                for event in self.msg_handlers[dict_with_data['type']]:
                     try:
                         data = self.event_types[dict_with_data['type']].model_validate(dict_with_data)
                         threading.Thread(target=event, args=[data]).start()
@@ -86,6 +92,12 @@ class Socket:
 
         if self.online:
             ws.send('40/online,')
+
+        for func in self.other_handlers[SocketTypes.OPEN]:
+            try:
+                threading.Thread(target=func, args=[ws]).start()
+            except Exception as e:
+                print(f"Произошла ошибка в хэндлере {func.__name__}: {e}")
 
     def init(self, **kwargs) -> None:
         """
