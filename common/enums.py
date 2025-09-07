@@ -76,7 +76,13 @@ class MessageTypes(Enum):
     """Отзыв изменён"""
     REVIEW_DELETED = 6
     """Отзыв удалён"""
-    UNKNOWN = 7
+    REVIEW_RESPONSE_CREATED = 7
+    """Создан ответ на отзыв"""
+    REVIEW_RESPONSE_EDITED = 8
+    """Ответ на отзыв изменён"""
+    REVIEW_RESPONSE_DELETED = 9
+    """Ответ на отзыв удалён"""
+    UNKNOWN = 10
     """Неизвестный тип сообщения"""
 
 class PaymentTypes(Enum):

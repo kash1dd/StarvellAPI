@@ -91,7 +91,10 @@ def format_message_types(msg_type: str) -> MessageTypes:
         "ORDER_COMPLETED": MessageTypes.CONFIRM_ORDER,
         "ORDER_REFUND": MessageTypes.ORDER_REFUND,
         "REVIEW_UPDATED": MessageTypes.REVIEW_CHANGED,
-        "REVIEW_DELETED": MessageTypes.REVIEW_DELETED
+        "REVIEW_DELETED": MessageTypes.REVIEW_DELETED,
+        "REVIEW_RESPONSE_CREATED": MessageTypes.REVIEW_RESPONSE_CREATED,
+        "REVIEW_RESPONSE_UPDATED": MessageTypes.REVIEW_RESPONSE_EDITED,
+        "REVIEW_RESPONSE_DELETED": MessageTypes.REVIEW_RESPONSE_DELETED
     }
 
     return msg_types.get(msg_type, MessageTypes.UNKNOWN)
