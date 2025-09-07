@@ -10,7 +10,7 @@ from StarvellAPI.session import StarvellSession
 from StarvellAPI.common.utils import format_directions, format_types, format_statuses, format_order_status, format_message_types, format_payment_methods
 from StarvellAPI.common.enums import MessageTypes, PaymentTypes
 from StarvellAPI.common.exceptions import WithdrawError, SendMessageError, ReadChatError, RefundError, EditReviewError, \
-    SendReviewError, BlockError, UnBlockError, CreateLotError, DeleteLotError
+    SendReviewError, BlockError, UnBlockError, CreateLotError, DeleteLotError, SaveSettingsError
 from StarvellAPI.models.order import OrderFullInfo
 from StarvellAPI.models.preview_order import OrderInfo
 from StarvellAPI.models.review import ReviewInfo
@@ -545,6 +545,32 @@ class Account:
 
         if response.status_code != 200:
             raise WithdrawError(response.get('message'))
+
+    def save_settings(self, is_offers_visible: bool, updated_parametr: dict[str, str | bool | int | None] = None) -> None:
+        """
+        Сохраняет настройки аккаунта
+
+        :param is_offers_visible: Отображать-ли лоты в профиле?
+        :param updated_parametr: Обновлённый параметр (словарь (обновлённый параметр: значение)), если требовалось изменение только видимости лотов, то можно не указывать
+
+        :raise SaveSettingsError: При какой-либо ошибке сохранения настроек
+        :return: None
+        """
+
+        url = "https://starvell.com/api/user/settings"
+        body = {
+            "avatar": self.avatar_id,
+            "email": self.email,
+            "isOffersVisibleOnlyInProfile": is_offers_visible,
+            "username": self.username
+        }
+        if updated_parametr:
+            body.update(**updated_parametr)
+
+        response = self.request.patch(url, body, raise_not_200=False)
+
+        if response.status_code != 200:
+            raise SaveSettingsError(response.json().get('message'))
 
     def block(self, user_id: int) -> None:
         """

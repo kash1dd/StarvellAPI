@@ -121,3 +121,10 @@ class DeleteLotError(StarvellAPIError):
     """
 
     ...
+
+class SaveSettingsError(StarvellAPIError):
+    """
+    Возбуждается при какой-либо ошибке сохранения настроек
+    """
+
+    ...

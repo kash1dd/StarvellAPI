@@ -61,3 +61,16 @@ class StarvellSession:
         """
         
         return self.send_request("post", url, body, raise_not_200=raise_not_200)
+
+    def patch(self, url: str, body: dict | None = None, raise_not_200: bool = True):
+        """
+        Отправляет PATCH запрос к Starvell
+
+        :param url: Ссылка, куда отправить запрос
+        :param body: JSON к запросу (Можно не указывать)
+        :param raise_not_200: Возбуждать-ли исключение, если ответ не 200?
+
+        :return: requests.Response
+        """
+
+        return self.send_request("patch", url, body, raise_not_200=raise_not_200)
