@@ -43,9 +43,9 @@ def review_changed(order: OrderEvent):
 
     print(f"Пользователь {order.buyer.username} изменил отзыв в заказе {order.order.id}")
 
-runner.add_handler(msg_handler, MessageTypes.NEW_MESSAGE) # добавляем наш хэндлер новых сообщений
-runner.add_handler(review_handler, MessageTypes.NEW_REVIEW) # добавляем наш хэндлер новых отзывов
-runner.add_handler(review_changed, MessageTypes.REVIEW_CHANGED) # добавляем наш хэндлер на ивент изменения отзыва
+runner.msg_handler(msg_handler, MessageTypes.NEW_MESSAGE) # добавляем наш хэндлер новых сообщений
+runner.msg_handler(review_handler, MessageTypes.NEW_REVIEW) # добавляем наш хэндлер новых отзывов
+runner.msg_handler(review_changed, MessageTypes.REVIEW_CHANGED) # добавляем наш хэндлер на ивент изменения отзыва
 ```
 ___
 ### ❓ _Прочее_
