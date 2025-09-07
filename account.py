@@ -390,12 +390,12 @@ class Account:
         if response.status_code != 200:
             raise DeleteLotError(js.get('message'))
 
-    def send_message(self, content: str, chat_id: str, read_chat: bool = True) -> None:
+    def send_message(self, chat_id: str, content: str, read_chat: bool = True) -> None:
         """
         Отправляет сообщение в чат
 
-        :param content: Текст, который нужно отправить
         :param chat_id: ID Чата
+        :param content: Текст, который нужно отправить
         :param read_chat: Прочитывать-ли чат, после отправки сообщения?
 
         :return: None
