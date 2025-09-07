@@ -11,9 +11,9 @@
 ```python
 from StarvellAPI.account import Account
 from StarvellAPI.events.events import Runner
+from StarvellAPI.common.enums import MessageTypes
 from StarvellAPI.models.new_msg import NewMessageEvent
 from StarvellAPI.models.order_event import OrderEvent
-from StarvellAPI.common.enums import MessageTypes
 
 acc = Account("session_id") # создаём экземпляр аккаунта, указывая session_id полученный со starvell.com
 
@@ -22,30 +22,21 @@ print(f"ID - {acc.id}\n")
 
 runner = Runner(acc) # создаём экземпляр раннера
 
+@runner.add_handler(MessageTypes.NEW_MESSAGE) # декоратор на новое сообщение
 def msg_handler(msg: NewMessageEvent):
     """
-    Хэндлер новых сообщений
+    Хэндлер (функция), которая будет вызываться при новом сообщении
     """
+    
+    print(f"{msg.author.username}: {msg.content}")
 
-    print(msg.author.username, msg.content, sep=': ')
-
-def review_handler(order: OrderEvent):
+@runner.add_handler(MessageTypes.NEW_ORDER) # декоратор на новый заказ
+def order_handler(order: OrderEvent):
     """
-    Хэндлер новых отзывов
+    Хэндлер (функция), которая будет вызываться при новом заказе
     """
-
-    print(f"Новый отзыв в заказе: {order.order.id}")
-
-def review_changed(order: OrderEvent):
-    """
-    Хэндлер ивента на изменение отзыва
-    """
-
-    print(f"Пользователь {order.buyer.username} изменил отзыв в заказе {order.order.id}")
-
-runner.msg_handler(msg_handler, MessageTypes.NEW_MESSAGE) # добавляем наш хэндлер новых сообщений
-runner.msg_handler(review_handler, MessageTypes.NEW_REVIEW) # добавляем наш хэндлер новых отзывов
-runner.msg_handler(review_changed, MessageTypes.REVIEW_CHANGED) # добавляем наш хэндлер на ивент изменения отзыва
+    
+    print(f"Покупатель {order.buyer.username} оплатил заказ {order.order.id}")
 ```
 ___
 ### ❓ _Прочее_

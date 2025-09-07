@@ -1,8 +1,13 @@
 from StarvellAPI.account import Account
 from StarvellAPI.socket import Socket
 from StarvellAPI.common.enums import MessageTypes, SocketTypes
+from StarvellAPI.common.utils import format_message_types
+from StarvellAPI.models.new_msg import NewMessageEvent
+from StarvellAPI.models.order_event import OrderEvent
 
-from typing import Callable
+from websocket import WebSocket
+import json
+import threading
 
 class Runner:
     def __init__(self, acc: Account, always_online: bool = True):
@@ -13,27 +18,56 @@ class Runner:
 
         self.acc = acc
         self.socket = Socket(acc.session_id, always_online)
+        self.socket.other_handlers[SocketTypes.NEW_MESSAGE].append(self.msg_process)
 
-    def msg_handler(self, func: Callable, event_type: MessageTypes) -> None:
-        """
-        Добавляет хэндлер в обработчики новых сообщений вебсокета класса Socket
+        self.event_types_tuple = ('ORDER_PAYMENT', 'REVIEW_CREATED', 'ORDER_COMPLETED', 'ORDER_REFUND',
+                                  'REVIEW_UPDATED', 'REVIEW_DELETED')
+        self.handlers = {
+            MessageTypes.NEW_MESSAGE: [],
+            MessageTypes.NEW_ORDER: [],
+            MessageTypes.CONFIRM_ORDER: [],
+            MessageTypes.ORDER_REFUND: [],
+            MessageTypes.NEW_REVIEW: [],
+            MessageTypes.REVIEW_DELETED: [],
+            MessageTypes.REVIEW_CHANGED: []
+        }
 
-        :param func: Функция (хэндлер), которая будет обрабатывать ивент (Должна принимать только 1 аргумент)
-        :param event_type: Тип ивента (хэндлера)
+        self.event_types = {
+            MessageTypes.NEW_MESSAGE: NewMessageEvent,
+            MessageTypes.NEW_ORDER: OrderEvent,
+            MessageTypes.CONFIRM_ORDER: OrderEvent,
+            MessageTypes.ORDER_REFUND: OrderEvent,
+            MessageTypes.NEW_REVIEW: OrderEvent,
+            MessageTypes.REVIEW_DELETED: OrderEvent,
+            MessageTypes.REVIEW_CHANGED: OrderEvent
+        }
 
-        :return: None
-        """
 
-        self.socket.msg_handlers[event_type].append(func)
+    def add_handler(self, event_type: MessageTypes):
+        def decorator(func):
+            self.handlers[event_type].append(func)
+            return func
+        return decorator
 
-    def socket_handler(self, func: Callable, handler_type: SocketTypes) -> None:
-        """
-        Добавляет хэндлер в хэндлеры сокета
+    def msg_process(self, _: WebSocket, msg: str):
+        if msg.startswith('42/chats'):
+            try:
+                dict_with_data = json.loads(msg[len('42/chats,["message_created",'):-1])
 
-        :param func: Функция (хэндлер), которая будет вызываться при определённом событии сокета
-        :param handler_type: Тип хэндлера (На запуск/Ошибку), SocketTypes
+                if dict_with_data['metadata'] is None or 'notificationType' not in dict_with_data['metadata']:
+                    dict_with_data['type'] = MessageTypes.NEW_MESSAGE
+                elif dict_with_data['metadata']['notificationType'] in self.event_types_tuple:
+                    dict_with_data['type'] = format_message_types(dict_with_data['metadata']['notificationType'])
 
-        :return: None
-        """
+                dict_with_data['author'] = dict_with_data['author'] if 'author' in dict_with_data else dict_with_data['buyer']
+                data = self.event_types[dict_with_data['type']].model_validate(dict_with_data)
 
-        self.socket.other_handlers[handler_type].append(func)
+                for handler in self.handlers[dict_with_data['type']]:
+                    try:
+                        threading.Thread(target=handler, args=[data]).start()
+                    except Exception as e:
+                        print(f"Ошибка в хэндлере {handler.__name__}: {e}")
+
+
+            except Exception as e:
+                print(f"Произошла ошибка в хэндлере сообщений вебсокета: {e}")

@@ -1,11 +1,8 @@
 import websocket
 import threading
-import json
 
-from StarvellAPI.models.new_msg import NewMessageEvent
-from StarvellAPI.models.order_event import OrderEvent
-from StarvellAPI.common.utils import format_message_types
-from StarvellAPI.common.enums import MessageTypes, SocketTypes
+
+from StarvellAPI.common.enums import SocketTypes
 
 class Socket:
     def __init__(self, session_id: str, online: bool = True):
@@ -18,27 +15,9 @@ class Socket:
         self.online = online
         self.run_socket()
 
-        self.msg_handlers = {
-            MessageTypes.NEW_MESSAGE: [],
-            MessageTypes.NEW_ORDER: [],
-            MessageTypes.CONFIRM_ORDER: [],
-            MessageTypes.ORDER_REFUND: [],
-            MessageTypes.NEW_REVIEW: [],
-            MessageTypes.REVIEW_DELETED: [],
-            MessageTypes.REVIEW_CHANGED: []
-        }
-        self.event_types = {
-            MessageTypes.NEW_MESSAGE: NewMessageEvent,
-            MessageTypes.NEW_ORDER: OrderEvent,
-            MessageTypes.CONFIRM_ORDER: OrderEvent,
-            MessageTypes.ORDER_REFUND: OrderEvent,
-            MessageTypes.NEW_REVIEW: OrderEvent,
-            MessageTypes.REVIEW_DELETED: OrderEvent,
-            MessageTypes.REVIEW_CHANGED: OrderEvent
-        }
-
         self.other_handlers = {
             SocketTypes.OPEN: [],
+            SocketTypes.NEW_MESSAGE: [],
             SocketTypes.ERROR: [] # todo добавить
         }
 
@@ -54,29 +33,13 @@ class Socket:
         :return: None
         """
 
-        if msg.startswith('42/chats'):
+        for func in self.other_handlers[SocketTypes.NEW_MESSAGE]:
             try:
-
-                dict_with_data = json.loads(msg[len('42/chats,["message_created",'):-1])
-
-                if dict_with_data['metadata'] is None or 'notificationType' not in dict_with_data['metadata']:
-                    dict_with_data['type'] = MessageTypes.NEW_MESSAGE
-                elif dict_with_data['metadata']['notificationType'] in self.event_types_tuple:
-                    dict_with_data['type'] = format_message_types(dict_with_data['metadata']['notificationType'])
-
-                dict_with_data['author'] = dict_with_data['author'] if 'author' in dict_with_data else dict_with_data['buyer']
-
-                for event in self.msg_handlers[dict_with_data['type']]:
-                    try:
-                        data = self.event_types[dict_with_data['type']].model_validate(dict_with_data)
-                        threading.Thread(target=event, args=[data]).start()
-                    except Exception as e:
-                        print(f"Произошла ошибка в хэндлере {event.__name__}: {e}")
-
+                func(ws, msg)
             except Exception as e:
-                print(e)
+                print(f"Произошла ошибка в хэндлере вебсокета: {e}")
 
-        elif msg == "2":
+        if msg == "2":
             ws.send("3")
 
     def on_open(self, ws: websocket.WebSocket) -> None:
