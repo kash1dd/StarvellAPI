@@ -1,12 +1,11 @@
 from StarvellAPI.account import Account
 from StarvellAPI.socket import Socket
 from StarvellAPI.common.enums import MessageTypes, SocketTypes
-from StarvellAPI.common.utils import format_message_types
+from StarvellAPI.common.utils import identify_ws_starvell_message
 from StarvellAPI.models.new_msg import NewMessageEvent
 from StarvellAPI.models.order_event import OrderEvent
 
-from websocket import WebSocket
-import json
+from websocket import WebSocketApp
 import threading
 
 class Runner:
@@ -16,23 +15,26 @@ class Runner:
         :param always_online: Поддерживать-ли постоянный онлайн? (True - при использовании API, аккаунт всегда будет в онлайне)
         """
 
-        self.acc = acc
-        self.socket = Socket(acc.session_id, always_online)
-        self.socket.other_handlers[SocketTypes.NEW_MESSAGE].append(self.msg_process)
+        self.acc: Account = acc
 
-        self.event_types_tuple = ('ORDER_PAYMENT', 'REVIEW_CREATED', 'ORDER_COMPLETED', 'ORDER_REFUND',
-                                  'REVIEW_UPDATED', 'REVIEW_DELETED')
-        self.handlers = {
+        self.socket: Socket = Socket(acc.session_id, always_online)
+        self.socket.handlers[SocketTypes.OPEN].append(self.on_open_process)
+        self.socket.handlers[SocketTypes.NEW_MESSAGE].append(self.on_new_message)
+
+        self.handlers: dict = {
             MessageTypes.NEW_MESSAGE: [],
             MessageTypes.NEW_ORDER: [],
             MessageTypes.CONFIRM_ORDER: [],
             MessageTypes.ORDER_REFUND: [],
             MessageTypes.NEW_REVIEW: [],
             MessageTypes.REVIEW_DELETED: [],
-            MessageTypes.REVIEW_CHANGED: []
+            MessageTypes.REVIEW_CHANGED: [],
+
+            SocketTypes.OPEN: [],
+            SocketTypes.NEW_MESSAGE: []
         }
 
-        self.event_types = {
+        self.event_types: dict = {
             MessageTypes.NEW_MESSAGE: NewMessageEvent,
             MessageTypes.NEW_ORDER: OrderEvent,
             MessageTypes.CONFIRM_ORDER: OrderEvent,
@@ -42,24 +44,43 @@ class Runner:
             MessageTypes.REVIEW_CHANGED: OrderEvent
         }
 
+        self.add_handler(SocketTypes.NEW_MESSAGE)(self.msg_process)
 
-    def add_handler(self, event_type: MessageTypes):
+    def add_handler(self, handler_type: MessageTypes | SocketTypes):
+        """
+        Добавляет хэндлер
+
+        Примеры:
+
+        ``@add_handler(MessageTypes.NEW_MESSAGE)``
+
+        ``@add_handler(SocketTypes.NEW_MESSAGE)``
+
+        :param handler_type: MessageTypes либо SocketTypes
+
+        :return: Callable
+        """
+
         def decorator(func):
-            self.handlers[event_type].append(func)
+            self.handlers[handler_type].append(func)
             return func
         return decorator
 
-    def msg_process(self, _: WebSocket, msg: str):
+    def msg_process(self, _: WebSocketApp, msg: str) -> None:
+        """
+        Вызывается при новом сообщении в вебсокете, и в случае если это новое событие на Starvell, определяет событие, и вызывает все привязанные к этому событию хэндлеры (функции)
+
+        Каждый хэндлер (функция), вызывается в отдельном потоке
+
+        :param _: WebSocketApp
+        :param msg: Сообщение с вебсокета
+
+        :return: None
+        """
+
         if msg.startswith('42/chats'):
             try:
-                dict_with_data = json.loads(msg[len('42/chats,["message_created",'):-1])
-
-                if dict_with_data['metadata'] is None or 'notificationType' not in dict_with_data['metadata']:
-                    dict_with_data['type'] = MessageTypes.NEW_MESSAGE
-                elif dict_with_data['metadata']['notificationType'] in self.event_types_tuple:
-                    dict_with_data['type'] = format_message_types(dict_with_data['metadata']['notificationType'])
-
-                dict_with_data['author'] = dict_with_data['author'] if 'author' in dict_with_data else dict_with_data['buyer']
+                dict_with_data = identify_ws_starvell_message(msg)
                 data = self.event_types[dict_with_data['type']].model_validate(dict_with_data)
 
                 for handler in self.handlers[dict_with_data['type']]:
@@ -68,6 +89,40 @@ class Runner:
                     except Exception as e:
                         print(f"Ошибка в хэндлере {handler.__name__}: {e}")
 
-
             except Exception as e:
                 print(f"Произошла ошибка в хэндлере сообщений вебсокета: {e}")
+
+    def on_open_process(self, ws: WebSocketApp) -> None:
+        """
+        Вызывается при открытии вебсокета, и вызывает все привязанные к этому событию хэндлере
+
+        Каждый хэндлер (функция), вызывается в отдельном потоке
+
+        :param ws: WebSocketApp
+
+        :return: None
+        """
+
+        for func in self.handlers[SocketTypes.OPEN]:
+            try:
+                threading.Thread(target=func, args=[ws]).start()
+            except Exception as e:
+                print(f"Ошибка в хэндлере создания сокета {func.__name__}: {e}")
+
+    def on_new_message(self, ws: WebSocketApp, msg: str) -> None:
+        """
+        Вызывается при новом сообщении в вебсокете, и вызывает все привязанные к этому событию хэндлеры (Не путать с новым сообщением на Starvell)
+
+        Каждый хэндлер (функция), вызывается в отдельном потоке
+
+        :param ws: WebSocketApp
+        :param msg: Сообщение вебсокета (Строка)
+
+        :return: None
+        """
+
+        for func in self.handlers[SocketTypes.NEW_MESSAGE]:
+            try:
+                threading.Thread(target=func, args=[ws, msg]).start()
+            except Exception as e:
+                print(f"Ошибка в хэндлере нового сообщения в сокете {func.__name__}: {e}")

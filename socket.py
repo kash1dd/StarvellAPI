@@ -1,8 +1,7 @@
+from StarvellAPI.common.enums import SocketTypes
+
 import websocket
 import threading
-
-
-from StarvellAPI.common.enums import SocketTypes
 
 class Socket:
     def __init__(self, session_id: str, online: bool = True):
@@ -15,13 +14,11 @@ class Socket:
         self.online = online
         self.run_socket()
 
-        self.other_handlers = {
+        self.handlers = {
             SocketTypes.OPEN: [],
             SocketTypes.NEW_MESSAGE: [],
             SocketTypes.ERROR: [] # todo добавить
         }
-
-        self.event_types_tuple = ('ORDER_PAYMENT', 'REVIEW_CREATED', 'ORDER_COMPLETED', 'ORDER_REFUND', 'REVIEW_UPDATED', 'REVIEW_DELETED')
 
     def on_message(self, ws: websocket.WebSocket, msg: str) -> None:
         """
@@ -33,7 +30,7 @@ class Socket:
         :return: None
         """
 
-        for func in self.other_handlers[SocketTypes.NEW_MESSAGE]:
+        for func in self.handlers[SocketTypes.NEW_MESSAGE]:
             try:
                 func(ws, msg)
             except Exception as e:
@@ -44,7 +41,9 @@ class Socket:
 
     def on_open(self, ws: websocket.WebSocket) -> None:
         """
-        Вызывается при открытии веб сокета
+        Вызывается при открытии веб сокета, и вызывает все хэндлеры привязанные к этому событию
+
+        Каждый хэндлер (функция), вызывается в отдельном потоке
 
         :param ws: Экземпляр класса WebSocket
 
@@ -56,17 +55,15 @@ class Socket:
         if self.online:
             ws.send('40/online,')
 
-        for func in self.other_handlers[SocketTypes.OPEN]:
+        for func in self.handlers[SocketTypes.OPEN]:
             try:
                 threading.Thread(target=func, args=[ws]).start()
             except Exception as e:
                 print(f"Произошла ошибка в хэндлере {func.__name__}: {e}")
 
-    def init(self, **kwargs) -> None:
+    def init(self) -> None:
         """
         Запускает веб сокет
-
-        :param kwargs: Аргументы, которые можно указать в классе WebSocketApp (Не используется на данный момент)
 
         :return: None
         """
@@ -76,8 +73,7 @@ class Socket:
             url,
             header={"cookie": f"session={self.s}"},
             on_message=self.on_message,
-            on_open=self.on_open,
-            **kwargs
+            on_open=self.on_open
         )
         ws.run_forever(reconnect=True)
 
