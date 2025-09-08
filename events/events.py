@@ -7,6 +7,7 @@ from StarvellAPI.models.order_event import OrderEvent
 
 from websocket import WebSocketApp
 import threading
+from typing import Callable
 
 class Runner:
     def __init__(self, acc: Account, always_online: bool = True):
@@ -44,9 +45,31 @@ class Runner:
             MessageTypes.REVIEW_CHANGED: OrderEvent
         }
 
-        self.add_handler(SocketTypes.NEW_MESSAGE)(self.msg_process)
+        self.add_handler(SocketTypes.NEW_MESSAGE, handler_filter=lambda msg, *args: msg.startswith('42/chats'))(self.msg_process)
 
-    def add_handler(self, handler_type: MessageTypes | SocketTypes):
+    @staticmethod
+    def handling(handler: list[Callable], *args, **kwargs) -> None:
+        """
+        Вызывает хэндлер с переданными аргументами
+
+        :param handler: Хэндлер который будет обрабатывать
+        :param args: Аргументы к этому хэндеру
+        :param kwargs: Именованные аргументы к этому хэндлеру
+
+        :return: None
+        """
+
+        if handler[1] is None:
+            threading.Thread(target=handler[0], args=args, kwargs=kwargs).start()
+        else:
+            if handler[1](*args, **kwargs):
+                threading.Thread(target=handler[0], args=args, kwargs=kwargs).start()
+
+    def add_handler(
+        self,
+        handler_type: MessageTypes | SocketTypes,
+        handler_filter: Callable | None = None,
+    ):
         """
         Добавляет хэндлер
 
@@ -57,16 +80,17 @@ class Runner:
         ``@add_handler(SocketTypes.NEW_MESSAGE)``
 
         :param handler_type: MessageTypes либо SocketTypes
+        :param handler_filter: Функция-фильтр, указывать необязательно, в случае если эта функция вернёт False, хэндлер не сработает
 
         :return: Callable
         """
 
         def decorator(func):
-            self.handlers[handler_type].append(func)
+            self.handlers[handler_type].append([func, handler_filter])
             return func
         return decorator
 
-    def msg_process(self, _: WebSocketApp, msg: str) -> None:
+    def msg_process(self, msg: str, _: WebSocketApp) -> None:
         """
         Вызывается при новом сообщении в вебсокете, и в случае если это новое событие на Starvell, определяет событие, и вызывает все привязанные к этому событию хэндлеры (функции)
 
@@ -78,19 +102,18 @@ class Runner:
         :return: None
         """
 
-        if msg.startswith('42/chats'):
-            try:
-                dict_with_data = identify_ws_starvell_message(msg)
-                data = self.event_types[dict_with_data['type']].model_validate(dict_with_data)
+        try:
+            dict_with_data = identify_ws_starvell_message(msg)
+            data = self.event_types[dict_with_data['type']].model_validate(dict_with_data)
 
-                for handler in self.handlers[dict_with_data['type']]:
-                    try:
-                        threading.Thread(target=handler, args=[data]).start()
-                    except Exception as e:
-                        print(f"Ошибка в хэндлере {handler.__name__}: {e}")
+            for handler in self.handlers[dict_with_data['type']]:
+                try:
+                    self.handling(handler, data)
+                except Exception as e:
+                    print(f"Ошибка в хэндлере {handler[0].__name__}: {e}")
 
-            except Exception as e:
-                print(f"Произошла ошибка в хэндлере сообщений вебсокета: {e}")
+        except Exception as e:
+            print(f"Произошла ошибка в хэндлере сообщений вебсокета: {e}")
 
     def on_open_process(self, ws: WebSocketApp) -> None:
         """
@@ -105,9 +128,9 @@ class Runner:
 
         for func in self.handlers[SocketTypes.OPEN]:
             try:
-                threading.Thread(target=func, args=[ws]).start()
+                self.handling(func, ws)
             except Exception as e:
-                print(f"Ошибка в хэндлере создания сокета {func.__name__}: {e}")
+                print(f"Ошибка в хэндлере создания сокета {func[0].__name__}: {e}")
 
     def on_new_message(self, ws: WebSocketApp, msg: str) -> None:
         """
@@ -123,6 +146,6 @@ class Runner:
 
         for func in self.handlers[SocketTypes.NEW_MESSAGE]:
             try:
-                threading.Thread(target=func, args=[ws, msg]).start()
+                self.handling(func, msg, ws)
             except Exception as e:
-                print(f"Ошибка в хэндлере нового сообщения в сокете {func.__name__}: {e}")
+                print(f"Ошибка в хэндлере нового сообщения в сокете {func[0].__name__}: {e}")
