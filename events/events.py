@@ -46,6 +46,7 @@ class Runner:
         }
 
         self.add_handler(SocketTypes.NEW_MESSAGE, handler_filter=lambda msg, *args: msg.startswith('42/chats'))(self.msg_process)
+        self.add_handler(SocketTypes.NEW_MESSAGE, handler_filter=lambda msg, ws: msg == "2")(lambda _, ws: ws.send('3'))
 
     @staticmethod
     def handling(handler: list[Callable], *args, **kwargs) -> None:

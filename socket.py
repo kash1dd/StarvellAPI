@@ -36,9 +36,6 @@ class Socket:
             except Exception as e:
                 print(f"Произошла ошибка в хэндлере вебсокета: {e}")
 
-        if msg == "2":
-            ws.send("3")
-
     def on_open(self, ws: websocket.WebSocket) -> None:
         """
         Вызывается при открытии веб сокета, и вызывает все хэндлеры привязанные к этому событию
