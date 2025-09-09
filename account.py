@@ -409,7 +409,7 @@ class Account:
         }
         response = self.request.post(url, body, raise_not_200=False)
 
-        if response.status_code != 200:
+        if response.status_code != 201:
             raise SendMessageError(response.json().get('message'))
 
         if read_chat:
