@@ -117,7 +117,7 @@ def format_payment_methods(method: PaymentTypes) -> int:
 
     return p_types.get(method)
 
-def identify_ws_starvell_message(data: str) -> dict:
+def identify_ws_starvell_message(data: str) -> dict | None:
     """
     Определяет тип нового сообщения со Starvell в чате, полученного с вебсокета
 
@@ -128,12 +128,16 @@ def identify_ws_starvell_message(data: str) -> dict:
 
     dict_with_data = json.loads(data[len('42/chats,["message_created",'):-1])
 
-    if dict_with_data['metadata'] is None or 'notificationType' not in dict_with_data['metadata']:
-        dict_with_data['type'] = MessageTypes.NEW_MESSAGE
-    elif dict_with_data['metadata']['notificationType'] in ('ORDER_PAYMENT', 'REVIEW_CREATED', 'ORDER_COMPLETED', 'ORDER_REFUND',
-                                  'REVIEW_UPDATED', 'REVIEW_DELETED'):
-        dict_with_data['type'] = format_message_types(dict_with_data['metadata']['notificationType'])
+    if dict_with_data["type"] == "DEFAULT":
 
-    dict_with_data['author'] = dict_with_data['author'] if 'author' in dict_with_data else dict_with_data['buyer']
+        if dict_with_data['metadata'] is None or 'notificationType' not in dict_with_data['metadata']:
+            dict_with_data['type'] = MessageTypes.NEW_MESSAGE
+        elif dict_with_data['metadata']['notificationType'] in ('ORDER_PAYMENT', 'REVIEW_CREATED', 'ORDER_COMPLETED', 'ORDER_REFUND',
+                                      'REVIEW_UPDATED', 'REVIEW_DELETED'):
+            dict_with_data['type'] = format_message_types(dict_with_data['metadata']['notificationType'])
 
-    return dict_with_data
+        dict_with_data['author'] = dict_with_data['author'] if 'author' in dict_with_data else dict_with_data['buyer']
+
+        return dict_with_data
+
+    return None

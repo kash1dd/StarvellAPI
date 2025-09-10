@@ -105,6 +105,10 @@ class Runner:
 
         try:
             dict_with_data = identify_ws_starvell_message(msg)
+
+            if not dict_with_data:
+                return
+
             data = self.event_types[dict_with_data['type']].model_validate(dict_with_data)
 
             for handler in self.handlers[dict_with_data['type']]:
