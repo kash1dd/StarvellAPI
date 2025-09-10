@@ -102,21 +102,22 @@ class Account:
         response = self.request.get(url=url, raise_not_200=True).json()
         return PreviewSettings.model_validate(response)
 
-    def get_sales(self, offset: int = 0, limit: int = 100000000) -> list[OrderInfo]:
+    def get_sales(self, offset: int = 0, limit: int = 100000000, filter_sales: dict = None) -> list[OrderInfo]:
         """
         Получает продажи
 
         :param offset: С какой продажи начинать? (По умолчанию с 0)
         :param limit: Количество продаж, которое надо получить (По умолчанию все)
+        :param filter_sales: Фильтр который можно установить в JSON запроса
 
         :return: Список с продажами
         """
 
+        default = {"userType": "seller"}
+
         url = "https://starvell.com/api/orders/list"
         body = {
-            "filter": {
-                "userType": "seller"
-            },
+            "filter": default if filter_sales is None else filter_sales,
             "with": {
                 "buyer": True
             },
