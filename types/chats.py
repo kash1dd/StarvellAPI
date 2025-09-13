@@ -6,7 +6,7 @@ class BaseConfig(BaseModel):
     class Config:
         validate_by_name = True
 
-class User(BaseConfig):
+class UserChatInfo(BaseConfig):
     id: int
     username: str
     avatar_id: Optional[str] = Field(alias="avatar")
@@ -28,6 +28,6 @@ class MessagePreview(BaseConfig):
 
 class ChatInfo(BaseConfig):
     id: str
-    users_info: list[User] = Field(alias="participants")
+    users_info: list[UserChatInfo] = Field(alias="participants")
     last_message: MessagePreview = Field(alias="lastMessage")
     unread_message_count: int = Field(alias="unreadMessageCount")

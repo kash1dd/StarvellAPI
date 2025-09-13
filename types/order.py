@@ -32,9 +32,9 @@ class Descriptions(BaseConfig):
 class OfferDetails(BaseConfig):
     game: Game
     images: list[str]
-    sub_category: SubCategory = Field(None, alias="subCategory")
+    sub_category: Optional[SubCategory] = Field(None, alias="subCategory")
     availability: int
-    delivery_time: DeliveryTime = Field(None, alias="deliveryTime")
+    delivery_time: Optional[DeliveryTime] = Field(None, alias="deliveryTime")
     descriptions: Descriptions
     is_auto_delivery: bool = Field(alias="instantDelivery")
 

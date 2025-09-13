@@ -19,8 +19,8 @@ class MiniOrder(BaseConfig):
     offer_details: OfferDetails = Field(alias="offerDetails")
 
 class MetaData(BaseConfig):
-    is_auto_response: bool = Field(None, alias="isAutoResponse")
-    notification_type: str = Field(None, alias="notificationType")
+    is_auto_response: Optional[bool] = Field(None, alias="isAutoResponse")
+    notification_type: Optional[str] = Field(None, alias="notificationType")
 
 class Message(BaseConfig):
     id: str

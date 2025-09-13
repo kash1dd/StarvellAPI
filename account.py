@@ -3,6 +3,7 @@
 
 import re
 from datetime import datetime
+from typing import Optional, Any
 
 from StarvellAPI.session import StarvellSession
 from StarvellAPI.common import *
@@ -14,7 +15,7 @@ class Account:
         self.username: str | None = None
         self.id: int | None = None
         self.build_id: str | None = None
-        self.session_id: str | None = session_id
+        self.session_id: str = session_id
         self.email: str | None = None
         self.created_date: datetime | None = None
         self.avatar_id: str | None = None
@@ -45,8 +46,11 @@ class Account:
         response = self.request.get(url=url, raise_not_200=True).text
 
         match = re.search(r'<script id="__NEXT_DATA__" type="application/json">(.*?)</script>', response, re.S)
-        data = json.loads(match.group(1))
-        self.build_id = data['buildId']
+        if match:
+            data = json.loads(match.group(1))
+            self.build_id = data['buildId']
+        else:
+            raise BuildIDNotFound
 
     def get_info(self) -> MyProfile:
         """
@@ -68,9 +72,9 @@ class Account:
         self.is_verified = response.user.is_kyc_verified
         self.rating = response.user.rating
         self.reviews_count = response.user.reviews_count
-        self.balance_hold = response.holded_balance / 100
-        self.balance = response.balance.rub_balance / 100
-        self.active_orders = response.active_orders
+        self.balance_hold = response.holded_balance / 100 if isinstance(response.holded_balance, int) else None
+        self.balance = response.balance.rub_balance / 100 if isinstance(response.balance.rub_balance, int) else None
+        self.active_orders = response.active_orders.sales
 
         return response
 
@@ -85,7 +89,8 @@ class Account:
         response = self.request.get(url=url, raise_not_200=True).json()
         return PreviewSettings.model_validate(response)
 
-    def get_sales(self, offset: int = 0, limit: int = 100000000, filter_sales: dict = None) -> list[OrderInfo]:
+
+    def get_sales(self, offset: int = 0, limit: int = 100000000, filter_sales: Optional[dict] = None) -> list[OrderInfo]:
         """
         Получает продажи
 
@@ -530,7 +535,8 @@ class Account:
         if response.status_code != 200:
             raise WithdrawError(response.get('message'))
 
-    def save_settings(self, is_offers_visible: bool, updated_parametr: dict[str, str | bool | int | None] = None) -> None:
+
+    def save_settings(self, is_offers_visible: bool, updated_parametr: Optional[dict[str, Any]] = None) -> None:
         """
         Сохраняет настройки аккаунта
 

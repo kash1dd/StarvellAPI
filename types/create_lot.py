@@ -8,9 +8,9 @@ class BaseConfig(BaseModel):
         validate_by_name = True
 
 class CreateLotFields(BaseModel):
-    attributes: List[Attributes] = None
+    attributes: Optional[List[Attributes]] = None
     availability: int
-    basicAttributes: list[Attributes] = None
+    basicAttributes: Optional[list[Attributes]] = None
     categoryId: int
     deliveryTime: Optional[DeliveryTime] = None
     descriptions: Descriptions

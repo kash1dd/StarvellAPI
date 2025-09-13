@@ -2,6 +2,7 @@ from StarvellAPI.common.enums import SocketTypes
 
 import websocket
 import threading
+from typing import Callable
 
 class Socket:
     def __init__(self, session_id: str, online: bool = True):
@@ -14,7 +15,7 @@ class Socket:
         self.online = online
         self.run_socket()
 
-        self.handlers = {
+        self.handlers: dict[SocketTypes, list[Callable]] = {
             SocketTypes.OPEN: [],
             SocketTypes.NEW_MESSAGE: [],
             SocketTypes.ERROR: [] # todo добавить

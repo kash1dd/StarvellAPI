@@ -20,21 +20,21 @@ class StarvellSession:
         :param body: JSON к запросу (Можно не указывать)
         :param raise_not_200: Возбуждать-ли исключение, если ответ не 200?
         
-        :return: requests.Response
+        :return: Response
         """
         
         if body:
-            response: requests.Response = getattr(self.request, method)(url, headers=self.request.headers, json=body,
+            resp: requests.Response = getattr(self.request, method)(url, headers=self.request.headers, json=body,
                                                      allow_redirects=False)
         else:
-            response: requests.Response = getattr(self.request, method)(url, headers=self.request.headers,
+            resp = getattr(self.request, method)(url, headers=self.request.headers,
                                                      allow_redirects=False)
 
-        if response.status_code == 403:
-            raise UnauthorizedError(response)
-        elif response.status_code not in (200, 201) and raise_not_200:
-            raise RequestFailedError(response)
-        return response
+        if resp.status_code == 403:
+            raise UnauthorizedError(resp)
+        elif resp.status_code not in (200, 201) and raise_not_200:
+            raise RequestFailedError(resp)
+        return resp
 
     def get(self, url: str, body: dict | None = None, raise_not_200: bool = True) -> requests.Response:
         """

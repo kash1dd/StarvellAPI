@@ -25,9 +25,9 @@ class MyProfileUser(BaseModel):
     has_password: bool = Field(alias="hasPassword")
 
 class Balance(BaseModel):
-    rub_balance: int = Field(None, alias="rubBalance")
-    usd_balance: int = Field(None, alias="usdBalance")
-    eur_balance: int = Field(None, alias="eurBalance")
+    rub_balance: Optional[int] = Field(None, alias="rubBalance")
+    usd_balance: Optional[int] = Field(None, alias="usdBalance")
+    eur_balance: Optional[int] = Field(None, alias="eurBalance")
 
 class OrdersCount(BaseModel):
     purchases: int = Field(alias="purchaseOrdersCount")

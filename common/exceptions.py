@@ -45,6 +45,14 @@ class UnauthorizedError(RequestFailedError):
     def __str__(self):
         return "Ошибка авторизации (возможно, введен неверный session_id?)."
 
+class BuildIDNotFound(Exception):
+    """
+    Возбуждается когда BuildID старвелла не найден
+    """
+
+    def __str__(self):
+        return "BuildID Не найден :/"
+
 class StarvellAPIError(Exception):
     def __init__(self, msg_from_response: str):
         self.msg = msg_from_response

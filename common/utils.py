@@ -7,6 +7,7 @@ from StarvellAPI.common.enums import (
     PaymentTypes)
 
 import json
+from typing import Optional
 
 def format_directions(direction: str) -> TransactionDirections:
     """
@@ -99,7 +100,7 @@ def format_message_types(msg_type: str) -> MessageTypes:
 
     return msg_types.get(msg_type, MessageTypes.UNKNOWN)
 
-def format_payment_methods(method: PaymentTypes) -> int:
+def format_payment_methods(method: PaymentTypes) -> Optional[int]:
     """
     Форматирует способы вывода Starvell (Enum), на ID со Starvell
 
