@@ -9,11 +9,9 @@
 ---
 ### _🤖 Пример использования_
 ```python
-from StarvellAPI.account import Account
-from StarvellAPI.events.events import Runner
-from StarvellAPI.common.enums import MessageTypes
-from StarvellAPI.models.new_msg import NewMessageEvent
-from StarvellAPI.models.order_event import OrderEvent
+from StarvellAPI import Account, Runner
+from StarvellAPI.types import NewMessageEvent
+from StarvellAPI.common import MessageTypes
 
 acc = Account("session_id") # создаём экземпляр аккаунта, указывая session_id полученный со starvell.com
 
