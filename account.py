@@ -1,5 +1,5 @@
 # todo
-# удалить StarvellAPI.models.profile_offers import OfferInfoShortCut
+# удалить StarvellAPI.types.profile_offers import OfferInfoShortCut
 
 from datetime import datetime
 import re
