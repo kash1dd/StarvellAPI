@@ -85,8 +85,8 @@ class Account:
         self.is_verified = response.user.is_kyc_verified
         self.rating = response.user.rating
         self.reviews_count = response.user.reviews_count
-        self.balance_hold = response.holded_balance
-        self.balance = response.balance.rub_balance
+        self.balance_hold = response.holded_balance / 100
+        self.balance = response.balance.rub_balance / 100
         self.active_orders = response.active_orders
 
         return response
