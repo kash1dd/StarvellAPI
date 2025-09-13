@@ -1,29 +1,12 @@
 # todo
 # удалить StarvellAPI.types.profile_offers import OfferInfoShortCut
 
-from datetime import datetime
 import re
-import json
+from datetime import datetime
 
 from StarvellAPI.session import StarvellSession
-
-from StarvellAPI.common.utils import format_directions, format_types, format_statuses, format_order_status, format_message_types, format_payment_methods
-from StarvellAPI.common.enums import MessageTypes, PaymentTypes
-from StarvellAPI.common.exceptions import WithdrawError, SendMessageError, ReadChatError, RefundError, EditReviewError, \
-    SendReviewError, BlockError, UnBlockError, CreateLotError, DeleteLotError, SaveSettingsError
-from StarvellAPI.models.order import OrderFullInfo
-from StarvellAPI.models.preview_order import OrderInfo
-from StarvellAPI.models.review import ReviewInfo
-from StarvellAPI.models.transaction import TransactionInfo
-from StarvellAPI.models.chats import ChatInfo
-from StarvellAPI.models.chat import Message
-from StarvellAPI.models.offers_list import OfferTableInfo
-from StarvellAPI.models.offer_fields import LotFields
-from StarvellAPI.models.create_lot import CreateLotFields
-from StarvellAPI.models.user import User
-from StarvellAPI.models.settings import PreviewSettings
-from StarvellAPI.models.profile import Profile
-from StarvellAPI.models.blocklist import BlockListedUser
+from StarvellAPI.common import *
+from StarvellAPI.types import *
 
 class Account:
     def __init__(self, session_id: str):
@@ -65,7 +48,7 @@ class Account:
         data = json.loads(match.group(1))
         self.build_id = data['buildId']
 
-    def get_info(self) -> Profile:
+    def get_info(self) -> MyProfile:
         """
         Получает профиль, пока-что не реализована в мейне
 
@@ -73,7 +56,7 @@ class Account:
         """
 
         url = "https://starvell.com/api/users-profile"
-        response = Profile.model_validate(self.request.get(url=url, raise_not_200=True).json())
+        response = MyProfile.model_validate(self.request.get(url=url, raise_not_200=True).json())
 
         self.username = response.user.username
         self.id = response.user.id

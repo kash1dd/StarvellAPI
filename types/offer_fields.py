@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import Optional, List
 
-from StarvellAPI.models.order import Descriptions, DeliveryTime, SubCategory
+from .order import Descriptions, DeliveryTime, SubCategory
 
 class BaseConfig(BaseModel):
     class Config:

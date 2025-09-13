@@ -1,8 +1,7 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing import List, Optional
 
-from StarvellAPI.models.offer_fields import Attributes
-from StarvellAPI.models.order import DeliveryTime, Descriptions
+from .offer_fields import Attributes, DeliveryTime, Descriptions
 
 class BaseConfig(BaseModel):
     class Config:

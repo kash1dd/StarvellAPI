@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Optional
 
 from StarvellAPI.common.enums import MessageTypes
-from StarvellAPI.models.order import OfferDetails
+from .order import OfferDetails
 
 class BaseConfig(BaseModel):
     class Config:

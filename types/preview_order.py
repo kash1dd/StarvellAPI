@@ -2,24 +2,19 @@ from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import Optional
 
-from StarvellAPI.models.order import SubCategory, DeliveryTime, Descriptions
+from .order import SubCategory, DeliveryTime, Descriptions, Game
 from StarvellAPI.common.enums import OrderStatuses
 
 class BaseConfig(BaseModel):
     class Config:
         validate_by_name = True
 
-class Game(BaseConfig):
-    id: int
-    name: str
-    slug: str
-
 class Category(BaseConfig):
     id: int
     name: str
     slug: str
 
-class OfferDetails(BaseConfig):
+class OfferDetailsPreview(BaseConfig):
     game: Game
     images: list[str]
     category: Category
@@ -30,7 +25,7 @@ class OfferDetails(BaseConfig):
     descriptions: Descriptions
     is_auto_delivery: bool = Field(alias="instantDelivery")
 
-class User(BaseConfig):
+class UserPreviewOrder(BaseConfig):
     id: int
     username: str
     avatar: Optional[str]
@@ -50,11 +45,11 @@ class OrderInfo(BaseConfig):
     base_price: int = Field(alias="basePrice")
     total_price: int = Field(alias="totalPrice")
     offer_id: Optional[int] = Field(alias="offerId")
-    offer_details: OfferDetails = Field(alias="offerDetails")
+    offer_details: OfferDetailsPreview = Field(alias="offerDetails")
     order_args: list[str] = Field(alias="orderArgs")
     review_visible_after_refund: bool = Field(alias="reviewVisibleAfterRefund")
     completed_at: Optional[datetime] = Field(alias="completedAt")
     refunded_at: Optional[datetime] = Field(alias="refundedAt")
     created_at: Optional[datetime] = Field(alias="createdAt")
     updated_at: Optional[datetime] = Field(alias="updatedAt")
-    buyer: User = Field(alias="user")
+    buyer: UserPreviewOrder = Field(alias="user")

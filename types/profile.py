@@ -6,7 +6,7 @@ class BaseConfig(BaseModel):
     class Config:
         validate_by_name = True
 
-class User(BaseModel):
+class MyProfileUser(BaseModel):
     id: int
     username: str
     email: str
@@ -33,8 +33,8 @@ class OrdersCount(BaseModel):
     purchases: int = Field(alias="purchaseOrdersCount")
     sales: int = Field(alias="salesOrdersCount")
 
-class Profile(BaseModel):
-    user: User
+class MyProfile(BaseModel):
+    user: MyProfileUser
     is_imitated: bool = Field(alias="isImitated")
     is_offers_hide: None = Field(alias="offersHide")
     offers_in_hide: list[str | int] = Field(alias="offersHides")

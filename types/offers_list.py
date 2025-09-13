@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 from typing import Optional
 
-from StarvellAPI.models.order import Descriptions, UserInfoExtendedLow, SubCategory
+from StarvellAPI.types.order import Descriptions, UserInfoExtendedLow, SubCategory
 
 class BaseConfig(BaseModel):
     class Config:

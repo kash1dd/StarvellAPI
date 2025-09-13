@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-from StarvellAPI.models.chat import Author, MiniOrder
+from .chat import Author, MiniOrder
 
 class BaseConfig(BaseModel):
     class Config:

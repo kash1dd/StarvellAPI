@@ -14,7 +14,7 @@ class User(BaseConfig):
     is_operator: bool = Field(alias="isOperator")
     last_online_at: datetime = Field(alias="lastOnlineAt")
 
-class Message(BaseConfig):
+class MessagePreview(BaseConfig):
     id: str
     text: str = Field(alias="content")
     created_at: datetime = Field(alias="createdAt")
@@ -29,5 +29,5 @@ class Message(BaseConfig):
 class ChatInfo(BaseConfig):
     id: str
     users_info: list[User] = Field(alias="participants")
-    last_message: Message = Field(alias="lastMessage")
+    last_message: MessagePreview = Field(alias="lastMessage")
     unread_message_count: int = Field(alias="unreadMessageCount")

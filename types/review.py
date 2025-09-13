@@ -2,7 +2,7 @@ from typing import Optional
 from pydantic import BaseModel, Field
 from datetime import datetime
 
-from StarvellAPI.models.preview_order import OfferDetails
+from .order import OfferDetails
 
 class BaseConfig(BaseModel):
     class Config:

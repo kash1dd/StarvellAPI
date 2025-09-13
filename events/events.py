@@ -2,8 +2,7 @@ from StarvellAPI.account import Account
 from StarvellAPI.socket import Socket
 from StarvellAPI.common.enums import MessageTypes, SocketTypes
 from StarvellAPI.common.utils import identify_ws_starvell_message
-from StarvellAPI.models.new_msg import NewMessageEvent
-from StarvellAPI.models.order_event import OrderEvent
+from StarvellAPI.types import *
 
 from websocket import WebSocketApp
 import threading
