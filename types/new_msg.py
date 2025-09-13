@@ -14,5 +14,5 @@ class NewMessageEvent(BaseModel):
     metadata: Optional[MetaData]
     images: list[str]
     chat_id: str = Field(alias="chatId")
-    author: Optional[Author]
+    author: Author
     type: MessageTypes

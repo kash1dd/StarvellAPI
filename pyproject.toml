@@ -22,7 +22,7 @@ skip_gitignore = true
 extend_skip = ["__pycache__"]
 
 [tool.ruff]
-src = ["app"]
+src = ["/"]
 line-length = 100
 exclude = [
     ".git",
