@@ -1,35 +1,35 @@
-# todo
-# удалить StarvellAPI.types.profile_offers import OfferInfoShortCut
+# TODO удалить StarvellAPI.types.profile_offers import OfferInfoShortCut
 
 import re
 import json
 from datetime import datetime
-from typing import Optional, Any, Union
+from typing import Optional, Any
 
-from StarvellAPI.session import StarvellSession
-from StarvellAPI.common import NotFoundJSON, SendReviewError, SendMessageError, RefundError, BlockError, EditReviewError, UnBlockError, \
+from .session import StarvellSession
+from .common import NotFoundJSONError, SendReviewError, SendMessageError, RefundError, BlockError, EditReviewError, UnBlockError, \
     WithdrawError, CreateLotError, ReadChatError, DeleteLotError, SaveSettingsError, format_order_status, format_types, format_message_types, \
     format_payment_methods, format_statuses, format_directions, MessageTypes, PaymentTypes
-from StarvellAPI.types import *
+from .types import *
 
 class Account:
-    def __init__(self, session_id: str):
+    def __init__(self, session_id: str) -> None:
         # инфа об аккаунте
-        self.username: Optional[str] = None
-        self.id: Optional[int] = None
-        self.build_id: Optional[str] = None
+
+        self.username: str | None = None
+        self.id: int | None = None
+        self.build_id: str | None = None
         self.session_id: str = session_id
-        self.email: Optional[str] = None
-        self.created_date: Optional[datetime] = None
-        self.avatar_id: Optional[str] = None
-        self.banner_id: Optional[str] = None
-        self.description: Optional[str] = None
-        self.is_verified: Optional[bool] = None
-        self.rating: Optional[Union[int, float]] = None
-        self.reviews_count: Optional[int] = None
-        self.balance_hold: Optional[float] = None
-        self.balance: Optional[float] = None
-        self.active_orders: Optional[int] = None
+        self.email: str | None = None
+        self.created_date: datetime | None = None
+        self.avatar_id: str | None = None
+        self.banner_id: str | None = None
+        self.description: str | None = None
+        self.is_verified: bool | None = None
+        self.rating: int | float | None = None
+        self.reviews_count: int | None = None
+        self.balance_hold: float | None = None
+        self.balance: float | None = None
+        self.active_orders: int | None = None
 
         # прочее
         self.request = StarvellSession(session_id)
@@ -46,19 +46,19 @@ class Account:
         """
 
         url = "https://starvell.com"
-        response = self.request.get(url=url, raise_not_200=True).text
+        response: str = self.request.get(url=url, raise_not_200=True).text
 
         match = re.search(r'<script id="__NEXT_DATA__" type="application/json">(.*?)</script>', response, re.S)
         if match:
             data = json.loads(match.group(1))
-            self.build_id = data['buildId']
+            self.build_id = data["buildId"]
         else:
-           raise NotFoundJSON
+           raise NotFoundJSONError
 
     def get_info(self) -> MyProfile:
         """
-        Получает профиль, пока-что не реализована в мейне
-
+        Получает профиль, пока-что не реализована в мейне.
+        
         :return: Возвращает модель Profile
         """
 
@@ -75,15 +75,16 @@ class Account:
         self.is_verified = response.user.is_kyc_verified
         self.rating = response.user.rating
         self.reviews_count = response.user.reviews_count
-        self.balance_hold = response.holded_balance / 100 if isinstance(response.holded_balance, int) else None
-        self.balance = response.balance.rub_balance / 100 if isinstance(response.balance.rub_balance, int) else None
+        self.balance_hold = response.holded_balance / 100
+        self.balance = response.balance.rub_balance / 100 if \
+        isinstance(response.balance.rub_balance, int) else None
         self.active_orders = response.active_orders.sales
 
         return response
 
     def get_settings(self) -> PreviewSettings:
         """
-        Получает настройки аккаунта
+        Получает настройки аккаунта.
 
         :return: Настройки пользователя
         """
@@ -93,9 +94,9 @@ class Account:
         return PreviewSettings.model_validate(response)
 
 
-    def get_sales(self, offset: int = 0, limit: int = 100000000, filter_sales: Optional[dict] = None) -> list[OrderInfo]:
+    def get_sales(self, offset: int = 0, limit: int = 100000000, filter_sales: dict[str, Any] | None = None) -> list[OrderInfo]:
         """
-        Получает продажи
+        Получает продажи.
 
         :param offset: С какой продажи начинать? (По умолчанию с 0)
         :param limit: Количество продаж, которое надо получить (По умолчанию все)
@@ -104,7 +105,7 @@ class Account:
         :return: Список с продажами
         """
 
-        default = {"userType": "seller"}
+        default: dict[str, str] = {"userType": "seller"}
 
         url = "https://starvell.com/api/orders/list"
         body = {
@@ -133,7 +134,7 @@ class Account:
 
     def get_reviews(self, offset: int = 0, limit: int = 100000000) -> list[ReviewInfo]:
         """
-        Получает отзывы профиля
+        Получает отзывы профиля.
 
         :param offset: С какого отзыва начинать? (По умолчанию с 0)
         :param limit: Количество отзывов, которое надо получить (По умолчанию все)
@@ -157,7 +158,7 @@ class Account:
 
     def get_transactions(self, offset: int = 0, limit: int = 100000000) -> list[TransactionInfo]:
         """
-        Получает транзакции
+        Получает транзакции.
 
         :param offset: С какой транзакции начинать? (По умолчанию с 0)
         :param limit: Количество транзакций, которое надо получить (По умолчанию все)
@@ -187,7 +188,7 @@ class Account:
 
     def get_order(self, order_id: str) -> OrderFullInfo:
         """
-        Получает полную информацию об заказе
+        Получает полную информацию об заказе.
 
         :param order_id: ID Заказа
 
@@ -205,7 +206,7 @@ class Account:
 
     def get_chats(self, offset: int, limit: int) -> list[ChatInfo]:
         """
-        Получает чаты
+        Получает чаты.
 
         :param offset: С какого чата начинать
         :param limit: Количество чатов, которое надо получить
@@ -224,7 +225,7 @@ class Account:
 
     def get_chat(self, chat_id: str, limit: int) -> list[Message]:
         """
-        Получает историю сообщений чата
+        Получает историю сообщений чата.
 
         :param chat_id: ID Чата
         :param limit: Количество сообщений, которое надо получить
@@ -260,7 +261,7 @@ class Account:
                           limit: int = 100000000,
                           only_online: bool = False) -> list[OfferTableInfo]:
         """
-        Получает лоты категории
+        Получает лоты категории.
 
         :param category_id: ID Категории
         :param offset: С какого лота начинать (По умолчанию с 0)
@@ -289,7 +290,7 @@ class Account:
 
     def get_my_category_lots(self, game: str, game_category: str) -> list[LotFields]:
         """
-        Получает свои лоты категории
+        Получает свои лоты категории.
 
         :param game: Название категории (slug)
         :param game_category: Категория в игре (slug)
@@ -304,7 +305,7 @@ class Account:
 
     def get_lot_fields(self, lot_id: int) -> LotFields:
         """
-        Получает все поля лота
+        Получает все поля лота.
 
         :param lot_id: ID Лота
 
@@ -318,7 +319,7 @@ class Account:
 
     def get_black_list(self) -> list[BlockListedUser]:
         """
-        Получает список заблокированных пользователей на Starvell
+        Получает список заблокированных пользователей на Starvell.
 
         :return: list[BlockListedUser]
         """
@@ -330,7 +331,7 @@ class Account:
 
     def get_user(self, user_id: str | int) -> User:
         """
-        Получает информацию об профиле пользователя
+        Получает информацию об профиле пользователя.
 
         :param user_id: ID Пользователя
 
@@ -344,7 +345,7 @@ class Account:
 
     def create_lot(self, fields: LotFields) -> LotFields:
         """
-        Создаёт лот на Starvell
+        Создаёт лот на Starvell.
 
         :param fields: LotFields
 
@@ -367,7 +368,7 @@ class Account:
 
     def delete_lot(self, lot_id: int) -> None:
         """
-        Удаляет лот со Starvell
+        Удаляет лот со Starvell.
 
         :param lot_id: ID Лота
 
@@ -384,7 +385,7 @@ class Account:
 
     def send_message(self, chat_id: str, content: str, read_chat: bool = True) -> None:
         """
-        Отправляет сообщение в чат
+        Отправляет сообщение в чат.
 
         :param chat_id: ID Чата
         :param content: Текст, который нужно отправить
@@ -409,7 +410,7 @@ class Account:
 
     def read_chat(self, chat_id: str) -> None:
         """
-        Помечает чат прочитанным
+        Помечает чат прочитанным.
 
         :param chat_id: ID Чата
 
@@ -429,7 +430,7 @@ class Account:
 
     def save_lot(self, lot: LotFields) -> None:
         """
-        Сохраняет лот с переданными филдами
+        Сохраняет лот с переданными филдами.
 
         :param lot: Поля лота (Класс LotFields)
 
@@ -450,7 +451,7 @@ class Account:
 
     def send_review(self, review_id: str, content: str) -> None:
         """
-        Отправляет ответ на отзыв только в том случае, если на отзыв ещё нет ответа
+        Отправляет ответ на отзыв только в том случае, если на отзыв ещё нет ответа.
 
         :param review_id: ID Отзыва, на который нужно ответить
         :param content: Текст ответа
@@ -471,10 +472,10 @@ class Account:
 
     def edit_review(self, review_id: str, content: str) -> None:
         """
-        Редактирует ответ на отзыв
-
+        Редактирует ответ на отзыв.
+        
         Именно редактирует, если на отзыв ещё нет ответа, может возникнуть ошибка
-
+        
         :param review_id: ID Отзыва, на который нужно изменить ответ
         :param content: Текст ответа
 
@@ -494,7 +495,7 @@ class Account:
 
     def refund(self, order_id: str) -> None:
         """
-        Оформляет возврат в заказе
+        Оформляет возврат в заказе.
 
         :param order_id: ID Заказа
 
@@ -514,7 +515,7 @@ class Account:
 
     def withdraw(self, payment_system: PaymentTypes, requisite: str, amount: float, bank=None) -> None:
         """
-        Создаёт заявку на вывод средств
+        Создаёт заявку на вывод средств.
 
         :param payment_system: Тип платёжной системы для вывода
         :param requisite: Реквизиты для вывода (Номер карты / Номер СБП / Адрес крипты)
@@ -541,7 +542,7 @@ class Account:
 
     def save_settings(self, is_offers_visible: bool, updated_parametr: Optional[dict[str, Any]] = None) -> None:
         """
-        Сохраняет настройки аккаунта
+        Сохраняет настройки аккаунта.
 
         :param is_offers_visible: Отображать-ли лоты в профиле?
         :param updated_parametr: Обновлённый параметр (словарь (обновлённый параметр: значение)), если требовалось изменение только видимости лотов, то можно не указывать
@@ -551,7 +552,7 @@ class Account:
         """
 
         url = "https://starvell.com/api/user/settings"
-        body = {
+        body: dict[str, str | bool | None] = {
             "avatar": self.avatar_id,
             "email": self.email,
             "isOffersVisibleOnlyInProfile": is_offers_visible,
@@ -567,7 +568,7 @@ class Account:
 
     def block(self, user_id: int) -> None:
         """
-        Отправляет пользователя в ЧС на Starvell
+        Отправляет пользователя в ЧС на Starvell.
 
         :param user_id: ID Пользователя, которого нужно заблокировать
 
@@ -576,7 +577,7 @@ class Account:
         """
 
         url = "https://starvell.com/api/blacklisted-users/block"
-        body = {
+        body: dict[str, int] = {
             "targetId": user_id
         }
 
@@ -587,7 +588,7 @@ class Account:
 
     def unblock(self, user_id: int) -> None:
         """
-        Удаляет пользователя из ЧС на Starvell
+        Удаляет пользователя из ЧС на Starvell.
 
         :param user_id: ID Пользователя, которого нужно удалить
 
@@ -596,7 +597,7 @@ class Account:
         """
 
         url = "https://starvell.com/api/blacklisted-users/unblock"
-        body = {
+        body: dict[str, int] = {
             "targetId": user_id
         }
 
