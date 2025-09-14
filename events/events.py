@@ -1,7 +1,6 @@
 from StarvellAPI.account import Account
 from StarvellAPI.socket import Socket
-from StarvellAPI.common.enums import MessageTypes, SocketTypes
-from StarvellAPI.common.utils import identify_ws_starvell_message
+from StarvellAPI.common import MessageTypes, SocketTypes, identify_ws_starvell_message, HandlerError
 from StarvellAPI.types import *
 
 from websocket import WebSocketApp
@@ -117,7 +116,7 @@ class Runner:
                     print(f"Ошибка в хэндлере {handler[0].__name__}: {e}")
 
         except Exception as e:
-            print(f"Произошла ошибка в хэндлере сообщений вебсокета: {e}")
+            raise HandlerError(e)
 
     def on_open_process(self, ws: WebSocketApp) -> None:
         """
@@ -134,7 +133,7 @@ class Runner:
             try:
                 self.handling(func, ws)
             except Exception as e:
-                print(f"Ошибка в хэндлере создания сокета {func[0].__name__}: {e}")
+                raise HandlerError(e)
 
     def on_new_message(self, ws: WebSocketApp, msg: str) -> None:
         """
@@ -152,4 +151,4 @@ class Runner:
             try:
                 self.handling(func, msg, ws)
             except Exception as e:
-                print(f"Ошибка в хэндлере нового сообщения в сокете {func[0].__name__}: {e}")
+                raise HandlerError(e)

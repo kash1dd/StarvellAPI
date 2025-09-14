@@ -1,4 +1,4 @@
-from StarvellAPI.common.enums import SocketTypes
+from StarvellAPI.common import SocketTypes, HandlerError
 
 import websocket
 import threading
@@ -35,7 +35,7 @@ class Socket:
             try:
                 func(ws, msg)
             except Exception as e:
-                print(f"Произошла ошибка в хэндлере вебсокета: {e}")
+                raise HandlerError(e)
 
     def on_open(self, ws: websocket.WebSocket) -> None:
         """
@@ -57,7 +57,7 @@ class Socket:
             try:
                 threading.Thread(target=func, args=[ws]).start()
             except Exception as e:
-                print(f"Произошла ошибка в хэндлере {func.__name__}: {e}")
+                raise HandlerError(e)
 
     def init(self) -> None:
         """

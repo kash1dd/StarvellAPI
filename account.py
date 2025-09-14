@@ -2,31 +2,34 @@
 # удалить StarvellAPI.types.profile_offers import OfferInfoShortCut
 
 import re
+import json
 from datetime import datetime
-from typing import Optional, Any
+from typing import Optional, Any, Union
 
 from StarvellAPI.session import StarvellSession
-from StarvellAPI.common import *
+from StarvellAPI.common import NotFoundJSON, SendReviewError, SendMessageError, RefundError, BlockError, EditReviewError, UnBlockError, \
+    WithdrawError, CreateLotError, ReadChatError, DeleteLotError, SaveSettingsError, format_order_status, format_types, format_message_types, \
+    format_payment_methods, format_statuses, format_directions, MessageTypes, PaymentTypes
 from StarvellAPI.types import *
 
 class Account:
     def __init__(self, session_id: str):
         # инфа об аккаунте
-        self.username: str | None = None
-        self.id: int | None = None
-        self.build_id: str | None = None
+        self.username: Optional[str] = None
+        self.id: Optional[int] = None
+        self.build_id: Optional[str] = None
         self.session_id: str = session_id
-        self.email: str | None = None
-        self.created_date: datetime | None = None
-        self.avatar_id: str | None = None
-        self.banner_id: str | None = None
-        self.description: str | None = None
-        self.is_verified: bool | None = None
-        self.rating: int | float | None = None
-        self.reviews_count: int | None = None
-        self.balance_hold: float | None = None
-        self.balance: float | None = None
-        self.active_orders: int | None = None
+        self.email: Optional[str] = None
+        self.created_date: Optional[datetime] = None
+        self.avatar_id: Optional[str] = None
+        self.banner_id: Optional[str] = None
+        self.description: Optional[str] = None
+        self.is_verified: Optional[bool] = None
+        self.rating: Optional[Union[int, float]] = None
+        self.reviews_count: Optional[int] = None
+        self.balance_hold: Optional[float] = None
+        self.balance: Optional[float] = None
+        self.active_orders: Optional[int] = None
 
         # прочее
         self.request = StarvellSession(session_id)
@@ -50,7 +53,7 @@ class Account:
             data = json.loads(match.group(1))
             self.build_id = data['buildId']
         else:
-            raise BuildIDNotFound
+           raise NotFoundJSON
 
     def get_info(self) -> MyProfile:
         """
