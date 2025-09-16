@@ -15,21 +15,21 @@ class Account:
     def __init__(self, session_id: str) -> None:
         # инфа об аккаунте
 
-        self.username: str | None = None
-        self.id: int | None = None
-        self.build_id: str | None = None
+        self.username: str
+        self.id: int
+        self.build_id: str
         self.session_id: str = session_id
-        self.email: str | None = None
-        self.created_date: datetime | None = None
-        self.avatar_id: str | None = None
-        self.banner_id: str | None = None
-        self.description: str | None = None
-        self.is_verified: bool | None = None
-        self.rating: int | float | None = None
-        self.reviews_count: int | None = None
-        self.balance_hold: float | None = None
-        self.balance: float | None = None
-        self.active_orders: int | None = None
+        self.email: str
+        self.created_date: datetime
+        self.avatar_id: str
+        self.banner_id: str
+        self.description: str
+        self.is_verified: bool
+        self.rating: int | float
+        self.reviews_count: int
+        self.balance_hold: float
+        self.balance: float
+        self.active_orders: int
 
         # прочее
         self.request = StarvellSession(session_id)
@@ -38,7 +38,7 @@ class Account:
         self.get_info()
         self.get_build()
 
-    def get_build(self) -> None:
+    def get_build(self):
         """
         Получает BUILD ID для некоторых запросов
 
@@ -321,7 +321,7 @@ class Account:
         """
         Получает список заблокированных пользователей на Starvell.
 
-        :return: list[BlockListedUser]
+        :return: List[BlockListedUser]
         """
 
         url = "https://starvell.com/api/blacklisted-users/list"
@@ -366,7 +366,7 @@ class Account:
 
         return LotFields.model_validate(response.json())
 
-    def delete_lot(self, lot_id: int) -> None:
+    def delete_lot(self, lot_id: int):
         """
         Удаляет лот со Starvell.
 
@@ -383,7 +383,7 @@ class Account:
         if response.status_code != 200:
             raise DeleteLotError(js.get('message'))
 
-    def send_message(self, chat_id: str, content: str, read_chat: bool = True) -> None:
+    def send_message(self, chat_id: str, content: str, read_chat: bool = True):
         """
         Отправляет сообщение в чат.
 
@@ -470,7 +470,7 @@ class Account:
         if response.status_code != 200:
             raise SendReviewError(response.json().get('message'))
 
-    def edit_review(self, review_id: str, content: str) -> None:
+    def edit_review(self, review_id: str, content: str):
         """
         Редактирует ответ на отзыв.
         
@@ -493,7 +493,7 @@ class Account:
         if response.status_code != 200:
             raise EditReviewError(response.json().get('message'))
 
-    def refund(self, order_id: str) -> None:
+    def refund(self, order_id: str):
         """
         Оформляет возврат в заказе.
 
@@ -513,7 +513,7 @@ class Account:
         if response.status_code != 200:
             raise RefundError(response.json().get('message'))
 
-    def withdraw(self, payment_system: PaymentTypes, requisite: str, amount: float, bank=None) -> None:
+    def withdraw(self, payment_system: PaymentTypes, requisite: str, amount: float, bank=None):
         """
         Создаёт заявку на вывод средств.
 
@@ -540,7 +540,7 @@ class Account:
             raise WithdrawError(response.get('message'))
 
 
-    def save_settings(self, is_offers_visible: bool, updated_parametr: Optional[dict[str, Any]] = None) -> None:
+    def save_settings(self, is_offers_visible: bool, updated_parametr: Optional[dict[str, Any]] = None):
         """
         Сохраняет настройки аккаунта.
 
@@ -566,7 +566,7 @@ class Account:
         if response.status_code != 200:
             raise SaveSettingsError(response.json().get('message'))
 
-    def block(self, user_id: int) -> None:
+    def block(self, user_id: int):
         """
         Отправляет пользователя в ЧС на Starvell.
 
@@ -586,7 +586,7 @@ class Account:
         if response.status_code != 200:
             raise BlockError(response.json().get('message'))
 
-    def unblock(self, user_id: int) -> None:
+    def unblock(self, user_id: int):
         """
         Удаляет пользователя из ЧС на Starvell.
 
