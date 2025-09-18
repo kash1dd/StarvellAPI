@@ -4,14 +4,15 @@ from StarvellAPI.common import MessageTypes, SocketTypes, identify_ws_starvell_m
 from StarvellAPI.types import *
 
 from websocket import WebSocketApp
-import threading
 from typing import Callable
+
+import threading
 
 class Runner:
     def __init__(self, acc: Account, always_online: bool = True):
         """
         :param acc: Экземпляр класса Account
-        :param always_online: Поддерживать-ли постоянный онлайн? (True - при использовании API, аккаунт всегда будет в онлайне)
+        :param always_online: Поддерживать-ли постоянный онлайн? (True - при использовании API, аккаунт всегда будет онлайн)
         """
 
         self.acc: Account = acc
@@ -91,12 +92,12 @@ class Runner:
 
     def msg_process(self, msg: str, _: WebSocketApp) -> None:
         """
-        Вызывается при новом сообщении в вебсокете, и в случае если это новое событие на Starvell, определяет событие, и вызывает все привязанные к этому событию хэндлеры (функции)
+        Вызывается при новом сообщении в веб-сокете, и в случае если это новое событие на Starvell, определяет событие, и вызывает все привязанные к этому событию хэндлеры (функции)
 
         Каждый хэндлер (функция), вызывается в отдельном потоке
 
         :param _: WebSocketApp
-        :param msg: Сообщение с вебсокета
+        :param msg: Сообщение с веб-сокета
 
         :return: None
         """
@@ -116,11 +117,11 @@ class Runner:
                     print(f"Ошибка в хэндлере {handler[0].__name__}: {e}")
 
         except Exception as e:
-            raise HandlerError(e)
+            raise HandlerError(str(e))
 
     def on_open_process(self, ws: WebSocketApp) -> None:
         """
-        Вызывается при открытии вебсокета, и вызывает все привязанные к этому событию хэндлере
+        Вызывается при открытии веб-сокета, и вызывает все привязанные к этому событию хэндлере
 
         Каждый хэндлер (функция), вызывается в отдельном потоке
 
@@ -133,16 +134,16 @@ class Runner:
             try:
                 self.handling(func, ws)
             except Exception as e:
-                raise HandlerError(e)
+                raise HandlerError(str(e))
 
     def on_new_message(self, ws: WebSocketApp, msg: str) -> None:
         """
-        Вызывается при новом сообщении в вебсокете, и вызывает все привязанные к этому событию хэндлеры (Не путать с новым сообщением на Starvell)
+        Вызывается при новом сообщении в веб-сокете, и вызывает все привязанные к этому событию хэндлеры (Не путать с новым сообщением на Starvell)
 
         Каждый хэндлер (функция), вызывается в отдельном потоке
 
         :param ws: WebSocketApp
-        :param msg: Сообщение вебсокета (Строка)
+        :param msg: Сообщение веб-сокета (Строка)
 
         :return: None
         """
@@ -151,4 +152,4 @@ class Runner:
             try:
                 self.handling(func, msg, ws)
             except Exception as e:
-                raise HandlerError(e)
+                raise HandlerError(str(e))

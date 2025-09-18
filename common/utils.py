@@ -120,9 +120,9 @@ def format_payment_methods(method: PaymentTypes) -> Optional[int]:
 
 def identify_ws_starvell_message(data: str) -> dict | None:
     """
-    Определяет тип нового сообщения со Starvell в чате, полученного с вебсокета
+    Определяет тип нового сообщения со Starvell в чате, полученного с веб-сокета
 
-    :param data: Сообщение с вебсокета (Должно быть именно новым сообщением)
+    :param data: Сообщение с веб-сокета (Должно быть именно новым сообщением)
 
     :return: Отформатированный словарь
     """

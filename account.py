@@ -1,35 +1,36 @@
 # TODO удалить StarvellAPI.types.profile_offers import OfferInfoShortCut
 
-import re
-import json
-from datetime import datetime
-from typing import Optional, Any
-
 from .session import StarvellSession
 from .common import NotFoundJSONError, SendReviewError, SendMessageError, RefundError, BlockError, EditReviewError, UnBlockError, \
     WithdrawError, CreateLotError, ReadChatError, DeleteLotError, SaveSettingsError, format_order_status, format_types, format_message_types, \
     format_payment_methods, format_statuses, format_directions, MessageTypes, PaymentTypes
 from .types import *
 
+from datetime import datetime
+from typing import Optional, Any
+
+import re
+import json
+
 class Account:
     def __init__(self, session_id: str) -> None:
-        # инфа об аккаунте
+        # информация об аккаунте
 
-        self.username: str
-        self.id: int
-        self.build_id: str
+        self.username: str | None = None
+        self.id: int | None = None
+        self.build_id: str | None = None
         self.session_id: str = session_id
-        self.email: str
-        self.created_date: datetime
-        self.avatar_id: str
-        self.banner_id: str
-        self.description: str
-        self.is_verified: bool
-        self.rating: int | float
-        self.reviews_count: int
-        self.balance_hold: float
-        self.balance: float
-        self.active_orders: int
+        self.email: str | None = None
+        self.created_date: datetime | None = None
+        self.avatar_id: str | None = None
+        self.banner_id: str | None = None
+        self.description: str | None = None
+        self.is_verified: bool | None = None
+        self.rating: int | float | None = None
+        self.reviews_count: int | None = None
+        self.balance_hold: float | None = None
+        self.balance: float | None = None
+        self.active_orders: int | None = None
 
         # прочее
         self.request = StarvellSession(session_id)
@@ -57,7 +58,7 @@ class Account:
 
     def get_info(self) -> MyProfile:
         """
-        Получает профиль, пока-что не реализована в мейне.
+        Получает информацию об аккаунте.
         
         :return: Возвращает модель Profile
         """
@@ -99,7 +100,7 @@ class Account:
         Получает продажи.
 
         :param offset: С какой продажи начинать? (По умолчанию с 0)
-        :param limit: Количество продаж, которое надо получить (По умолчанию все)
+        :param limit: Количество продаж
         :param filter_sales: Фильтр который можно установить в JSON запроса
 
         :return: Список с продажами
@@ -177,10 +178,10 @@ class Account:
         list_with_transactions = []
         transactions = response.json()
 
-        for transaction in transactions:
-            transaction['direction'] = format_directions(transaction['direction'])
-            transaction['type'] = format_types(transaction['type'])
-            transaction['status'] = format_statuses(transaction['status'])
+        for t in transactions:
+            t['direction'] = format_directions(t['direction'])
+            t['type'] = format_types(t['type'])
+            t['status'] = format_statuses(t['status'])
             t = TransactionInfo.model_validate(transaction)
             list_with_transactions.append(t)
 
@@ -430,7 +431,7 @@ class Account:
 
     def save_lot(self, lot: LotFields) -> None:
         """
-        Сохраняет лот с переданными филдами.
+        Сохраняет лот с переданными полями.
 
         :param lot: Поля лота (Класс LotFields)
 
@@ -540,12 +541,12 @@ class Account:
             raise WithdrawError(response.get('message'))
 
 
-    def save_settings(self, is_offers_visible: bool, updated_parametr: Optional[dict[str, Any]] = None):
+    def save_settings(self, is_offers_visible: bool, updated_parameter: Optional[dict[str, Any]] = None):
         """
         Сохраняет настройки аккаунта.
 
         :param is_offers_visible: Отображать-ли лоты в профиле?
-        :param updated_parametr: Обновлённый параметр (словарь (обновлённый параметр: значение)), если требовалось изменение только видимости лотов, то можно не указывать
+        :param updated_parameter: Обновлённый параметр (словарь (обновлённый параметр: значение)), если требовалось изменение только видимости лотов, то можно не указывать
 
         :raise SaveSettingsError: При какой-либо ошибке сохранения настроек
         :return: None
@@ -558,8 +559,8 @@ class Account:
             "isOffersVisibleOnlyInProfile": is_offers_visible,
             "username": self.username
         }
-        if updated_parametr:
-            body.update(**updated_parametr)
+        if updated_parameter:
+            body.update(**updated_parameter)
 
         response = self.request.patch(url, body, raise_not_200=False)
 

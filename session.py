@@ -1,7 +1,8 @@
-import requests
+from .common.exceptions import RequestFailedError, UnauthorizedError
+
 from requests import Session
 
-from .common.exceptions import RequestFailedError, UnauthorizedError
+import requests
 
 class StarvellSession:
     def __init__(self, session_id: str):

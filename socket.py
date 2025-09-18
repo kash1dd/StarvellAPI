@@ -1,14 +1,15 @@
 from StarvellAPI.common import SocketTypes, HandlerError
 
+from typing import Callable
+
 import websocket
 import threading
-from typing import Callable
 
 class Socket:
     def __init__(self, session_id: str, online: bool = True):
         """
         :param session_id: session_id со Starvell
-        :param online: Поддерживать-ли постоянный онлайн? (True - при использовании API, аккаунт всегда будет в онлайне)
+        :param online: Поддерживать-ли постоянный онлайн? (True - при использовании API, аккаунт всегда будет онлайн)
         """
 
         self.s = session_id
@@ -35,7 +36,7 @@ class Socket:
             try:
                 func(ws, msg)
             except Exception as e:
-                raise HandlerError(e)
+                raise HandlerError(str(e))
 
     def on_open(self, ws: websocket.WebSocket) -> None:
         """
@@ -57,7 +58,7 @@ class Socket:
             try:
                 threading.Thread(target=func, args=[ws]).start()
             except Exception as e:
-                raise HandlerError(e)
+                raise HandlerError(str(e))
 
     def init(self) -> None:
         """
