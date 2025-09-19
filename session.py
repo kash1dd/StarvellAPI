@@ -6,8 +6,17 @@ from datetime import datetime
 import requests
 
 class StarvellSession:
-    def __init__(self, session_id: str):
+    def __init__(self, session_id: str, proxy: dict[str, str] | None = None):
+        """
+        :param session_id: ID Сессии на Starvell
+        :param proxy: Прокси с которого будут осуществляться запросы (пример: {"http": "http://user:password@your_proxy_ip:port"})
+        """
+
         self.request = Session()
+        self.proxy_dict: dict[str, str] | None = proxy
+
+        if self.proxy_dict:
+            self.request.proxies = self.proxy_dict
 
         self.requests_count: int = 0
         self.last_429_error: int = 0
@@ -33,6 +42,7 @@ class StarvellSession:
             self.requests_count += 1
 
             if body:
+
                 response: Response = getattr(self.request, method)(url=url, headers=self.request.headers, json=body)
             else:
                 response: Response = getattr(self.request, method)(url=url, headers=self.request.headers)

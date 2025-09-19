@@ -9,7 +9,7 @@ import threading
 class Socket:
     def __init__(self, session_id: str, online: bool = True):
         """
-        :param session_id: session_id со Starvell
+        :param session_id: ID Сессии на Starvell
         :param online: Поддерживать-ли постоянный онлайн? (True - при использовании API, аккаунт всегда будет онлайн)
         """
 

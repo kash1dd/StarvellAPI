@@ -15,9 +15,13 @@ import re
 import json
 
 class Account:
-    def __init__(self, session_id: str) -> None:
-        # информация об аккаунте
+    def __init__(self, session_id: str, proxy: dict[str, str] | None = None) -> None:
+        """
+        :param session_id: ID Сессии на Starvell
+        :param proxy: Прокси с которого будут осуществляться запросы (пример: {"http": "http://user:password@your_proxy_ip:port"})
+        """
 
+        # информация об аккаунте
         self.username: str | None = None
         self.id: int | None = None
         self.build_id: str | None = None
@@ -35,7 +39,8 @@ class Account:
         self.active_orders: int | None = None
 
         # прочее
-        self.request = StarvellSession(session_id)
+        self.proxy: dict[str, str] | None = proxy
+        self.request: StarvellSession = StarvellSession(session_id, self.proxy)
 
         # авто запуск
         self.get_info()
