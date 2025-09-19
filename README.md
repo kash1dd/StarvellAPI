@@ -10,8 +10,8 @@
 ### _🤖 Пример использования_
 ```python
 from StarvellAPI import Account, Runner
-from StarvellAPI.types import NewMessageEvent
-from StarvellAPI.common import MessageTypes
+from StarvellAPI.types import NewMessageEvent, OrderEvent
+from StarvellAPI.enums import MessageTypes
 
 acc = Account("session_id") # создаём экземпляр аккаунта, указывая session_id полученный со starvell.com
 
@@ -20,7 +20,7 @@ print(f"ID - {acc.id}\n")
 
 runner = Runner(acc) # создаём экземпляр раннера
 
-@runner.add_handler(MessageTypes.NEW_MESSAGE) # декоратор на новое сообщение
+@runner.add_handler(MessageTypes.NEW_MESSAGE) # с помощью декоратора, добавляем нашу функцию в хэндлеры новых сообщений
 def msg_handler(msg: NewMessageEvent):
     """
     Хэндлер (функция), которая будет вызываться при новом сообщении
@@ -28,7 +28,7 @@ def msg_handler(msg: NewMessageEvent):
     
     print(f"{msg.author.username}: {msg.content}")
 
-@runner.add_handler(MessageTypes.NEW_ORDER) # декоратор на новый заказ
+@runner.add_handler(MessageTypes.NEW_ORDER) # # с помощью декоратора, добавляем нашу функцию в хэндлеры новых заказов
 def order_handler(order: OrderEvent):
     """
     Хэндлер (функция), которая будет вызываться при новом заказе

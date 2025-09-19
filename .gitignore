@@ -2,6 +2,6 @@
 /.git
 /.DS_STORE
 /__pycache__
-/common/__pycache__
+/errors/__pycache__
 /events/__pycache__
 /types/__pycache__

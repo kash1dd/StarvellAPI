@@ -1,4 +1,4 @@
-from StarvellAPI.common.enums import (
+from StarvellAPI.enums import (
     TransactionDirections,
     TransactionTypes,
     TransactionStatuses,

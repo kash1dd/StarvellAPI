@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Optional
 
 from .order import SubCategory, DeliveryTime, Descriptions, Game
-from StarvellAPI.common.enums import OrderStatuses
+from StarvellAPI.enums.enums import OrderStatuses
 
 class BaseConfig(BaseModel):
     class Config:

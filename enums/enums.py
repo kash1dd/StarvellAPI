@@ -1,7 +1,5 @@
 from enum import Enum
 
-
-
 class OrderStatuses(Enum):
     """В данном классе перечислены все состояния заказов."""
     PAID = 0

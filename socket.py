@@ -1,4 +1,5 @@
-from StarvellAPI.common import SocketTypes, HandlerError
+from .errors import HandlerError
+from .enums import SocketTypes
 
 from typing import Callable
 

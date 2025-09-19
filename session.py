@@ -1,4 +1,4 @@
-from .common.exceptions import RequestFailedError, UnauthorizedError
+from .errors import RequestFailedError, UnauthorizedError
 
 from requests import Session
 

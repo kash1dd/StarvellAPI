@@ -1,5 +1,4 @@
 from requests import Response
-
 from typing import Literal
 
 class RequestFailedError(Exception):
