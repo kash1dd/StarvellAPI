@@ -1,8 +1,8 @@
 # TODO удалить StarvellAPI.types.profile_offers import OfferInfoShortCut
 
-from .session import StarvellSession
+from StarvellAPI.session import StarvellSession
 from .errors import NotFoundJSONError, SendReviewError, SendMessageError, RefundError, BlockError, EditReviewError, UnBlockError, \
-    WithdrawError, CreateLotError, ReadChatError, DeleteLotError, SaveSettingsError
+    WithdrawError, CreateLotError, ReadChatError, DeleteLotError, SaveSettingsError, UserNotFoundError, RequestFailedError
 from .utils import format_order_status, format_types, format_message_types, \
     format_payment_methods, format_statuses, format_directions
 from .enums import MessageTypes, PaymentTypes
@@ -342,7 +342,12 @@ class Account:
         """
 
         url = f"https://starvell.com/api/users/{user_id}"
-        response = self.request.get(url=url, raise_not_200=True).json()
+        response = self.request.get(url=url, raise_not_200=False)
+
+        if response.status_code == 404:
+            raise UserNotFoundError(response.json().get('message'))
+        elif response.status_code != 200:
+            raise RequestFailedError(response)
 
         return User.model_validate(response)
 

@@ -1,3 +1,3 @@
 from .exceptions import RequestFailedError, UnauthorizedError, NotFoundJSONError, HandlerError, WithdrawError, \
     SendMessageError, ReadChatError, RefundError, EditReviewError, SendReviewError, BlockError, UnBlockError, \
-    CreateLotError, DeleteLotError, SaveSettingsError
+    CreateLotError, DeleteLotError, SaveSettingsError, UserNotFoundError

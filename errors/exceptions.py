@@ -123,3 +123,8 @@ class SaveSettingsError(StarvellAPIError):
     """
     Возбуждается при какой-либо ошибке сохранения настроек.
     """
+
+class UserNotFoundError(StarvellAPIError):
+    """
+    Возбуждается если пользователь не найден
+    """
