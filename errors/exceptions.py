@@ -33,8 +33,7 @@ class RequestFailedError(Exception):
 
 class UnauthorizedError(RequestFailedError):
     """
-    Исключение, которое возбуждается, если не удалось найти идентифицирующий аккаунт элемент и / или произошло другое
-    событие, указывающее на отсутствие авторизации.
+    Возбуждается в том случае, если код ответа == 403.
     """
 
     def __init__(self, response: Response) -> None:
@@ -63,6 +62,10 @@ class HandlerError(Exception):
         return self.msg
 
 class StarvellAPIError(Exception):
+    """
+    Базовое исключение в API Starvell, просто наследуйте.
+    """
+
     def __init__(self, msg_from_response: str) -> None:
         self.msg: str = msg_from_response
 
@@ -126,5 +129,5 @@ class SaveSettingsError(StarvellAPIError):
 
 class UserNotFoundError(StarvellAPIError):
     """
-    Возбуждается если пользователь не найден
+    Возбуждается если пользователь не найден.
     """

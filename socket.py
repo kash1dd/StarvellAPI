@@ -13,8 +13,8 @@ class Socket:
         :param online: Поддерживать-ли постоянный онлайн? (True - при использовании API, аккаунт всегда будет онлайн)
         """
 
-        self.s = session_id
-        self.online = online
+        self.s: str = session_id
+        self.online: bool = online
         self.run_socket()
 
         self.handlers: dict[SocketTypes, list[Callable]] = {
@@ -71,7 +71,7 @@ class Socket:
         url = "wss://starvell.com/socket.io/?EIO=4&transport=websocket"
         ws = websocket.WebSocketApp(
             url,
-            header={"cookie": f"session={self.s}"},
+            cookie=f"session={self.s}",
             on_message=self.on_message,
             on_open=self.on_open
         )
