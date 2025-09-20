@@ -141,3 +141,8 @@ class ReviewNotFoundError(GetReviewError):
     """
     Возбуждается если отзыв не найден
     """
+
+class SendImageError(StarvellAPIError):
+    """
+    Возбуждается при какой-либо ошибке отправки изображения
+    """

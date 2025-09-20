@@ -26,7 +26,7 @@ class StarvellSession:
         """
         Отправляет запрос используя сессию Starvell
         
-        :param method: Метод (post/get/patch)
+        :param method: Метод (get/post/patch)
         :param url: Ссылка, куда отправить запрос
         :param body: JSON к запросу
         :param params: Параметры к запросу

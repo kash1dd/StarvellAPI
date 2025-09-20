@@ -1,7 +1,7 @@
 from StarvellAPI.session import StarvellSession
 from .errors import NotFoundJSONError, SendReviewError, SendMessageError, RefundError, BlockError, EditReviewError, UnBlockError, \
     WithdrawError, CreateLotError, ReadChatError, DeleteLotError, SaveSettingsError, UserNotFoundError, \
-    RequestFailedError, GetReviewError, ReviewNotFoundError
+    RequestFailedError, GetReviewError, ReviewNotFoundError, SendImageError
 from .utils import format_order_status, format_types, format_message_types, \
     format_payment_methods, format_statuses, format_directions
 from .enums import MessageTypes, PaymentTypes
@@ -462,12 +462,14 @@ class Account:
         param = {
             "chatId": chat_id
         }
-
         files = {
             "image": ("StarvellAPI.png", image_bytes, "image/png")
         }
 
-        self.request.post(url=url,  files=files, params=param, raise_not_200=True)
+        response = self.request.post(url=url,  files=files, params=param, raise_not_200=False)
+
+        if response.status_code != 201:
+            raise SendImageError(response.json().get("message"))
 
         if read_chat:
             self.read_chat(chat_id)
