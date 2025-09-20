@@ -36,6 +36,7 @@ def order_handler(order: OrderEvent):
     
     print(f"Покупатель {order.buyer.username} оплатил заказ {order.order.id}")
 ```
+* [Все примеры использования](https://github.com/kash1dd/StarvellAPI/tree/main/examples)
 ___
 ### ❓ _Прочее_
 * [Чат в Telegram](https://t.me/starvell_api)
