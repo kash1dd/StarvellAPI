@@ -1,8 +1,7 @@
-from typing import Optional
 from pydantic import BaseModel, Field
 from datetime import datetime
 
-from StarvellAPI.enums.enums import TransactionDirections, TransactionTypes, TransactionStatuses
+from StarvellAPI.enums import TransactionDirections, TransactionTypes, TransactionStatuses
 
 class BaseConfig(BaseModel):
     class Config:
@@ -14,10 +13,10 @@ class PayOut(BaseConfig):
     amount: str
     address: str
     net_amount: int = Field(alias="netAmount")
-    process_at: Optional[datetime] = Field(alias="processAt")
-    completed_at: Optional[datetime] = Field(alias="completedAt")
+    process_at: datetime | None = Field(alias="processAt")
+    completed_at: datetime | None = Field(alias="completedAt")
     external_tx_id: str = Field(alias="externalTxId")
-    external_error: Optional[str] = Field(alias="externalError")
+    external_error: str | None = Field(alias="externalError")
     requestedAmount: int
 
 class PayOutSystemIcon(BaseConfig):
@@ -36,13 +35,13 @@ class TransactionInfo(BaseConfig):
     status: TransactionStatuses
     amount: int
     user_id: int = Field(alias="userId")
-    order_id: Optional[str] = Field(alias="orderId")
-    topup_id: Optional[str] = Field(alias="topupId")
-    payout_id: Optional[str] = Field(alias="payoutId")
-    funds_release_at: Optional[datetime] = Field(alias="fundsReleaseAt")
+    order_id: str | None = Field(alias="orderId")
+    topup_id: str | None = Field(alias="topupId")
+    payout_id: str | None = Field(alias="payoutId")
+    funds_release_at: datetime | None = Field(alias="fundsReleaseAt")
     created_at: datetime = Field(alias="createdAt")
     updated_at: datetime = Field(alias="updatedAt")
-    topup: Optional[dict]
-    payout: Optional[PayOut]
-    payout_payment_system: Optional[PayOutSystem] = Field(alias="payoutPaymentSystem")
-    topup_payment_system: Optional[dict] = Field(alias="topupPaymentSystem")
+    topup: dict | None
+    payout: PayOut | None
+    payout_payment_system: PayOutSystem | None = Field(alias="payoutPaymentSystem")
+    topup_payment_system: dict | None = Field(alias="topupPaymentSystem")

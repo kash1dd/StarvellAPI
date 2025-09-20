@@ -1,6 +1,5 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
-from typing import Optional
 
 class BaseConfig(BaseModel):
     class Config:
@@ -9,7 +8,7 @@ class BaseConfig(BaseModel):
 class UserChatInfo(BaseConfig):
     id: int
     username: str
-    avatar_id: Optional[str] = Field(alias="avatar")
+    avatar_id: str | None = Field(alias="avatar")
     is_online: bool = Field(alias="isOnline")
     is_operator: bool = Field(alias="isOperator")
     last_online_at: datetime = Field(alias="lastOnlineAt")
@@ -19,12 +18,12 @@ class MessagePreview(BaseConfig):
     text: str = Field(alias="content")
     created_at: datetime = Field(alias="createdAt")
     type: str
-    metadata: Optional[dict]
-    buyer: Optional[dict]
-    seller: Optional[dict]
-    admin: Optional[dict]
-    order: Optional[dict]
-    images: Optional[list]
+    metadata: dict | None
+    buyer: dict | None
+    seller: dict | None
+    admin: dict | None
+    order: dict | None
+    images: list | None
 
 class ChatInfo(BaseConfig):
     id: str

@@ -1,4 +1,3 @@
-from typing import Optional
 from pydantic import BaseModel, Field
 
 from .order import SubCategory, Descriptions
@@ -10,7 +9,7 @@ class BaseConfig(BaseModel):
 class OfferInfoShortCut(BaseConfig):
     id: int
     price: float
-    attributes: Optional[list[str]]
+    attributes: list[str] | None
     sub_category: SubCategory = Field(alias="subCategory")
     quantity: int = Field(alias="availability")
     descriptions: Descriptions

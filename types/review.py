@@ -1,4 +1,3 @@
-from typing import Optional
 from pydantic import BaseModel, Field
 from datetime import datetime
 
@@ -11,7 +10,7 @@ class BaseConfig(BaseModel):
 class ReviewAuthor(BaseConfig):
     id: int
     username: str
-    avatar_id: Optional[str] = Field(alias='avatar')
+    avatar_id: str | None = Field(alias='avatar')
 
 class ReviewShortcutOrder(BaseConfig):
     offer_details: OfferDetails = Field(alias="offerDetails")
@@ -23,13 +22,12 @@ class ReviewResponse(BaseConfig):
 
 class ReviewInfo(BaseConfig):
     id: str
-    text: str = Field(alias="content")
+    content: str
     rating: int
     buyer_id: int = Field(alias="authorId")
     order_id: str = Field(alias="orderId")
     is_hidden: bool = Field(alias="isHidden")
     created_at: datetime = Field(alias="createdAt")
-    updated_at: datetime = Field(alias="updatedAt")
     author: ReviewAuthor
     order: ReviewShortcutOrder
-    review_response: Optional[ReviewResponse] = Field(alias="reviewResponse")
+    review_response: ReviewResponse | None = Field(alias="reviewResponse")

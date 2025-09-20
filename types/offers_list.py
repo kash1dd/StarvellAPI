@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
-from typing import Optional
 
-from StarvellAPI.types.order import Descriptions, UserInfoExtendedLow, SubCategory
+from .order import Descriptions, SubCategory
+from .user import UserInfoExtendedLow
 
 class BaseConfig(BaseModel):
     class Config:
@@ -14,4 +14,4 @@ class OfferTableInfo(BaseConfig):
     availability: int
     is_auto_delivery: bool = Field(alias="instantDelivery")
     user: UserInfoExtendedLow
-    sub_category: Optional[SubCategory] = Field(alias="subCategory")
+    sub_category: SubCategory | None = Field(alias="subCategory")

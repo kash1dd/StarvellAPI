@@ -1,8 +1,7 @@
 from pydantic import BaseModel, Field
-from typing import Optional
 
+from StarvellAPI.enums import MessageTypes
 from .chat import MetaData, Author
-from StarvellAPI.enums.enums import MessageTypes
 
 class BaseConfig(BaseModel):
     class Config:
@@ -10,8 +9,8 @@ class BaseConfig(BaseModel):
 
 class NewMessageEvent(BaseModel):
     id: str
-    content: Optional[str]
-    metadata: Optional[MetaData]
+    content: str | None
+    metadata: MetaData | None
     images: list[str]
     chat_id: str = Field(alias="chatId")
     author: Author

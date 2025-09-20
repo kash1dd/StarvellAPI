@@ -42,9 +42,9 @@ class Account:
 
         # авто запуск
         self.get_info()
-        self.get_build()
+        self.update_build()
 
-    def get_build(self):
+    def update_build(self):
         """
         Получает BUILD ID для некоторых запросов
 
@@ -192,7 +192,7 @@ class Account:
 
         return list_with_transactions
 
-    def get_order(self, order_id: str) -> OrderFullInfo:
+    def get_order(self, order_id: str) -> Order:
         """
         Получает полную информацию об заказе.
 
@@ -201,14 +201,16 @@ class Account:
         :return: Полная информация об заказе
         """
 
-        url = f"https://starvell.com/_next/data/{self.build_id}/order/{str(order_id)}.json?order_id={str(order_id)}"
+        url = f"https://starvell.com/api/orders/{order_id}"
         body = {
-            "order_id": str(order_id)
+            "orderId": order_id
         }
 
         response = self.request.get(url, body, raise_not_200=True).json()
-
-        return OrderFullInfo.model_validate(response['pageProps'])
+        response['status'] = format_order_status(response['status'])
+        response['basePrice'] = response['basePrice'] / 100 if isinstance(response['basePrice'], int) else 0
+        response['totalPrice'] = response['totalPrice'] / 100 if isinstance(response['totalPrice'], int) else 0
+        return Order.model_validate(response)
 
     def get_chats(self, offset: int, limit: int) -> list[ChatInfo]:
         """

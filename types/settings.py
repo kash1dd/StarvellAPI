@@ -1,5 +1,3 @@
-from typing import Optional
-
 from pydantic import BaseModel, Field
 
 class BaseConfig(BaseModel):
@@ -8,7 +6,7 @@ class BaseConfig(BaseModel):
 
 class TelegramStarvellSettings(BaseModel):
     id: int
-    username: Optional[str]
+    username: str | None
 
 class Settings(BaseModel):
     email_notifications_enabled: bool = Field(alias="emailNotificationsEnabled")
@@ -17,4 +15,4 @@ class Settings(BaseModel):
 
 class PreviewSettings(BaseModel):
     starvell_settings: Settings = Field(alias="settings")
-    telegram_settings: Optional[TelegramStarvellSettings] = Field(alias="telegramLink")
+    telegram_settings: TelegramStarvellSettings | None = Field(alias="telegramLink")

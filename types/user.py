@@ -1,21 +1,24 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
-from typing import Optional
 
 class BaseConfig(BaseModel):
     class Config:
         validate_by_name = True
 
-class User(BaseConfig):
+class UserInfo(BaseConfig):
     id: int
     username: str
-    last_online_at: Optional[datetime] = Field(alias="lastOnlineAt")
-    created_at: Optional[datetime] = Field(alias="createdAt")
-    avatar: Optional[str]
-    banner: Optional[str]
-    description: Optional[str]
+    created_at: datetime = Field(alias="createdAt")
+    avatar_id: str | None = Field(alias="avatar")
+
+class UserInfoExtendedLow(UserInfo):
+    rating: float
+    reviews_count: int = Field(alias="reviewsCount")
+
+class User(UserInfoExtendedLow):
+    last_online_at: datetime | None = Field(alias="lastOnlineAt")
+    banner: str | None
+    description: str | None
     is_kyc_verified: bool = Field(alias="isKycVerified")
     is_banned: bool = Field(alias="isBanned")
     roles: list[str]
-    rating: float
-    reviews_count: int = Field(alias="reviewsCount")

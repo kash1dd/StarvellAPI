@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-from typing import List, Optional
 
 from .offer_fields import Attributes, DeliveryTime, Descriptions
 
@@ -8,16 +7,16 @@ class BaseConfig(BaseModel):
         validate_by_name = True
 
 class CreateLotFields(BaseModel):
-    attributes: Optional[List[Attributes]] = None
+    attributes: list[Attributes] | None = None
     availability: int
-    basicAttributes: Optional[list[Attributes]] = None
+    basicAttributes: list[Attributes] | None = None
     categoryId: int
-    deliveryTime: Optional[DeliveryTime] = None
+    deliveryTime: DeliveryTime | None = None
     descriptions: Descriptions
     goods: list
     isActive: bool
-    numericAttributes: List[Attributes]
-    postPaymentMessage: Optional[str] = None
+    numericAttributes: list[Attributes]
+    postPaymentMessage: str | None = None
     price: str
     subCategoryId: int
     type: str

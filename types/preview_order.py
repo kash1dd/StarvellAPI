@@ -1,9 +1,8 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
-from typing import Optional
 
 from .order import SubCategory, DeliveryTime, Descriptions, Game
-from StarvellAPI.enums.enums import OrderStatuses
+from StarvellAPI.enums import OrderStatuses
 
 class BaseConfig(BaseModel):
     class Config:
@@ -28,9 +27,9 @@ class OfferDetailsPreview(BaseConfig):
 class UserPreviewOrder(BaseConfig):
     id: int
     username: str
-    avatar: Optional[str]
-    banner: Optional[str]
-    description: Optional[str]
+    avatar: str | None
+    banner: str | None
+    description: str | None
     is_online: bool = Field(alias="isOnline")
     is_banned: bool = Field(alias="isBanned")
     roles: list[str]
@@ -44,12 +43,12 @@ class OrderInfo(BaseConfig):
     status: OrderStatuses
     base_price: int = Field(alias="basePrice")
     total_price: int = Field(alias="totalPrice")
-    offer_id: Optional[int] = Field(alias="offerId")
+    offer_id: int | None = Field(alias="offerId")
     offer_details: OfferDetailsPreview = Field(alias="offerDetails")
     order_args: list[str] = Field(alias="orderArgs")
     review_visible_after_refund: bool = Field(alias="reviewVisibleAfterRefund")
-    completed_at: Optional[datetime] = Field(alias="completedAt")
-    refunded_at: Optional[datetime] = Field(alias="refundedAt")
-    created_at: Optional[datetime] = Field(alias="createdAt")
-    updated_at: Optional[datetime] = Field(alias="updatedAt")
+    completed_at: datetime | None = Field(alias="completedAt")
+    refunded_at: datetime | None = Field(alias="refundedAt")
+    created_at: datetime | None = Field(alias="createdAt")
+    updated_at: datetime | None = Field(alias="updatedAt")
     buyer: UserPreviewOrder = Field(alias="user")

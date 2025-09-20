@@ -1,6 +1,5 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
-from typing import Optional
 
 from StarvellAPI.enums.enums import MessageTypes
 from .order import OfferDetails
@@ -19,18 +18,18 @@ class MiniOrder(BaseConfig):
     offer_details: OfferDetails = Field(alias="offerDetails")
 
 class MetaData(BaseConfig):
-    is_auto_response: Optional[bool] = Field(None, alias="isAutoResponse")
-    notification_type: Optional[str] = Field(None, alias="notificationType")
+    is_auto_response: bool | None = Field(None, alias="isAutoResponse")
+    notification_type: str | None = Field(None, alias="notificationType")
 
 class Message(BaseConfig):
     id: str
     text: str = Field(alias="content")
-    metadata: Optional[MetaData]
+    metadata: MetaData | None
     chat_id: str = Field(alias="chatId")
     created_at: datetime = Field(alias="createdAt")
-    author: Optional[Author] = None
-    buyer: Optional[dict]
-    seller: Optional[dict]
-    admin: Optional[dict]
-    order: Optional[MiniOrder]
+    author: Author | None = None
+    buyer: dict | None
+    seller: dict | None
+    admin: dict | None
+    order: MiniOrder | None
     event_type: MessageTypes

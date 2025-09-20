@@ -1,5 +1,4 @@
 from pydantic import BaseModel, Field
-from typing import Optional
 from datetime import datetime
 
 class BaseConfig(BaseModel):
@@ -9,5 +8,5 @@ class BaseConfig(BaseModel):
 class BlockListedUser(BaseModel):
     id: int
     username: str
-    avatar: Optional[str]
+    avatar: str | None
     black_listed_at: datetime = Field(alias="blacklistedAt")
