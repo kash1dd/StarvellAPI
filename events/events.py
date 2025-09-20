@@ -50,7 +50,7 @@ class Runner:
         self.add_handler(SocketTypes.NEW_MESSAGE, handler_filter=lambda msg, ws: msg == "2")(lambda _, ws: ws.send('3'))
 
     @staticmethod
-    def handling(handler: list[Callable], *args) -> None:
+    def handling(handler: list[Callable | list[Callable] | dict[str, str]], *args) -> None:
         """
         Вызывает хэндлер с переданными аргументами
 
@@ -63,14 +63,17 @@ class Runner:
         if handler[1] is None:
             threading.Thread(target=handler[0], args=args).start()
         else:
-            handler[2]: dict
-            if handler[1](*args, **handler[2]):
-                threading.Thread(target=handler[0], args=args).start()
+            if not isinstance(handler[1], (list, tuple, set)):
+                if handler[1](*args, **handler[2]):
+                    threading.Thread(target=handler[0], args=args).start()
+            else:
+                if all([h(*args, **handler[2]) for h in handler[1]]):
+                    threading.Thread(target=handler[0], args=args).start()
 
     def add_handler(
         self,
         handler_type: MessageTypes | SocketTypes,
-        handler_filter: Callable | None = None,
+        handler_filter: list[Callable] | Callable | None = None,
         **kwargs
     ):
         """
