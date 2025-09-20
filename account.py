@@ -1,6 +1,7 @@
 from StarvellAPI.session import StarvellSession
 from .errors import NotFoundJSONError, SendReviewError, SendMessageError, RefundError, BlockError, EditReviewError, UnBlockError, \
-    WithdrawError, CreateLotError, ReadChatError, DeleteLotError, SaveSettingsError, UserNotFoundError, RequestFailedError
+    WithdrawError, CreateLotError, ReadChatError, DeleteLotError, SaveSettingsError, UserNotFoundError, \
+    RequestFailedError, GetReviewError, ReviewNotFoundError
 from .utils import format_order_status, format_types, format_message_types, \
     format_payment_methods, format_statuses, format_directions
 from .enums import MessageTypes, PaymentTypes
@@ -192,26 +193,6 @@ class Account:
 
         return list_with_transactions
 
-    def get_order(self, order_id: str) -> Order:
-        """
-        Получает полную информацию об заказе.
-
-        :param order_id: ID Заказа
-
-        :return: Полная информация об заказе
-        """
-
-        url = f"https://starvell.com/api/orders/{order_id}"
-        body = {
-            "orderId": order_id
-        }
-
-        response = self.request.get(url, body, raise_not_200=True).json()
-        response['status'] = format_order_status(response['status'])
-        response['basePrice'] = response['basePrice'] / 100 if isinstance(response['basePrice'], int) else 0
-        response['totalPrice'] = response['totalPrice'] / 100 if isinstance(response['totalPrice'], int) else 0
-        return Order.model_validate(response)
-
     def get_chats(self, offset: int, limit: int) -> list[ChatInfo]:
         """
         Получает чаты.
@@ -263,6 +244,51 @@ class Account:
             messages.append(Message.model_validate(r))
 
         return messages
+
+    def get_order(self, order_id: str) -> Order:
+        """
+        Получает полную информацию об заказе.
+
+        :param order_id: ID Заказа
+
+        :return: Полная информация об заказе
+        """
+
+        url = f"https://starvell.com/api/orders/{order_id}"
+        body = {
+            "orderId": order_id
+        }
+
+        response = self.request.get(url, body, raise_not_200=True).json()
+        response['status'] = format_order_status(response['status'])
+        response['basePrice'] = response['basePrice'] / 100 if isinstance(response['basePrice'], int) else 0
+        response['totalPrice'] = response['totalPrice'] / 100 if isinstance(response['totalPrice'], int) else 0
+        return Order.model_validate(response)
+
+    def get_review(self, order_id: str) -> ReviewInfo:
+        """
+        Получает отзыв по ID Заказа
+
+        :param order_id: ID Заказа
+
+        :return: ReviewInfo
+        """
+
+        url = f"https://starvell.com/api/reviews/by-order-id"
+        param = {
+            "id": order_id
+        }
+
+        response = self.request.get(url=url, params=param, raise_not_200=False)
+
+        if response.status_code == 404:
+            raise ReviewNotFoundError(response.json().get('message'))
+
+        if response.status_code != 200:
+            raise GetReviewError(response.json().get('message'))
+
+        return ReviewInfo.model_validate(response.json())
+
 
     def get_category_lots(self, category_id: int,
                           offset: int = 0,

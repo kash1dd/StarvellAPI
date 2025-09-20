@@ -131,3 +131,13 @@ class UserNotFoundError(StarvellAPIError):
     """
     Возбуждается если пользователь не найден.
     """
+
+class GetReviewError(SendReviewError):
+    """
+    Возбуждается при какой-либо ошибке получения отзыва
+    """
+
+class ReviewNotFoundError(GetReviewError):
+    """
+    Возбуждается если отзыв не найден
+    """
