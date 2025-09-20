@@ -50,27 +50,28 @@ class Runner:
         self.add_handler(SocketTypes.NEW_MESSAGE, handler_filter=lambda msg, ws: msg == "2")(lambda _, ws: ws.send('3'))
 
     @staticmethod
-    def handling(handler: list[Callable], *args, **kwargs) -> None:
+    def handling(handler: list[Callable], *args) -> None:
         """
         Вызывает хэндлер с переданными аргументами
 
         :param handler: Хэндлер который будет обрабатывать
         :param args: Аргументы к этому хэндеру
-        :param kwargs: Именованные аргументы к этому хэндлеру
 
         :return: None
         """
 
         if handler[1] is None:
-            threading.Thread(target=handler[0], args=args, kwargs=kwargs).start()
+            threading.Thread(target=handler[0], args=args).start()
         else:
-            if handler[1](*args, **kwargs):
-                threading.Thread(target=handler[0], args=args, kwargs=kwargs).start()
+            handler[2]: dict
+            if handler[1](*args, **handler[2]):
+                threading.Thread(target=handler[0], args=args).start()
 
     def add_handler(
         self,
         handler_type: MessageTypes | SocketTypes,
         handler_filter: Callable | None = None,
+        **kwargs
     ):
         """
         Добавляет хэндлер
@@ -88,7 +89,7 @@ class Runner:
         """
 
         def decorator(func):
-            self.handlers[handler_type].append([func, handler_filter])
+            self.handlers[handler_type].append([func, handler_filter, kwargs])
             return func
         return decorator
 
