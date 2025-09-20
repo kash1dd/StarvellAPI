@@ -19,8 +19,7 @@ class Socket:
 
         self.handlers: dict[SocketTypes, list[Callable]] = {
             SocketTypes.OPEN: [],
-            SocketTypes.NEW_MESSAGE: [],
-            SocketTypes.ERROR: [] # todo добавить
+            SocketTypes.NEW_MESSAGE: []
         }
 
     def on_message(self, ws: websocket.WebSocket, msg: str) -> None:

@@ -92,7 +92,5 @@ class SocketTypes(Enum):
 
     OPEN = 0
     """Запуск веб-сокета"""
-    ERROR = 1
-    """Ошибка в веб-сокете"""
-    NEW_MESSAGE = 2
+    NEW_MESSAGE = 1
     """Новое сообщение в веб-сокете"""
