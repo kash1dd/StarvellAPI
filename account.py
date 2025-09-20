@@ -598,7 +598,7 @@ class Account:
             'cardHolder' if payment_system is not PaymentTypes.SBP else 'sbpBankId': "StarvellAPI" if payment_system is not PaymentTypes.SBP else bank
         }
 
-        response = self.request.post(url, body, raise_not_200=False)
+        response = self.request.post(url, body, raise_not_200=False).json()
 
         if response.status_code != 200:
             raise WithdrawError(response.get('message'))

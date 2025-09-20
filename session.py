@@ -28,7 +28,7 @@ class StarvellSession:
         
         :param method: Метод (post/get/patch)
         :param url: Ссылка, куда отправить запрос
-        :param body: JSON к запросу (Можно не указывать)
+        :param body: JSON к запросу
         :param params: Параметры к запросу
         :param files: Файл (Например изображение)
         :param raise_not_200: Возбуждать-ли исключение, если ответ не 200?
