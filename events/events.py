@@ -23,7 +23,7 @@ class Runner:
         self.socket.handlers[SocketTypes.OPEN].append(self.on_open_process)
         self.socket.handlers[SocketTypes.NEW_MESSAGE].append(self.on_new_message)
 
-        self.handlers: dict = {
+        self.handlers: dict[MessageTypes | SocketTypes, list] = {
             MessageTypes.NEW_MESSAGE: [],
             MessageTypes.NEW_ORDER: [],
             MessageTypes.CONFIRM_ORDER: [],
@@ -36,7 +36,7 @@ class Runner:
             SocketTypes.NEW_MESSAGE: []
         }
 
-        self.event_types: dict = {
+        self.event_types: dict[MessageTypes, type[NewMessageEvent | OrderEvent]] = {
             MessageTypes.NEW_MESSAGE: NewMessageEvent,
             MessageTypes.NEW_ORDER: OrderEvent,
             MessageTypes.CONFIRM_ORDER: OrderEvent,
