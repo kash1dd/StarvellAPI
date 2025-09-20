@@ -15,6 +15,7 @@ ___
 ### 👑 Требования
 * __Python >= 3.10__
 * __Рекомендуемая версия Python: [3.13.7](https://www.python.org/downloads/release/python-3137/)__
+___
 ### _🤖 Пример использования_
 ```python
 from StarvellAPI import Account, Runner
