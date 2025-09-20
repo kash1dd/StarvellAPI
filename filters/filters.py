@@ -1,4 +1,4 @@
-from StarvellAPI.types import NewMessageEvent, OrderEvent
+from StarvellAPI.types import NewMessageEvent
 from StarvellAPI.account import Account
 
 import re

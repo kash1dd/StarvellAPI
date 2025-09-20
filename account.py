@@ -1,5 +1,3 @@
-# TODO удалить StarvellAPI.types.profile_offers import OfferInfoShortCut
-
 from StarvellAPI.session import StarvellSession
 from .errors import NotFoundJSONError, SendReviewError, SendMessageError, RefundError, BlockError, EditReviewError, UnBlockError, \
     WithdrawError, CreateLotError, ReadChatError, DeleteLotError, SaveSettingsError, UserNotFoundError, RequestFailedError
