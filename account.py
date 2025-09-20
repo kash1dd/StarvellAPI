@@ -447,6 +447,31 @@ class Account:
         if read_chat:
             self.read_chat(chat_id)
 
+    def send_image(self, chat_id: str, image_bytes: bytes, read_chat: bool = True):
+        """
+        Отправляет изображение в чат
+
+        :param chat_id: ID Чата
+        :param image_bytes: Байты изображения
+        :param read_chat: Прочитывать-ли чат, после отправки изображения?
+
+        :return: None
+        """
+
+        url = "https://starvell.com/api/messages/send-with-image"
+        param = {
+            "chatId": chat_id
+        }
+
+        files = {
+            "image": ("StarvellAPI.png", image_bytes, "image/png")
+        }
+
+        self.request.post(url=url,  files=files, params=param, raise_not_200=True)
+
+        if read_chat:
+            self.read_chat(chat_id)
+
     def read_chat(self, chat_id: str) -> None:
         """
         Помечает чат прочитанным.
