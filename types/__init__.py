@@ -15,3 +15,4 @@ from .review import ReviewAuthor, ReviewInfo, ReviewShortcutOrder
 from .settings import TelegramStarvellSettings, Settings, PreviewSettings
 from .transaction import PayOut, PayOutSystem, PayOutSystemIcon, TransactionInfo
 from .user import UserInfo, UserInfoExtendedLow, User
+from .exchange_rate import ExchangeRate

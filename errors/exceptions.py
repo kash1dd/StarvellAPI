@@ -1,5 +1,4 @@
 from requests import Response
-from typing import Literal
 
 class RequestFailedError(Exception):
     """
@@ -41,14 +40,6 @@ class UnauthorizedError(RequestFailedError):
 
     def __str__(self) -> str:
         return "Ошибка авторизации (возможно, введен неверный session_id?)."
-
-class NotFoundJSONError(Exception):
-    """
-    Возбуждается когда JSON с основной страницы не найден.
-    """
-
-    def __str__(self) -> Literal['JSON не найден']:
-        return "JSON не найден"
 
 class HandlerError(Exception):
     """
@@ -145,4 +136,9 @@ class ReviewNotFoundError(GetReviewError):
 class SendImageError(StarvellAPIError):
     """
     Возбуждается при какой-либо ошибке отправки изображения
+    """
+
+class SendTypingError(StarvellAPIError):
+    """
+    Возбуждается при какой-либо ошибке отправки/остановки "Печатает..."
     """

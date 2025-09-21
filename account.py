@@ -1,7 +1,6 @@
 from StarvellAPI.session import StarvellSession
 from .enums import MessageTypes, PaymentTypes
 from .errors import (
-    NotFoundJSONError,
     SendReviewError,
     SendMessageError,
     RefundError,
@@ -17,7 +16,8 @@ from .errors import (
     RequestFailedError,
     GetReviewError,
     ReviewNotFoundError,
-    SendImageError
+    SendImageError,
+    SendTypingError
 )
 from .utils import (
     format_order_status,
@@ -40,13 +40,13 @@ from .types import (
     LotFields,
     BlockListedUser,
     User,
-    CreateLotFields
+    CreateLotFields,
+    ExchangeRate
 )
 
 from datetime import datetime
 from typing import Optional, Any
 
-import re
 import json
 
 class Account:
@@ -406,6 +406,26 @@ class Account:
 
         return User.model_validate(response)
 
+    def get_usdt_rub_exchange_rate(self) -> ExchangeRate:
+        """
+        Получает курс USDT к рублю на Starvell
+
+        :return: ExchangeRate
+        """
+
+        return ExchangeRate.model_validate(
+            self.request.get(url="https://starvell.com/api/exchange-rates/usdt-rub").json())
+
+    def get_usdt_ltc_exchange_rate(self) -> ExchangeRate:
+        """
+        Получает курс USDT к LTC на Starvell
+
+        :return: ExchangeRate
+        """
+
+        return ExchangeRate.model_validate(
+            self.request.get(url="https://starvell.com/api/exchange-rates/usdt-ltc").json())
+
     def create_lot(self, fields: LotFields) -> LotFields:
         """
         Создаёт лот на Starvell.
@@ -695,3 +715,24 @@ class Account:
 
         if response.status_code != 200:
             raise UnBlockError(response.json().get('message'))
+
+    def send_typing(self, chat_id: str, is_typing: bool) -> None:
+        """
+        Отправляет "Печатает..." в чат на 5 секунд
+
+        :param chat_id: ID Чата
+        :param is_typing: bool - Отправляет "Печатает...", False - Останавливает "Печатает..."
+
+        :return: None
+        """
+
+        url = "https://starvell.com/api/chats/send-typing"
+        body = {
+            "chatId": chat_id,
+            "isTyping": is_typing
+        }
+
+        response = self.request.post(url=url, body=body, raise_not_200=False)
+
+        if response.status_code != 200:
+            raise SendTypingError(response.json().get('message'))
