@@ -14,6 +14,7 @@ class Images(BaseConfig):
     extension: str
 
 class NewMessageEvent(BaseConfig):
+    by_api: bool | None = None
     id: str
     content: str | None
     metadata: MetaData | None

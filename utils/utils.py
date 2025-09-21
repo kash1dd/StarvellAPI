@@ -131,6 +131,7 @@ def identify_ws_starvell_message(data: str) -> dict | None:
 
 
     if dict_with_data['metadata'] is None or 'notificationType' not in dict_with_data['metadata']:
+        dict_with_data['by_api'] = True if dict_with_data['content'].startswith('‎') else False
         dict_with_data['type'] = MessageTypes.NEW_MESSAGE
     elif dict_with_data['metadata']['notificationType'] in ('ORDER_PAYMENT', 'REVIEW_CREATED', 'ORDER_COMPLETED', 'ORDER_REFUND',
                                     'REVIEW_UPDATED', 'REVIEW_DELETED'):

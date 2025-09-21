@@ -437,7 +437,7 @@ class Account:
         url = "https://starvell.com/api/messages/send"
         body = {
             "chatId": chat_id,
-            "content": f"{content} ",
+            "content": f"‎{content}",
         }
         response = self.request.post(url, body, raise_not_200=False)
 
