@@ -42,3 +42,17 @@ def has_email(msg: NewMessageEvent):
         return True
 
     return False
+
+def has_images(msg: NewMessageEvent):
+    """
+    Есть-ли в сообщении изображение/я?
+
+    :param msg: NewMessageEvent
+
+    :return: bool (True - есть, False - нет)
+    """
+
+    if msg.images:
+        return True
+
+    return False

@@ -422,7 +422,7 @@ class Account:
         if response.status_code != 200:
             raise DeleteLotError(js.get('message'))
 
-    def send_message(self, chat_id: str, content: str, read_chat: bool = True):
+    def send_message(self, chat_id: str, content: str, read_chat: bool = True) -> None:
         """
         Отправляет сообщение в чат.
 
@@ -447,7 +447,7 @@ class Account:
         if read_chat:
             self.read_chat(chat_id)
 
-    def send_image(self, chat_id: str, image_bytes: bytes, read_chat: bool = True):
+    def send_image(self, chat_id: str, image_bytes: bytes, read_chat: bool = True) -> None:
         """
         Отправляет изображение в чат
 

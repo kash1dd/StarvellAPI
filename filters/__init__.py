@@ -1,1 +1,1 @@
-from .filters import is_command, not_me, has_email
+from .filters import is_command, not_me, has_email, has_images
