@@ -310,7 +310,8 @@ class Account:
     def get_category_lots(self, category_id: int,
                           offset: int = 0,
                           limit: int = 100000000,
-                          only_online: bool = False) -> list[OfferTableInfo]:
+                          only_online: bool = False,
+                          other_filters: dict[str, str] | None = None) -> list[OfferTableInfo]:
         """
         Получает лоты категории.
 
@@ -334,6 +335,9 @@ class Account:
             "sortDir": "ASC",
             "sortByPriceAndBumped": True
         }
+
+        if other_filters:
+            body.update(**other_filters)
 
         response = self.request.post(url, body, raise_not_200=True).json()
 
