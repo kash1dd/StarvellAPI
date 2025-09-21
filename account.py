@@ -1,11 +1,47 @@
 from StarvellAPI.session import StarvellSession
-from .errors import NotFoundJSONError, SendReviewError, SendMessageError, RefundError, BlockError, EditReviewError, UnBlockError, \
-    WithdrawError, CreateLotError, ReadChatError, DeleteLotError, SaveSettingsError, UserNotFoundError, \
-    RequestFailedError, GetReviewError, ReviewNotFoundError, SendImageError
-from .utils import format_order_status, format_types, format_message_types, \
-    format_payment_methods, format_statuses, format_directions
 from .enums import MessageTypes, PaymentTypes
-from .types import *
+from .errors import (
+    NotFoundJSONError,
+    SendReviewError,
+    SendMessageError,
+    RefundError,
+    BlockError,
+    EditReviewError,
+    UnBlockError,
+    WithdrawError,
+    CreateLotError,
+    ReadChatError,
+    DeleteLotError,
+    SaveSettingsError,
+    UserNotFoundError,
+    RequestFailedError,
+    GetReviewError,
+    ReviewNotFoundError,
+    SendImageError
+)
+from .utils import (
+    format_order_status,
+    format_types,
+    format_message_types,
+    format_payment_methods,
+    format_statuses,
+    format_directions
+)
+from .types import (
+    MyProfile,
+    PreviewSettings,
+    OrderInfo,
+    ReviewInfo,
+    TransactionInfo,
+    ChatInfo,
+    Message,
+    Order,
+    OfferTableInfo,
+    LotFields,
+    BlockListedUser,
+    User,
+    CreateLotFields
+)
 
 from datetime import datetime
 from typing import Optional, Any
@@ -188,7 +224,7 @@ class Account:
             t['direction'] = format_directions(t['direction'])
             t['type'] = format_types(t['type'])
             t['status'] = format_statuses(t['status'])
-            t = TransactionInfo.model_validate(transaction)
+            t = TransactionInfo.model_validate(t)
             list_with_transactions.append(t)
 
         return list_with_transactions
