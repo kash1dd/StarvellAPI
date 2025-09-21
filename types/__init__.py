@@ -2,7 +2,7 @@ from .blocklist import BlockListedUser
 from .chat import Author, MiniOrder, MetaData, Message
 from .chats import UserChatInfo, MessagePreview, ChatInfo
 from .create_lot import CreateLotFields
-from .new_msg import NewMessageEvent
+from .new_msg import NewMessageEvent, ServiceMessageEvent
 from .offer_fields import Attributes, LotFields
 from .offers_list import OfferTableInfo
 from .order import Game, SubCategory, Descriptions, Description, TimeRange, DeliveryTime, OfferDetails, \

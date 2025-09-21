@@ -22,3 +22,8 @@ class NewMessageEvent(BaseConfig):
     chat_id: str = Field(alias="chatId")
     author: Author
     type: MessageTypes
+
+class ServiceMessageEvent(BaseConfig):
+    id: str
+    type: MessageTypes
+    chat_id: str | None = None

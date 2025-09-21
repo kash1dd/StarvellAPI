@@ -62,18 +62,28 @@ class MessageTypes(Enum):
     """Заказ подтверждён"""
     ORDER_REFUND = 4
     """По заказу сделан возврат"""
-    REVIEW_CHANGED = 5
+    ORDER_REOPENED = 5
+    """Заказ открыт повторно"""
+    REVIEW_CHANGED = 6
     """Отзыв изменён"""
-    REVIEW_DELETED = 6
+    REVIEW_DELETED = 7
     """Отзыв удалён"""
-    REVIEW_RESPONSE_CREATED = 7
+    REVIEW_RESPONSE_CREATED = 8
     """Создан ответ на отзыв"""
-    REVIEW_RESPONSE_EDITED = 8
+    REVIEW_RESPONSE_EDITED = 9
     """Ответ на отзыв изменён"""
-    REVIEW_RESPONSE_DELETED = 9
+    REVIEW_RESPONSE_DELETED = 10
     """Ответ на отзыв удалён"""
-    UNKNOWN = 10
-    """Неизвестный тип сообщения"""
+    BLACKLIST_YOU_ADDED = 11
+    """Вы добавлены в черный список"""
+    BLACKLIST_USER_ADDED = 12
+    """Вы добавили пользователя в черный список"""
+    BLACKLIST_YOU_REMOVED = 13
+    """Пользователь удалил вас из черного списка"""
+    BLACKLIST_USER_REMOVED = 14
+    """Вы удалили пользователя из черного списка"""
+    OTHER = 15
+    """Другой тип сообщения"""
 
 class PaymentTypes(Enum):
     """В данном классе перечислены все типы платёжных систем, на которые возможно осуществить вывод."""

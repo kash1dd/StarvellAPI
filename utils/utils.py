@@ -9,6 +9,11 @@ from StarvellAPI.enums import (
 import json
 from typing import Optional
 
+NOTIFICATION_TYPES = ('ORDER_PAYMENT', 'REVIEW_CREATED', 'ORDER_COMPLETED', 'ORDER_REFUND',
+                                    'REVIEW_UPDATED', 'REVIEW_DELETED', 'ORDER_REOPENED', 'REVIEW_RESPONSE_CREATED',
+                                    'REVIEW_RESPONSE_UPDATED', 'REVIEW_RESPONSE_DELETED', 'BLACKLIST_YOU_ADDED',
+                                    'BLACKLIST_USER_ADDED', 'BLACKLIST_YOU_REMOVED', 'BLACKLIST_USER_REMOVED')
+
 def format_directions(direction: str) -> TransactionDirections:
     """
     Форматирует направление транзакции со Starvell на TransactionDirections (Enum)
@@ -81,7 +86,7 @@ def format_message_types(msg_type: str) -> MessageTypes:
     """
     Форматирует строку с notification_type на MessageTypes (Enum)
 
-    :param msg_type: notification_type
+    :param msg_type: notification_type строка с ответа от Starvell
 
     :return: MessageTypes (Enum)
     """
@@ -91,14 +96,19 @@ def format_message_types(msg_type: str) -> MessageTypes:
         "REVIEW_CREATED": MessageTypes.NEW_REVIEW,
         "ORDER_COMPLETED": MessageTypes.CONFIRM_ORDER,
         "ORDER_REFUND": MessageTypes.ORDER_REFUND,
+        "ORDER_REOPENED": MessageTypes.ORDER_REOPENED,
         "REVIEW_UPDATED": MessageTypes.REVIEW_CHANGED,
         "REVIEW_DELETED": MessageTypes.REVIEW_DELETED,
         "REVIEW_RESPONSE_CREATED": MessageTypes.REVIEW_RESPONSE_CREATED,
         "REVIEW_RESPONSE_UPDATED": MessageTypes.REVIEW_RESPONSE_EDITED,
-        "REVIEW_RESPONSE_DELETED": MessageTypes.REVIEW_RESPONSE_DELETED
+        "REVIEW_RESPONSE_DELETED": MessageTypes.REVIEW_RESPONSE_DELETED,
+        "BLACKLIST_YOU_ADDED": MessageTypes.BLACKLIST_YOU_ADDED,
+        "BLACKLIST_USER_ADDED": MessageTypes.BLACKLIST_USER_ADDED,
+        "BLACKLIST_YOU_REMOVED": MessageTypes.BLACKLIST_YOU_REMOVED,
+        "BLACKLIST_USER_REMOVED": MessageTypes.BLACKLIST_USER_REMOVED
     }
 
-    return msg_types.get(msg_type, MessageTypes.UNKNOWN)
+    return msg_types.get(msg_type, MessageTypes.OTHER)
 
 def format_payment_methods(method: PaymentTypes) -> Optional[int]:
     """
@@ -133,9 +143,10 @@ def identify_ws_starvell_message(data: str) -> dict | None:
     if dict_with_data['metadata'] is None or 'notificationType' not in dict_with_data['metadata']:
         dict_with_data['by_api'] = True if dict_with_data['content'].startswith('‎') else False
         dict_with_data['type'] = MessageTypes.NEW_MESSAGE
-    elif dict_with_data['metadata']['notificationType'] in ('ORDER_PAYMENT', 'REVIEW_CREATED', 'ORDER_COMPLETED', 'ORDER_REFUND',
-                                    'REVIEW_UPDATED', 'REVIEW_DELETED'):
+    elif dict_with_data['metadata']['notificationType'] in NOTIFICATION_TYPES:
         dict_with_data['type'] = format_message_types(dict_with_data['metadata']['notificationType'])
+    elif dict_with_data['metadata']['notificationType'] not in NOTIFICATION_TYPES:
+        dict_with_data['type'] = MessageTypes.OTHER
 
     dict_with_data['author'] = dict_with_data['author'] if 'author' in dict_with_data else dict_with_data['buyer']
 

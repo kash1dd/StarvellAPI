@@ -3,7 +3,7 @@ from StarvellAPI.socket import Socket
 from StarvellAPI.errors import HandlerError
 from StarvellAPI.enums import MessageTypes, SocketTypes
 from StarvellAPI.utils import identify_ws_starvell_message
-from StarvellAPI.types import OrderEvent, NewMessageEvent
+from StarvellAPI.types import OrderEvent, NewMessageEvent, ServiceMessageEvent
 
 from websocket import WebSocketApp
 from typing import Callable
@@ -27,10 +27,19 @@ class Runner:
             MessageTypes.NEW_MESSAGE: [],
             MessageTypes.NEW_ORDER: [],
             MessageTypes.CONFIRM_ORDER: [],
+            MessageTypes.ORDER_REOPENED: [],
             MessageTypes.ORDER_REFUND: [],
             MessageTypes.NEW_REVIEW: [],
             MessageTypes.REVIEW_DELETED: [],
             MessageTypes.REVIEW_CHANGED: [],
+            MessageTypes.REVIEW_RESPONSE_EDITED: [],
+            MessageTypes.REVIEW_RESPONSE_CREATED: [],
+            MessageTypes.REVIEW_RESPONSE_DELETED: [],
+            MessageTypes.BLACKLIST_YOU_ADDED: [],
+            MessageTypes.BLACKLIST_USER_ADDED: [],
+            MessageTypes.BLACKLIST_YOU_REMOVED: [],
+            MessageTypes.BLACKLIST_USER_REMOVED: [],
+
 
             SocketTypes.OPEN: [],
             SocketTypes.NEW_MESSAGE: []
@@ -41,9 +50,17 @@ class Runner:
             MessageTypes.NEW_ORDER: OrderEvent,
             MessageTypes.CONFIRM_ORDER: OrderEvent,
             MessageTypes.ORDER_REFUND: OrderEvent,
+            MessageTypes.ORDER_REOPENED: [],
             MessageTypes.NEW_REVIEW: OrderEvent,
             MessageTypes.REVIEW_DELETED: OrderEvent,
-            MessageTypes.REVIEW_CHANGED: OrderEvent
+            MessageTypes.REVIEW_CHANGED: OrderEvent,
+            MessageTypes.REVIEW_RESPONSE_EDITED: OrderEvent,
+            MessageTypes.REVIEW_RESPONSE_CREATED: OrderEvent,
+            MessageTypes.REVIEW_RESPONSE_DELETED: OrderEvent,
+            MessageTypes.BLACKLIST_YOU_REMOVED: ServiceMessageEvent,
+            MessageTypes.BLACKLIST_USER_REMOVED: ServiceMessageEvent,
+            MessageTypes.BLACKLIST_YOU_ADDED: ServiceMessageEvent,
+            MessageTypes.BLACKLIST_USER_ADDED: ServiceMessageEvent
         }
 
         self.add_handler(SocketTypes.NEW_MESSAGE, handler_filter=lambda msg, *args: msg.startswith('42/chats'))(self.msg_process)

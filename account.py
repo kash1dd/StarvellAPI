@@ -59,7 +59,6 @@ class Account:
         # информация об аккаунте
         self.username: str | None = None
         self.id: int | None = None
-        self.build_id: str | None = None
         self.session_id: str = session_id
         self.email: str | None = None
         self.created_date: datetime | None = None
@@ -79,24 +78,6 @@ class Account:
 
         # авто запуск
         self.get_info()
-        self.update_build()
-
-    def update_build(self):
-        """
-        Получает BUILD ID для некоторых запросов
-
-        :return: None
-        """
-
-        url = "https://starvell.com"
-        response: str = self.request.get(url=url, raise_not_200=True).text
-
-        match = re.search(r'<script id="__NEXT_DATA__" type="application/json">(.*?)</script>', response, re.S)
-        if match:
-            data = json.loads(match.group(1))
-            self.build_id = data["buildId"]
-        else:
-           raise NotFoundJSONError
 
     def get_info(self) -> MyProfile:
         """
@@ -358,20 +339,27 @@ class Account:
 
         return [OfferTableInfo.model_validate(i) for i in response]
 
-    def get_my_category_lots(self, game: str, game_category: str) -> list[LotFields]:
+    def get_my_category_lots(self, category_id: int, offset: int = 0, limit: int = 10000000) -> list[LotFields]:
         """
         Получает свои лоты категории.
 
-        :param game: Название категории (slug)
-        :param game_category: Категория в игре (slug)
+        :param category_id: ID Категории
+        :param offset: С какого лота начинать (По умолчанию 0)?
+        :param limit: Сколько лотов получить? (По умолчанию все)?
 
-        :return: Список с лотами
+        :return: Список с лотами (list[LotFields])
         """
 
-        url = f"https://starvell.com/_next/data/{self.build_id}/{game}/{game_category}/trade.json?game={game}&game={game_category}&game=trade"
-        response = self.request.get(url, raise_not_200=True).json()
+        url = "https://starvell.com/api/offers/list-my"
+        body = {
+            "categoryId": category_id,
+            "limit": limit,
+            "offset": offset
+        }
 
-        return [LotFields.model_validate(i) for i in response['pageProps']['offers']]
+        response = self.request.post(url, body=body, raise_not_200=True).json()
+
+        return [LotFields.model_validate(i) for i in response]
 
     def get_lot_fields(self, lot_id: int) -> LotFields:
         """
@@ -382,10 +370,10 @@ class Account:
         :return: LotFields
         """
 
-        url = f"https://starvell.com/_next/data/{self.build_id}/offers/edit/{lot_id}.json?offer_id={lot_id}"
+        url = f"https://starvell.com/api/offers/{lot_id}"
         response = self.request.get(url, raise_not_200=True).json()
 
-        return LotFields.model_validate(response['pageProps']['offer'])
+        return LotFields.model_validate(response)
 
     def get_black_list(self) -> list[BlockListedUser]:
         """
