@@ -48,6 +48,7 @@ from datetime import datetime
 from typing import Optional, Any
 
 import json
+import time
 
 class Account:
     def __init__(self, session_id: str, proxy: dict[str, str] | None = None) -> None:
@@ -720,12 +721,13 @@ class Account:
         if response.status_code != 200:
             raise UnBlockError(response.json().get('message'))
 
-    def send_typing(self, chat_id: str, is_typing: bool) -> None:
+    def send_typing(self, chat_id: str, is_typing: bool, count: int = 1) -> None:
         """
-        Отправляет "Печатает..." в чат на 5 секунд
+        Отправляет "Печатает..." в чат на 4 секунд
 
         :param chat_id: ID Чата
         :param is_typing: bool - Отправляет "Печатает...", False - Останавливает "Печатает..."
+        :param count: 1 раз - 4 секунд
 
         :return: None
         """
@@ -736,7 +738,9 @@ class Account:
             "isTyping": is_typing
         }
 
-        response = self.request.post(url=url, body=body, raise_not_200=False)
+        for i in range(count):
+            response = self.request.post(url=url, body=body, raise_not_200=False)
 
-        if response.status_code != 200:
-            raise SendTypingError(response.json().get('message'))
+            if response.status_code != 200:
+                raise SendTypingError(response.json().get('message'))
+            time.sleep(4)
