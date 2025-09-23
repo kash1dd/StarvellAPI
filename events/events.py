@@ -145,7 +145,7 @@ class Runner:
                 if offer['subCategory'] and offer['subCategory']['name']:
                     full_lot_title += offer['subCategory']['name'] + ', '
 
-                full_lot_title += f"{dict_with_data['quantity']} шт." if dict_with_data.get('quantity') else ''
+                full_lot_title += f"{dict_with_data['order']['quantity']} шт." if dict_with_data['order'].get('quantity') else ''
                 dict_with_data['order']['offerDetails']['full_lot_title'] = full_lot_title
 
             data = self.event_types[dict_with_data['type']].model_validate(dict_with_data)
