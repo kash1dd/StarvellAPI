@@ -34,6 +34,7 @@ class Descriptions(BaseConfig):
     rus: Description
 
 class OfferDetails(BaseConfig):
+    full_lot_title: str
     game: Game
     game_category: GameCategory = Field(alias="category")
     images: list[str]
@@ -57,4 +58,3 @@ class Order(BaseConfig):
     created_at: datetime = Field(alias="createdAt")
     refunded_at: datetime | None = Field(alias="refundedAt")
     completed_at: datetime | None = Field(alias="completedAt")
-    full_lot_title: str

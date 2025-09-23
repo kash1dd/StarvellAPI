@@ -296,7 +296,7 @@ class Account:
             full_lot_title += offer['subCategory']['name'] + ', '
 
         full_lot_title += f"{response['quantity']} шт." if response.get('quantity') else ''
-        response['full_lot_title'] = full_lot_title
+        response['offerDetails']['full_lot_title'] = full_lot_title
 
         return Order.model_validate(response)
 
@@ -337,6 +337,7 @@ class Account:
         :param offset: С какого лота начинать (По умолчанию с 0)
         :param limit: Количество лотов, которое нужно получить (По умолчанию все лоты)
         :param only_online: Только онлайн продавцы? (По умолчанию False)
+        :param other_filters: Остальные фильтры, которые можно передать в запрос
 
         :return: Список с лотами
         """
