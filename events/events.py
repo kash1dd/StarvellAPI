@@ -131,6 +131,23 @@ class Runner:
             if not dict_with_data:
                 return
 
+            if dict_with_data.get('order') and dict_with_data.get('order').get('offerDetails'):
+                offer = dict_with_data['order']['offerDetails']
+                full_lot_title = ""
+
+                if offer['game'] and offer['game']['name']:
+                    full_lot_title += offer['game']['name'] + ', '
+                if offer['category'] and offer['category']['name']:
+                    full_lot_title += offer['category']['name'] + ', '
+                if offer['descriptions'] and offer['descriptions'].get('rus') and offer['descriptions']['rus'] and \
+                        offer['descriptions']['rus'].get('briefDescription'):
+                    full_lot_title += offer['descriptions']['rus']['briefDescription'] + ', '
+                if offer['subCategory'] and offer['subCategory']['name']:
+                    full_lot_title += offer['subCategory']['name'] + ', '
+
+                full_lot_title += f"{dict_with_data['quantity']} шт." if dict_with_data.get('quantity') else ''
+                dict_with_data['order']['offerDetails']['full_lot_title'] = full_lot_title
+
             data = self.event_types[dict_with_data['type']].model_validate(dict_with_data)
 
             for handler in self.handlers[dict_with_data['type']]:
