@@ -15,6 +15,9 @@ class Author(BaseConfig):
 class MiniOrder(BaseConfig):
     id: str
     quantity: int
+    price_for_me: float | None = None
+    price_for_buyer: float | None = None
+    offer_id: int | None = None
     offer_details: OfferDetails = Field(alias="offerDetails")
 
 class MetaData(BaseConfig):

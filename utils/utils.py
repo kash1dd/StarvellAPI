@@ -5,14 +5,19 @@ from StarvellAPI.enums import (
     OrderStatuses,
     MessageTypes,
     PaymentTypes)
-
+from typing import Optional, TYPE_CHECKING
 import json
-from typing import Optional
+
+if TYPE_CHECKING:
+    from StarvellAPI.account import Account
 
 NOTIFICATION_TYPES = ('ORDER_PAYMENT', 'REVIEW_CREATED', 'ORDER_COMPLETED', 'ORDER_REFUND',
                                     'REVIEW_UPDATED', 'REVIEW_DELETED', 'ORDER_REOPENED', 'REVIEW_RESPONSE_CREATED',
                                     'REVIEW_RESPONSE_UPDATED', 'REVIEW_RESPONSE_DELETED', 'BLACKLIST_YOU_ADDED',
                                     'BLACKLIST_USER_ADDED', 'BLACKLIST_YOU_REMOVED', 'BLACKLIST_USER_REMOVED')
+NOTIFICATION_ORDER_TYPES = ('ORDER_PAYMENT', 'REVIEW_CREATED', 'ORDER_COMPLETED', 'ORDER_REFUND',
+                                    'REVIEW_UPDATED', 'REVIEW_DELETED', 'ORDER_REOPENED', 'REVIEW_RESPONSE_CREATED',
+                                    'REVIEW_RESPONSE_UPDATED', 'REVIEW_RESPONSE_DELETED')
 
 def format_directions(direction: str) -> TransactionDirections:
     """
@@ -128,11 +133,12 @@ def format_payment_methods(method: PaymentTypes) -> Optional[int]:
 
     return p_types.get(method)
 
-def identify_ws_starvell_message(data: str) -> dict | None:
+def identify_ws_starvell_message(data: str, acc: "Account") -> dict | None:
     """
     Определяет тип нового сообщения со Starvell в чате, полученного с веб-сокета
 
     :param data: Сообщение с веб-сокета (Должно быть именно новым сообщением)
+    :param acc: Экземпляр аккаунта
 
     :return: Отформатированный словарь
     """
@@ -150,7 +156,16 @@ def identify_ws_starvell_message(data: str) -> dict | None:
         dict_with_data['type'] = MessageTypes.NEW_MESSAGE
 
     elif dict_with_data['metadata']['notificationType'] in NOTIFICATION_TYPES:
-        dict_with_data['type'] = format_message_types(dict_with_data['metadata']['notificationType'])
+        nt = dict_with_data['metadata']['notificationType']
+
+        if nt in NOTIFICATION_ORDER_TYPES:
+            order = acc.get_order(dict_with_data['order']['id'])
+            dict_with_data['order']['price_for_me'] = order.price_for_me
+            dict_with_data['order']['price_for_buyer'] = order.price_for_buyer
+            dict_with_data['order']['offer_id'] = order.offer_id
+
+        dict_with_data['type'] = format_message_types(nt)
+
     elif dict_with_data['metadata']['notificationType'] not in NOTIFICATION_TYPES:
         dict_with_data['type'] = MessageTypes.OTHER
 

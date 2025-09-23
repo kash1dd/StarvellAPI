@@ -126,7 +126,7 @@ class Runner:
         """
 
         try:
-            dict_with_data = identify_ws_starvell_message(msg)
+            dict_with_data = identify_ws_starvell_message(msg, self.acc)
 
             if not dict_with_data:
                 return
