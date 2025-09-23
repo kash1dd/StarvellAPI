@@ -281,6 +281,23 @@ class Account:
         response['status'] = format_order_status(response['status'])
         response['basePrice'] = response['basePrice'] / 100 if isinstance(response['basePrice'], int) else 0
         response['totalPrice'] = response['totalPrice'] / 100 if isinstance(response['totalPrice'], int) else 0
+        offer = response['offerDetails']
+
+        full_lot_title = ""
+
+        if offer['game'] and offer['game']['name']:
+            full_lot_title += offer['game']['name'] + ', '
+        if offer['category'] and offer['category']['name']:
+            full_lot_title += offer['category']['name'] + ', '
+        if offer['descriptions'] and offer['descriptions'].get('rus') and offer['descriptions']['rus'] and \
+                offer['descriptions']['rus'].get('briefDescription'):
+            full_lot_title += offer['descriptions']['rus']['briefDescription'] + ', '
+        if offer['subCategory'] and offer['subCategory']['name']:
+            full_lot_title += offer['subCategory']['name'] + ', '
+
+        full_lot_title += f"{response['quantity']} шт." if response.get('quantity') else ''
+        response['full_lot_title'] = full_lot_title
+
         return Order.model_validate(response)
 
     def get_review(self, order_id: str) -> ReviewInfo:

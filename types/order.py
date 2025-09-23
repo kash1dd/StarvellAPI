@@ -12,6 +12,9 @@ class Game(BaseConfig):
     name: str
     slug: str
 
+class GameCategory(Game):
+    ...
+
 class SubCategory(BaseConfig):
     name: str
 
@@ -32,6 +35,7 @@ class Descriptions(BaseConfig):
 
 class OfferDetails(BaseConfig):
     game: Game
+    game_category: GameCategory = Field(alias="category")
     images: list[str]
     sub_category: SubCategory | None = Field(None, alias="subCategory")
     availability: int
@@ -53,3 +57,4 @@ class Order(BaseConfig):
     created_at: datetime = Field(alias="createdAt")
     refunded_at: datetime | None = Field(alias="refundedAt")
     completed_at: datetime | None = Field(alias="completedAt")
+    full_lot_title: str
