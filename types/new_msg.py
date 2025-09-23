@@ -15,6 +15,7 @@ class Images(BaseConfig):
 
 class NewMessageEvent(BaseConfig):
     by_api: bool | None = None
+    is_auto_response: bool
     id: str
     content: str | None
     metadata: MetaData | None

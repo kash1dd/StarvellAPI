@@ -141,8 +141,14 @@ def identify_ws_starvell_message(data: str) -> dict | None:
 
 
     if dict_with_data['metadata'] is None or 'notificationType' not in dict_with_data['metadata']:
+        dict_with_data['is_auto_response'] = False
+
+        if dict_with_data.get('metadata') is not None and 'isAutoResponse' in dict_with_data['metadata']:
+            dict_with_data['is_auto_response'] = True
+
         dict_with_data['by_api'] = True if dict_with_data['content'].startswith('‎') else False
         dict_with_data['type'] = MessageTypes.NEW_MESSAGE
+
     elif dict_with_data['metadata']['notificationType'] in NOTIFICATION_TYPES:
         dict_with_data['type'] = format_message_types(dict_with_data['metadata']['notificationType'])
     elif dict_with_data['metadata']['notificationType'] not in NOTIFICATION_TYPES:
