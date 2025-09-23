@@ -1,8 +1,6 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
 
-from .order import OfferDetails
-
 class BaseConfig(BaseModel):
     class Config:
         validate_by_name = True
@@ -13,7 +11,6 @@ class ReviewAuthor(BaseConfig):
     avatar_id: str | None = Field(alias='avatar')
 
 class ReviewShortcutOrder(BaseConfig):
-    offer_details: OfferDetails = Field(alias="offerDetails")
     amount: int
 
 class ReviewResponse(BaseConfig):
