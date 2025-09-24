@@ -148,9 +148,15 @@ def identify_ws_starvell_message(data: str, acc: "Account") -> dict | None:
 
     if dict_with_data['metadata'] is None or 'notificationType' not in dict_with_data['metadata']:
         dict_with_data['is_auto_response'] = False
+        dict_with_data['by_admin'] = False
 
         if dict_with_data.get('metadata') is not None and 'isAutoResponse' in dict_with_data['metadata']:
             dict_with_data['is_auto_response'] = True
+
+        if dict_with_data.get('author') and "MODERATOR" in dict_with_data['author']['roles'] or \
+            "SUPPORT" in dict_with_data['author']['roles'] or "ARBITRAGE" in dict_with_data['author']['roles'] or \
+                "ADMIN" in dict_with_data['author']['roles']:
+            dict_with_data['by_admin'] = True
 
         dict_with_data['by_api'] = True if dict_with_data['content'].startswith('‎') else False
         dict_with_data['type'] = MessageTypes.NEW_MESSAGE
