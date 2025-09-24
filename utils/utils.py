@@ -176,5 +176,6 @@ def identify_ws_starvell_message(data: str, acc: "Account") -> dict | None:
         dict_with_data['type'] = MessageTypes.OTHER
 
     dict_with_data['author'] = dict_with_data['author'] if 'author' in dict_with_data else dict_with_data['buyer']
+    dict_with_data['buyer'] = dict_with_data['buyer'] if dict_with_data.get('buyer') else dict_with_data['seller']
 
     return dict_with_data
