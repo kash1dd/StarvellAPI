@@ -58,7 +58,7 @@ class Account:
         :param proxy: Прокси с которого будут осуществляться запросы (пример: {"http": "http://user:password@your_proxy_ip:port"})
         """
 
-        # информация об аккаунтеt
+        # информация об аккаунте
         self.username: str | None = None
         self.id: int | None = None
         self.session_id: str = session_id
