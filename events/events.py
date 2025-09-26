@@ -1,5 +1,5 @@
 import threading
-from typing import Callable, Any
+from typing import Any, Callable
 
 from websocket import WebSocketApp
 
@@ -89,7 +89,7 @@ class Runner:
                 if handler[1](*args, **handler[2]):
                     threading.Thread(target=handler[0], args=args).start()
             else:
-                if all([h(*args, **handler[2]) for h in handler[1]])s
+                if all([h(*args, **handler[2]) for h in handler[1]]):
                     threading.Thread(target=handler[0], args=args).start()
 
     def add_handler(
