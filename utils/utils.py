@@ -1,23 +1,47 @@
-from StarvellAPI.enums import (
-    TransactionDirections,
-    TransactionTypes,
-    TransactionStatuses,
-    OrderStatuses,
-    MessageTypes,
-    PaymentTypes)
-from typing import Optional, TYPE_CHECKING
 import json
+from typing import TYPE_CHECKING, Any, Optional
+
+from StarvellAPI.enums import (
+    MessageTypes,
+    OrderStatuses,
+    PaymentTypes,
+    TransactionDirections,
+    TransactionStatuses,
+    TransactionTypes,
+)
 
 if TYPE_CHECKING:
     from StarvellAPI.account import Account
 
-NOTIFICATION_TYPES = ('ORDER_PAYMENT', 'REVIEW_CREATED', 'ORDER_COMPLETED', 'ORDER_REFUND',
-                                    'REVIEW_UPDATED', 'REVIEW_DELETED', 'ORDER_REOPENED', 'REVIEW_RESPONSE_CREATED',
-                                    'REVIEW_RESPONSE_UPDATED', 'REVIEW_RESPONSE_DELETED', 'BLACKLIST_YOU_ADDED',
-                                    'BLACKLIST_USER_ADDED', 'BLACKLIST_YOU_REMOVED', 'BLACKLIST_USER_REMOVED')
-NOTIFICATION_ORDER_TYPES = ('ORDER_PAYMENT', 'REVIEW_CREATED', 'ORDER_COMPLETED', 'ORDER_REFUND',
-                                    'REVIEW_UPDATED', 'REVIEW_DELETED', 'ORDER_REOPENED', 'REVIEW_RESPONSE_CREATED',
-                                    'REVIEW_RESPONSE_UPDATED', 'REVIEW_RESPONSE_DELETED')
+NOTIFICATION_TYPES = (
+    "ORDER_PAYMENT",
+    "REVIEW_CREATED",
+    "ORDER_COMPLETED",
+    "ORDER_REFUND",
+    "REVIEW_UPDATED",
+    "REVIEW_DELETED",
+    "ORDER_REOPENED",
+    "REVIEW_RESPONSE_CREATED",
+    "REVIEW_RESPONSE_UPDATED",
+    "REVIEW_RESPONSE_DELETED",
+    "BLACKLIST_YOU_ADDED",
+    "BLACKLIST_USER_ADDED",
+    "BLACKLIST_YOU_REMOVED",
+    "BLACKLIST_USER_REMOVED",
+)
+NOTIFICATION_ORDER_TYPES = (
+    "ORDER_PAYMENT",
+    "REVIEW_CREATED",
+    "ORDER_COMPLETED",
+    "ORDER_REFUND",
+    "REVIEW_UPDATED",
+    "REVIEW_DELETED",
+    "ORDER_REOPENED",
+    "REVIEW_RESPONSE_CREATED",
+    "REVIEW_RESPONSE_UPDATED",
+    "REVIEW_RESPONSE_DELETED",
+)
+
 
 def format_directions(direction: str) -> TransactionDirections:
     """
@@ -27,12 +51,10 @@ def format_directions(direction: str) -> TransactionDirections:
     :return: TransactionDirections (Enum)
     """
 
-    directions = {
-        "EXPENSE": TransactionDirections.EXPENSE,
-        "INCOME": TransactionDirections.INCOME
-    }
+    directions = {"EXPENSE": TransactionDirections.EXPENSE, "INCOME": TransactionDirections.INCOME}
 
     return directions.get(direction, TransactionDirections.UNKNOWN)
+
 
 def format_types(order_type: str) -> TransactionTypes:
     """
@@ -49,10 +71,11 @@ def format_types(order_type: str) -> TransactionTypes:
         "BALANCE_TOPUP": TransactionTypes.BALANCE_TOPUP,
         "ORDER_REFUND": TransactionTypes.ORDER_REFUND,
         "PAYOUT": TransactionTypes.PAYOUT,
-        "OTHER": TransactionTypes.OTHER
+        "OTHER": TransactionTypes.OTHER,
     }
 
     return order_types.get(order_type, TransactionTypes.UNKNOWN)
+
 
 def format_statuses(status: str) -> TransactionStatuses:
     """
@@ -65,10 +88,11 @@ def format_statuses(status: str) -> TransactionStatuses:
 
     order_statuses = {
         "COMPLETED": TransactionStatuses.COMPLETED,
-        "CANCELLED": TransactionStatuses.CANCELLED
+        "CANCELLED": TransactionStatuses.CANCELLED,
     }
 
     return order_statuses.get(status, TransactionStatuses.UNKNOWN)
+
 
 def format_order_status(status: str) -> OrderStatuses:
     """
@@ -82,10 +106,11 @@ def format_order_status(status: str) -> OrderStatuses:
     order_statuses = {
         "COMPLETED": OrderStatuses.CLOSED,
         "REFUND": OrderStatuses.REFUNDED,
-        "CREATED": OrderStatuses.PAID
+        "CREATED": OrderStatuses.PAID,
     }
 
     return order_statuses.get(status, OrderStatuses.UNKNOWN)
+
 
 def format_message_types(msg_type: str) -> MessageTypes:
     """
@@ -110,10 +135,11 @@ def format_message_types(msg_type: str) -> MessageTypes:
         "BLACKLIST_YOU_ADDED": MessageTypes.BLACKLIST_YOU_ADDED,
         "BLACKLIST_USER_ADDED": MessageTypes.BLACKLIST_USER_ADDED,
         "BLACKLIST_YOU_REMOVED": MessageTypes.BLACKLIST_YOU_REMOVED,
-        "BLACKLIST_USER_REMOVED": MessageTypes.BLACKLIST_USER_REMOVED
+        "BLACKLIST_USER_REMOVED": MessageTypes.BLACKLIST_USER_REMOVED,
     }
 
     return msg_types.get(msg_type, MessageTypes.OTHER)
+
 
 def format_payment_methods(method: PaymentTypes) -> Optional[int]:
     """
@@ -128,12 +154,13 @@ def format_payment_methods(method: PaymentTypes) -> Optional[int]:
         PaymentTypes.BANK_CARD_RU: 13,
         PaymentTypes.SBP: 15,
         PaymentTypes.USDT_TRC20: 11,
-        PaymentTypes.LTC: 12
+        PaymentTypes.LTC: 12,
     }
 
     return p_types.get(method)
 
-def identify_ws_starvell_message(data: str, acc: "Account") -> dict | None:
+
+def identify_ws_starvell_message(data: str, acc: "Account") -> dict[str, Any]:
     """
     Определяет тип нового сообщения со Starvell в чате, полученного с веб-сокета
 
@@ -143,39 +170,48 @@ def identify_ws_starvell_message(data: str, acc: "Account") -> dict | None:
     :return: Отформатированный словарь
     """
 
-    dict_with_data = json.loads(data[len('42/chats,["message_created",'):-1])
+    dict_with_data = json.loads(data[len('42/chats,["message_created",') : -1])
 
+    if dict_with_data["metadata"] is None or "notificationType" not in dict_with_data["metadata"]:
+        dict_with_data["is_auto_response"] = False
+        dict_with_data["by_admin"] = False
 
-    if dict_with_data['metadata'] is None or 'notificationType' not in dict_with_data['metadata']:
-        dict_with_data['is_auto_response'] = False
-        dict_with_data['by_admin'] = False
+        if dict_with_data.get("metadata") is not None and "isAutoResponse" in dict_with_data.get(
+            "metadata"
+        ):
+            dict_with_data["is_auto_response"] = True
 
-        if dict_with_data.get('metadata') is not None and 'isAutoResponse' in dict_with_data['metadata']:
-            dict_with_data['is_auto_response'] = True
+        if (
+            dict_with_data.get("author")
+            and "MODERATOR" in dict_with_data["author"]["roles"]
+            or "SUPPORT" in dict_with_data["author"]["roles"]
+            or "ARBITRAGE" in dict_with_data["author"]["roles"]
+            or "ADMIN" in dict_with_data["author"]["roles"]
+        ):
+            dict_with_data["by_admin"] = True
 
-        if dict_with_data.get('author') and "MODERATOR" in dict_with_data['author']['roles'] or \
-            "SUPPORT" in dict_with_data['author']['roles'] or "ARBITRAGE" in dict_with_data['author']['roles'] or \
-                "ADMIN" in dict_with_data['author']['roles']:
-            dict_with_data['by_admin'] = True
+        dict_with_data["by_api"] = True if dict_with_data["content"].startswith("‎") else False
+        dict_with_data["type"] = MessageTypes.NEW_MESSAGE
 
-        dict_with_data['by_api'] = True if dict_with_data['content'].startswith('‎') else False
-        dict_with_data['type'] = MessageTypes.NEW_MESSAGE
-
-    elif dict_with_data['metadata']['notificationType'] in NOTIFICATION_TYPES:
-        nt = dict_with_data['metadata']['notificationType']
+    elif dict_with_data["metadata"]["notificationType"] in NOTIFICATION_TYPES:
+        nt = dict_with_data["metadata"]["notificationType"]
 
         if nt in NOTIFICATION_ORDER_TYPES:
-            order = acc.get_order(dict_with_data['order']['id'])
-            dict_with_data['order']['price_for_me'] = order.price_for_me
-            dict_with_data['order']['price_for_buyer'] = order.price_for_buyer
-            dict_with_data['order']['offer_id'] = order.offer_id
+            order = acc.get_order(dict_with_data["order"]["id"])
+            dict_with_data["order"]["price_for_me"] = order.price_for_me
+            dict_with_data["order"]["price_for_buyer"] = order.price_for_buyer
+            dict_with_data["order"]["offer_id"] = order.offer_id
 
-        dict_with_data['type'] = format_message_types(nt)
+        dict_with_data["type"] = format_message_types(nt)
 
-    elif dict_with_data['metadata']['notificationType'] not in NOTIFICATION_TYPES:
-        dict_with_data['type'] = MessageTypes.OTHER
+    elif dict_with_data["metadata"]["notificationType"] not in NOTIFICATION_TYPES:
+        dict_with_data["type"] = MessageTypes.OTHER
 
-    dict_with_data['author'] = dict_with_data['author'] if 'author' in dict_with_data else dict_with_data['buyer']
-    dict_with_data['buyer'] = dict_with_data['buyer'] if dict_with_data.get('buyer') else dict_with_data['seller']
+    dict_with_data["author"] = (
+        dict_with_data["author"] if "author" in dict_with_data else dict_with_data["buyer"]
+    )
+    dict_with_data["buyer"] = (
+        dict_with_data["buyer"] if dict_with_data.get("buyer") else dict_with_data["seller"]
+    )
 
     return dict_with_data

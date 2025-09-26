@@ -1,54 +1,55 @@
-from StarvellAPI.session import StarvellSession
-from .enums import MessageTypes, PaymentTypes
-from .errors import (
-    SendReviewError,
-    SendMessageError,
-    RefundError,
-    BlockError,
-    EditReviewError,
-    UnBlockError,
-    WithdrawError,
-    CreateLotError,
-    ReadChatError,
-    DeleteLotError,
-    SaveSettingsError,
-    UserNotFoundError,
-    RequestFailedError,
-    GetReviewError,
-    ReviewNotFoundError,
-    SendImageError,
-    SendTypingError
-)
-from .utils import (
-    format_order_status,
-    format_types,
-    format_message_types,
-    format_payment_methods,
-    format_statuses,
-    format_directions
-)
-from .types import (
-    MyProfile,
-    PreviewSettings,
-    OrderInfo,
-    ReviewInfo,
-    TransactionInfo,
-    ChatInfo,
-    Message,
-    Order,
-    OfferTableInfo,
-    LotFields,
-    BlockListedUser,
-    User,
-    CreateLotFields,
-    ExchangeRate
-)
-
-from datetime import datetime
-from typing import Optional, Any
-
 import json
 import time
+from datetime import datetime
+from typing import Any, Optional
+
+from StarvellAPI.session import StarvellSession
+
+from .enums import MessageTypes, PaymentTypes
+from .errors import (
+    BlockError,
+    CreateLotError,
+    DeleteLotError,
+    EditReviewError,
+    GetReviewError,
+    ReadChatError,
+    RefundError,
+    RequestFailedError,
+    ReviewNotFoundError,
+    SaveSettingsError,
+    SendImageError,
+    SendMessageError,
+    SendReviewError,
+    SendTypingError,
+    UnBlockError,
+    UserNotFoundError,
+    WithdrawError,
+)
+from .types import (
+    BlockListedUser,
+    ChatInfo,
+    CreateLotFields,
+    ExchangeRate,
+    LotFields,
+    Message,
+    MyProfile,
+    OfferTableInfo,
+    Order,
+    OrderInfo,
+    PreviewSettings,
+    ReviewInfo,
+    TransactionInfo,
+    User,
+)
+from .utils import (
+    format_directions,
+    format_message_types,
+    format_order_status,
+    format_payment_methods,
+    format_statuses,
+    format_types,
+)
+
 
 class Account:
     def __init__(self, session_id: str, proxy: dict[str, str] | None = None) -> None:
@@ -83,7 +84,7 @@ class Account:
     def get_info(self) -> MyProfile:
         """
         Получает информацию об аккаунте.
-        
+
         :return: Возвращает модель Profile
         """
 
@@ -101,8 +102,11 @@ class Account:
         self.rating = response.user.rating
         self.reviews_count = response.user.reviews_count
         self.balance_hold = response.holded_balance / 100
-        self.balance = response.balance.rub_balance / 100 if \
-        isinstance(response.balance.rub_balance, int) else None
+        self.balance = (
+            response.balance.rub_balance / 100
+            if isinstance(response.balance.rub_balance, int)
+            else None
+        )
         self.active_orders = response.active_orders.sales
 
         return response
@@ -118,8 +122,9 @@ class Account:
         response = self.request.get(url=url, raise_not_200=True).json()
         return PreviewSettings.model_validate(response)
 
-
-    def get_sales(self, offset: int = 0, limit: int = 100000000, filter_sales: dict[str, Any] | None = None) -> list[OrderInfo]:
+    def get_sales(
+        self, offset: int = 0, limit: int = 100000000, filter_sales: dict[str, Any] | None = None
+    ) -> list[OrderInfo]:
         """
         Получает продажи.
 
@@ -135,15 +140,10 @@ class Account:
         url = "https://starvell.com/api/orders/list"
         body = {
             "filter": default if filter_sales is None else filter_sales,
-            "with": {
-                "buyer": True
-            },
-            "orderBy": {
-                "field": "createdAt",
-                "order": "DESC"
-            },
+            "with": {"buyer": True},
+            "orderBy": {"field": "createdAt", "order": "DESC"},
             "limit": limit,
-            "offset": offset
+            "offset": offset,
         }
         response = self.request.post(url, body, raise_not_200=True)
 
@@ -151,7 +151,7 @@ class Account:
         orders = response.json()
 
         for obj in orders:
-            obj['status'] = format_order_status(obj['status'])
+            obj["status"] = format_order_status(obj["status"])
             ord_2 = OrderInfo.model_validate(obj)
             list_with_sales.append(ord_2)
 
@@ -169,13 +169,8 @@ class Account:
 
         url = "https://starvell.com/api/reviews/list"
         body = {
-            "filter": {
-                "recipientId": self.id
-            },
-            "pagination": {
-                "offset": offset,
-                "limit": limit
-            }
+            "filter": {"recipientId": self.id},
+            "pagination": {"offset": offset, "limit": limit},
         }
         response = self.request.post(url, body, raise_not_200=True).json()
 
@@ -192,20 +187,16 @@ class Account:
         """
 
         url = "https://starvell.com/api/transactions/list"
-        body = {
-            "filter": {},
-            "limit": limit,
-            "offset": offset
-        }
+        body = {"filter": {}, "limit": limit, "offset": offset}
         response = self.request.post(url, body, raise_not_200=True)
 
         list_with_transactions = []
         transactions = response.json()
 
         for t in transactions:
-            t['direction'] = format_directions(t['direction'])
-            t['type'] = format_types(t['type'])
-            t['status'] = format_statuses(t['status'])
+            t["direction"] = format_directions(t["direction"])
+            t["type"] = format_types(t["type"])
+            t["status"] = format_statuses(t["status"])
             t = TransactionInfo.model_validate(t)
             list_with_transactions.append(t)
 
@@ -222,10 +213,7 @@ class Account:
         """
 
         url = "https://starvell.com/api/chats/list"
-        body = {
-            "offset": offset,
-            "limit": limit
-        }
+        body = {"offset": offset, "limit": limit}
         response = self.request.post(url, body=body, raise_not_200=True).json()
 
         return [ChatInfo.model_validate(i) for i in response]
@@ -241,24 +229,28 @@ class Account:
         """
 
         url = "https://starvell.com/api/messages/list"
-        body = {
-            "chatId": str(chat_id),
-            "limit": limit
-        }
+        body = {"chatId": str(chat_id), "limit": limit}
         messages = []
 
         response = self.request.post(url, body, raise_not_200=True).json()
 
         for r in response:
-            if r['metadata'] is None or 'notificationType' not in r['metadata']:
-                r['event_type'] = MessageTypes.NEW_MESSAGE
+            if r["metadata"] is None or "notificationType" not in r["metadata"]:
+                r["event_type"] = MessageTypes.NEW_MESSAGE
             else:
-                if r['metadata']['notificationType'] in ('ORDER_PAYMENT', 'REVIEW_CREATED', 'ORDER_COMPLETED', 'ORDER_REFUND', 'REVIEW_UPDATED', 'REVIEW_DELETED'):
-                    r['event_type'] = format_message_types(r['metadata']['notificationType'])
+                if r["metadata"]["notificationType"] in (
+                    "ORDER_PAYMENT",
+                    "REVIEW_CREATED",
+                    "ORDER_COMPLETED",
+                    "ORDER_REFUND",
+                    "REVIEW_UPDATED",
+                    "REVIEW_DELETED",
+                ):
+                    r["event_type"] = format_message_types(r["metadata"]["notificationType"])
                 else:
                     continue
 
-            r['author'] = r['author'] if r['author'] else r['buyer']
+            r["author"] = r["author"] if r["author"] else r["buyer"]
             messages.append(Message.model_validate(r))
 
         return messages
@@ -273,30 +265,36 @@ class Account:
         """
 
         url = f"https://starvell.com/api/orders/{order_id}"
-        body = {
-            "orderId": order_id
-        }
+        body = {"orderId": order_id}
 
         response = self.request.get(url, body, raise_not_200=True).json()
-        response['status'] = format_order_status(response['status'])
-        response['basePrice'] = response['basePrice'] / 100 if isinstance(response['basePrice'], int) else 0
-        response['totalPrice'] = response['totalPrice'] / 100 if isinstance(response['totalPrice'], int) else 0
-        offer = response['offerDetails']
+        response["status"] = format_order_status(response["status"])
+        response["basePrice"] = (
+            response["basePrice"] / 100 if isinstance(response["basePrice"], int) else 0
+        )
+        response["totalPrice"] = (
+            response["totalPrice"] / 100 if isinstance(response["totalPrice"], int) else 0
+        )
+        offer = response["offerDetails"]
 
         full_lot_title = ""
 
-        if offer['game'] and offer['game']['name']:
-            full_lot_title += offer['game']['name'] + ', '
-        if offer['category'] and offer['category']['name']:
-            full_lot_title += offer['category']['name'] + ', '
-        if offer['descriptions'] and offer['descriptions'].get('rus') and offer['descriptions']['rus'] and \
-                offer['descriptions']['rus'].get('briefDescription'):
-            full_lot_title += offer['descriptions']['rus']['briefDescription'] + ', '
-        if offer['subCategory'] and offer['subCategory']['name']:
-            full_lot_title += offer['subCategory']['name'] + ', '
+        if offer["game"] and offer["game"]["name"]:
+            full_lot_title += offer["game"]["name"] + ", "
+        if offer["category"] and offer["category"]["name"]:
+            full_lot_title += offer["category"]["name"] + ", "
+        if (
+            offer["descriptions"]
+            and offer["descriptions"].get("rus")
+            and offer["descriptions"]["rus"]
+            and offer["descriptions"]["rus"].get("briefDescription")
+        ):
+            full_lot_title += offer["descriptions"]["rus"]["briefDescription"] + ", "
+        if offer["subCategory"] and offer["subCategory"]["name"]:
+            full_lot_title += offer["subCategory"]["name"] + ", "
 
-        full_lot_title += f"{response['quantity']} шт." if response.get('quantity') else ''
-        response['offerDetails']['full_lot_title'] = full_lot_title
+        full_lot_title += f"{response['quantity']} шт." if response.get("quantity") else ""
+        response["offerDetails"]["full_lot_title"] = full_lot_title
 
         return Order.model_validate(response)
 
@@ -309,27 +307,27 @@ class Account:
         :return: ReviewInfo
         """
 
-        url = f"https://starvell.com/api/reviews/by-order-id"
-        param = {
-            "id": order_id
-        }
+        url = "https://starvell.com/api/reviews/by-order-id"
+        param = {"id": order_id}
 
         response = self.request.get(url=url, params=param, raise_not_200=False)
 
         if response.status_code == 404:
-            raise ReviewNotFoundError(response.json().get('message'))
+            raise ReviewNotFoundError(response.json().get("message"))
 
         if response.status_code != 200:
-            raise GetReviewError(response.json().get('message'))
+            raise GetReviewError(response.json().get("message"))
 
         return ReviewInfo.model_validate(response.json())
 
-
-    def get_category_lots(self, category_id: int,
-                          offset: int = 0,
-                          limit: int = 100000000,
-                          only_online: bool = False,
-                          other_filters: dict[str, str] | None = None) -> list[OfferTableInfo]:
+    def get_category_lots(
+        self,
+        category_id: int,
+        offset: int = 0,
+        limit: int = 100000000,
+        only_online: bool = False,
+        other_filters: dict[str, str] | None = None,
+    ) -> list[OfferTableInfo]:
         """
         Получает лоты категории.
 
@@ -352,7 +350,7 @@ class Account:
             "offset": offset,
             "sortBy": "price",
             "sortDir": "ASC",
-            "sortByPriceAndBumped": True
+            "sortByPriceAndBumped": True,
         }
 
         if other_filters:
@@ -362,7 +360,9 @@ class Account:
 
         return [OfferTableInfo.model_validate(i) for i in response]
 
-    def get_my_category_lots(self, category_id: int, offset: int = 0, limit: int = 10000000) -> list[LotFields]:
+    def get_my_category_lots(
+        self, category_id: int, offset: int = 0, limit: int = 10000000
+    ) -> list[LotFields]:
         """
         Получает свои лоты категории.
 
@@ -374,11 +374,7 @@ class Account:
         """
 
         url = "https://starvell.com/api/offers/list-my"
-        body = {
-            "categoryId": category_id,
-            "limit": limit,
-            "offset": offset
-        }
+        body = {"categoryId": category_id, "limit": limit, "offset": offset}
 
         response = self.request.post(url, body=body, raise_not_200=True).json()
 
@@ -423,7 +419,7 @@ class Account:
         response = self.request.get(url=url, raise_not_200=False)
 
         if response.status_code == 404:
-            raise UserNotFoundError(response.json().get('message'))
+            raise UserNotFoundError(response.json().get("message"))
         elif response.status_code != 200:
             raise RequestFailedError(response)
 
@@ -437,7 +433,8 @@ class Account:
         """
 
         return ExchangeRate.model_validate(
-            self.request.get(url="https://starvell.com/api/exchange-rates/usdt-rub").json())
+            self.request.get(url="https://starvell.com/api/exchange-rates/usdt-rub").json()
+        )
 
     def get_usdt_ltc_exchange_rate(self) -> ExchangeRate:
         """
@@ -447,7 +444,8 @@ class Account:
         """
 
         return ExchangeRate.model_validate(
-            self.request.get(url="https://starvell.com/api/exchange-rates/usdt-ltc").json())
+            self.request.get(url="https://starvell.com/api/exchange-rates/usdt-ltc").json()
+        )
 
     def create_lot(self, fields: LotFields) -> LotFields:
         """
@@ -462,13 +460,15 @@ class Account:
         url = "https://starvell.com/api/offers-operations/create"
 
         lot_fields = json.loads(fields.model_dump_json(by_alias=True))
-        lot_fields['numericAttributes'] = lot_fields['attributes']
-        create_fields = json.loads(CreateLotFields.model_validate(lot_fields).model_dump_json(by_alias=True))
+        lot_fields["numericAttributes"] = lot_fields["attributes"]
+        create_fields = json.loads(
+            CreateLotFields.model_validate(lot_fields).model_dump_json(by_alias=True)
+        )
 
         response = self.request.post(url, create_fields, raise_not_200=False)
 
         if response.status_code != 201:
-            raise CreateLotError(response.json().get('message'))
+            raise CreateLotError(response.json().get("message"))
 
         return LotFields.model_validate(response.json())
 
@@ -487,7 +487,7 @@ class Account:
         js = response.json()
 
         if response.status_code != 200:
-            raise DeleteLotError(js.get('message'))
+            raise DeleteLotError(js.get("message"))
 
     def send_message(self, chat_id: str, content: str, read_chat: bool = True) -> None:
         """
@@ -509,7 +509,7 @@ class Account:
         response = self.request.post(url, body, raise_not_200=False)
 
         if response.status_code != 201:
-            raise SendMessageError(response.json().get('message'))
+            raise SendMessageError(response.json().get("message"))
 
         if read_chat:
             self.read_chat(chat_id)
@@ -526,14 +526,10 @@ class Account:
         """
 
         url = "https://starvell.com/api/messages/send-with-image"
-        param = {
-            "chatId": chat_id
-        }
-        files = {
-            "image": ("StarvellAPI.png", image_bytes, "image/png")
-        }
+        param = {"chatId": chat_id}
+        files = {"image": ("StarvellAPI.png", image_bytes, "image/png")}
 
-        response = self.request.post(url=url,  files=files, params=param, raise_not_200=False)
+        response = self.request.post(url=url, files=files, params=param, raise_not_200=False)
 
         if response.status_code != 201:
             raise SendImageError(response.json().get("message"))
@@ -552,14 +548,12 @@ class Account:
         """
 
         url = "https://starvell.com/api/chats/read"
-        body = {
-            "chatId": chat_id
-        }
+        body = {"chatId": chat_id}
 
         response = self.request.post(url, body, raise_not_200=False)
 
         if response.status_code != 200:
-            raise ReadChatError(response.json().get('message'))
+            raise ReadChatError(response.json().get("message"))
 
     def save_lot(self, lot: LotFields) -> None:
         """
@@ -578,7 +572,7 @@ class Account:
 
         for key, value in data.items():
             if type(value) is datetime:
-                data[key] = value.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+                data[key] = value.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
         self.request.post(url, data, raise_not_200=False)
 
@@ -594,21 +588,18 @@ class Account:
         """
 
         url = "https://starvell.com/api/review-responses/create"
-        body = {
-            "content": content,
-            "reviewId": review_id
-        }
+        body = {"content": content, "reviewId": review_id}
         response = self.request.post(url, body, raise_not_200=False)
 
         if response.status_code != 200:
-            raise SendReviewError(response.json().get('message'))
+            raise SendReviewError(response.json().get("message"))
 
     def edit_review(self, review_id: str, content: str):
         """
         Редактирует ответ на отзыв.
-        
+
         Именно редактирует, если на отзыв ещё нет ответа, может возникнуть ошибка
-        
+
         :param review_id: ID Отзыва, на который нужно изменить ответ
         :param content: Текст ответа
 
@@ -617,14 +608,11 @@ class Account:
         """
 
         url = f"https://starvell.com/api/review-responses/{review_id}/update"
-        body = {
-            "content": content,
-            "reviewId": review_id
-        }
+        body = {"content": content, "reviewId": review_id}
         response = self.request.post(url, body, raise_not_200=False)
 
         if response.status_code != 200:
-            raise EditReviewError(response.json().get('message'))
+            raise EditReviewError(response.json().get("message"))
 
     def refund(self, order_id: str):
         """
@@ -637,14 +625,12 @@ class Account:
         """
 
         url = "https://starvell.com/api/orders/refund"
-        body = {
-            "orderId": order_id
-        }
+        body = {"orderId": order_id}
 
         response = self.request.post(url, body, raise_not_200=False)
 
         if response.status_code != 200:
-            raise RefundError(response.json().get('message'))
+            raise RefundError(response.json().get("message"))
 
     def withdraw(self, payment_system: PaymentTypes, requisite: str, amount: float, bank=None):
         """
@@ -664,16 +650,19 @@ class Account:
             "paymentSystemId": format_payment_methods(payment_system),
             "amount": amount * 100,
             "address": requisite,
-            'cardHolder' if payment_system is not PaymentTypes.SBP else 'sbpBankId': "StarvellAPI" if payment_system is not PaymentTypes.SBP else bank
+            "cardHolder" if payment_system is not PaymentTypes.SBP else "sbpBankId": "StarvellAPI"
+            if payment_system is not PaymentTypes.SBP
+            else bank,
         }
 
         response = self.request.post(url, body, raise_not_200=False).json()
 
         if response.status_code != 200:
-            raise WithdrawError(response.get('message'))
+            raise WithdrawError(response.get("message"))
 
-
-    def save_settings(self, is_offers_visible: bool, updated_parameter: Optional[dict[str, Any]] = None):
+    def save_settings(
+        self, is_offers_visible: bool, updated_parameter: Optional[dict[str, Any]] = None
+    ):
         """
         Сохраняет настройки аккаунта.
 
@@ -689,7 +678,7 @@ class Account:
             "avatar": self.avatar_id,
             "email": self.email,
             "isOffersVisibleOnlyInProfile": is_offers_visible,
-            "username": self.username
+            "username": self.username,
         }
         if updated_parameter:
             body.update(**updated_parameter)
@@ -697,7 +686,7 @@ class Account:
         response = self.request.patch(url, body, raise_not_200=False)
 
         if response.status_code != 200:
-            raise SaveSettingsError(response.json().get('message'))
+            raise SaveSettingsError(response.json().get("message"))
 
     def block(self, user_id: int):
         """
@@ -710,14 +699,12 @@ class Account:
         """
 
         url = "https://starvell.com/api/blacklisted-users/block"
-        body: dict[str, int] = {
-            "targetId": user_id
-        }
+        body: dict[str, int] = {"targetId": user_id}
 
         response = self.request.post(url, body, raise_not_200=False)
 
         if response.status_code != 200:
-            raise BlockError(response.json().get('message'))
+            raise BlockError(response.json().get("message"))
 
     def unblock(self, user_id: int):
         """
@@ -730,14 +717,12 @@ class Account:
         """
 
         url = "https://starvell.com/api/blacklisted-users/unblock"
-        body: dict[str, int] = {
-            "targetId": user_id
-        }
+        body: dict[str, int] = {"targetId": user_id}
 
         response = self.request.post(url, body, raise_not_200=False)
 
         if response.status_code != 200:
-            raise UnBlockError(response.json().get('message'))
+            raise UnBlockError(response.json().get("message"))
 
     def send_typing(self, chat_id: str, is_typing: bool, count: int = 1) -> None:
         """
@@ -751,14 +736,11 @@ class Account:
         """
 
         url = "https://starvell.com/api/chats/send-typing"
-        body = {
-            "chatId": chat_id,
-            "isTyping": is_typing
-        }
+        body = {"chatId": chat_id, "isTyping": is_typing}
 
         for i in range(count):
             response = self.request.post(url=url, body=body, raise_not_200=False)
 
             if response.status_code != 200:
-                raise SendTypingError(response.json().get('message'))
+                raise SendTypingError(response.json().get("message"))
             time.sleep(4)

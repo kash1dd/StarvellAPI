@@ -1,4 +1,43 @@
-from .exceptions import RequestFailedError, UnauthorizedError, HandlerError, WithdrawError, \
-    SendMessageError, ReadChatError, RefundError, EditReviewError, SendReviewError, BlockError, UnBlockError, \
-    CreateLotError, DeleteLotError, SaveSettingsError, UserNotFoundError, GetReviewError, ReviewNotFoundError, \
-    SendImageError, SendTypingError
+from .exceptions import (
+    BlockError,
+    CreateLotError,
+    DeleteLotError,
+    EditReviewError,
+    GetReviewError,
+    HandlerError,
+    ReadChatError,
+    RefundError,
+    RequestFailedError,
+    ReviewNotFoundError,
+    SaveSettingsError,
+    SendImageError,
+    SendMessageError,
+    SendReviewError,
+    SendTypingError,
+    UnauthorizedError,
+    UnBlockError,
+    UserNotFoundError,
+    WithdrawError,
+)
+
+__all__ = [
+    "BlockError",
+    "CreateLotError",
+    "DeleteLotError",
+    "EditReviewError",
+    "GetReviewError",
+    "HandlerError",
+    "ReadChatError",
+    "RefundError",
+    "RequestFailedError",
+    "ReviewNotFoundError",
+    "SaveSettingsError",
+    "SendImageError",
+    "SendMessageError",
+    "SendReviewError",
+    "SendTypingError",
+    "UnauthorizedError",
+    "UnBlockError",
+    "UserNotFoundError",
+    "WithdrawError",
+]

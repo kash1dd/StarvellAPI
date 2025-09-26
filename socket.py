@@ -1,10 +1,11 @@
-from .errors import HandlerError
-from .enums import SocketTypes
-
+import threading
 from typing import Callable
 
 import websocket
-import threading
+
+from .enums import SocketTypes
+from .errors import HandlerError
+
 
 class Socket:
     def __init__(self, session_id: str, online: bool = True):
@@ -19,7 +20,7 @@ class Socket:
 
         self.handlers: dict[SocketTypes, list[Callable]] = {
             SocketTypes.OPEN: [],
-            SocketTypes.NEW_MESSAGE: []
+            SocketTypes.NEW_MESSAGE: [],
         }
 
     def on_message(self, ws: websocket.WebSocket, msg: str) -> None:
@@ -52,7 +53,7 @@ class Socket:
         ws.send("40/chats,")
 
         if self.online:
-            ws.send('40/online,')
+            ws.send("40/online,")
 
         for func in self.handlers[SocketTypes.OPEN]:
             try:
@@ -69,10 +70,7 @@ class Socket:
 
         url = "wss://starvell.com/socket.io/?EIO=4&transport=websocket"
         ws = websocket.WebSocketApp(
-            url=url,
-            cookie=f"session={self.s}",
-            on_message=self.on_message,
-            on_open=self.on_open
+            url=url, cookie=f"session={self.s}", on_message=self.on_message, on_open=self.on_open
         )
         ws.run_forever(reconnect=True)
 

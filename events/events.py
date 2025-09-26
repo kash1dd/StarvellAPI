@@ -1,14 +1,15 @@
-from StarvellAPI.account import Account
-from StarvellAPI.socket import Socket
-from StarvellAPI.errors import HandlerError
-from StarvellAPI.enums import MessageTypes, SocketTypes
-from StarvellAPI.utils import identify_ws_starvell_message
-from StarvellAPI.types import OrderEvent, NewMessageEvent, ServiceMessageEvent
+import threading
+from typing import Callable, Any
 
 from websocket import WebSocketApp
-from typing import Callable
 
-import threading
+from StarvellAPI.account import Account
+from StarvellAPI.enums import MessageTypes, SocketTypes
+from StarvellAPI.errors import HandlerError
+from StarvellAPI.socket import Socket
+from StarvellAPI.types import NewMessageEvent, OrderEvent, ServiceMessageEvent
+from StarvellAPI.utils import identify_ws_starvell_message
+
 
 class Runner:
     def __init__(self, acc: Account, always_online: bool = True):
@@ -39,18 +40,18 @@ class Runner:
             MessageTypes.BLACKLIST_USER_ADDED: [],
             MessageTypes.BLACKLIST_YOU_REMOVED: [],
             MessageTypes.BLACKLIST_USER_REMOVED: [],
-
-
             SocketTypes.OPEN: [],
-            SocketTypes.NEW_MESSAGE: []
+            SocketTypes.NEW_MESSAGE: [],
         }
 
-        self.event_types: dict[MessageTypes, type[NewMessageEvent | OrderEvent]] = {
+        self.event_types: dict[
+            MessageTypes, type[NewMessageEvent | OrderEvent | ServiceMessageEvent]
+        ] = {
             MessageTypes.NEW_MESSAGE: NewMessageEvent,
             MessageTypes.NEW_ORDER: OrderEvent,
             MessageTypes.CONFIRM_ORDER: OrderEvent,
             MessageTypes.ORDER_REFUND: OrderEvent,
-            MessageTypes.ORDER_REOPENED: [],
+            MessageTypes.ORDER_REOPENED: OrderEvent,
             MessageTypes.NEW_REVIEW: OrderEvent,
             MessageTypes.REVIEW_DELETED: OrderEvent,
             MessageTypes.REVIEW_CHANGED: OrderEvent,
@@ -60,14 +61,18 @@ class Runner:
             MessageTypes.BLACKLIST_YOU_REMOVED: ServiceMessageEvent,
             MessageTypes.BLACKLIST_USER_REMOVED: ServiceMessageEvent,
             MessageTypes.BLACKLIST_YOU_ADDED: ServiceMessageEvent,
-            MessageTypes.BLACKLIST_USER_ADDED: ServiceMessageEvent
+            MessageTypes.BLACKLIST_USER_ADDED: ServiceMessageEvent,
         }
 
-        self.add_handler(SocketTypes.NEW_MESSAGE, handler_filter=lambda msg, *args: msg.startswith('42/chats'))(self.msg_process)
-        self.add_handler(SocketTypes.NEW_MESSAGE, handler_filter=lambda msg, ws: msg == "2")(lambda _, ws: ws.send('3'))
+        self.add_handler(
+            SocketTypes.NEW_MESSAGE, handler_filter=lambda msg, *args: msg.startswith("42/chats")
+        )(self.msg_process)
+        self.add_handler(SocketTypes.NEW_MESSAGE, handler_filter=lambda msg, ws: msg == "2")(
+            lambda _, ws: ws.send("3")
+        )
 
     @staticmethod
-    def handling(handler: list[Callable | list[Callable] | dict[str, str]], *args) -> None:
+    def handling(handler: list[list[Any]], *args) -> None:
         """
         Вызывает хэндлер с переданными аргументами
 
@@ -84,14 +89,14 @@ class Runner:
                 if handler[1](*args, **handler[2]):
                     threading.Thread(target=handler[0], args=args).start()
             else:
-                if all([h(*args, **handler[2]) for h in handler[1]]):
+                if all([h(*args, **handler[2]) for h in handler[1]])s
                     threading.Thread(target=handler[0], args=args).start()
 
     def add_handler(
         self,
         handler_type: MessageTypes | SocketTypes,
         handler_filter: list[Callable] | Callable | None = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Добавляет хэндлер
@@ -111,6 +116,7 @@ class Runner:
         def decorator(func):
             self.handlers[handler_type].append([func, handler_filter, kwargs])
             return func
+
         return decorator
 
     def msg_process(self, msg: str, _: WebSocketApp) -> None:
@@ -131,26 +137,34 @@ class Runner:
             if not dict_with_data:
                 return
 
-            if dict_with_data.get('order') and dict_with_data.get('order').get('offerDetails'):
-                offer = dict_with_data['order']['offerDetails']
+            if dict_with_data.get("order") and dict_with_data["order"].get("offerDetails"):
+                offer = dict_with_data["order"]["offerDetails"]
                 full_lot_title = ""
 
-                if offer['game'] and offer['game']['name']:
-                    full_lot_title += offer['game']['name'] + ', '
-                if offer['category'] and offer['category']['name']:
-                    full_lot_title += offer['category']['name'] + ', '
-                if offer['descriptions'] and offer['descriptions'].get('rus') and offer['descriptions']['rus'] and \
-                        offer['descriptions']['rus'].get('briefDescription'):
-                    full_lot_title += offer['descriptions']['rus']['briefDescription'] + ', '
-                if offer['subCategory'] and offer['subCategory']['name']:
-                    full_lot_title += offer['subCategory']['name'] + ', '
+                if offer["game"] and offer["game"]["name"]:
+                    full_lot_title += offer["game"]["name"] + ", "
+                if offer["category"] and offer["category"]["name"]:
+                    full_lot_title += offer["category"]["name"] + ", "
+                if (
+                    offer["descriptions"]
+                    and offer["descriptions"].get("rus")
+                    and offer["descriptions"]["rus"]
+                    and offer["descriptions"]["rus"].get("briefDescription")
+                ):
+                    full_lot_title += offer["descriptions"]["rus"]["briefDescription"] + ", "
+                if offer["subCategory"] and offer["subCategory"]["name"]:
+                    full_lot_title += offer["subCategory"]["name"] + ", "
 
-                full_lot_title += f"{dict_with_data['order']['quantity']} шт." if dict_with_data['order'].get('quantity') else ''
-                dict_with_data['order']['offerDetails']['full_lot_title'] = full_lot_title
+                full_lot_title += (
+                    f"{dict_with_data['order']['quantity']} шт."
+                    if dict_with_data["order"].get("quantity")
+                    else ""
+                )
+                dict_with_data["order"]["offerDetails"]["full_lot_title"] = full_lot_title
 
-            data = self.event_types[dict_with_data['type']].model_validate(dict_with_data)
+            data = self.event_types[dict_with_data["type"]].model_validate(dict_with_data)
 
-            for handler in self.handlers[dict_with_data['type']]:
+            for handler in self.handlers[dict_with_data["type"]]:
                 try:
                     self.handling(handler, data)
                 except Exception as e:

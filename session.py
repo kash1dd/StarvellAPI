@@ -1,7 +1,10 @@
+from datetime import datetime
+from typing import Any
+
+from requests import Response, Session
+
 from StarvellAPI.errors import RequestFailedError, UnauthorizedError
 
-from requests import Session, Response
-from datetime import datetime
 
 class StarvellSession:
     def __init__(self, session_id: str, proxy: dict[str, str] | None = None):
@@ -21,49 +24,75 @@ class StarvellSession:
 
         self.request.cookies["session"] = session_id
 
-    def send_request(self, method: str, url: str, body: dict = None, params: dict | None = None,
-                     files: dict[str, tuple] | None = None, raise_not_200: bool = False) -> Response:
+    def send_request(
+        self,
+        method: str,
+        url: str,
+        body: dict[str, Any] | None = None,
+        params: dict[str, Any] | None = None,
+        files: dict[str, tuple] | None = None,
+        raise_not_200: bool = False,
+    ) -> Response:
         """
         Отправляет запрос используя сессию Starvell
-        
+
         :param method: Метод (get/post/patch)
         :param url: Ссылка, куда отправить запрос
         :param body: JSON к запросу
         :param params: Параметры к запросу
         :param files: Файл (Например изображение)
         :param raise_not_200: Возбуждать-ли исключение, если ответ не 200?
-        
+
         :return: Response
         """
 
-        response: Response | None = None
+        response: None | Response = None
 
-        for i in range(5):
+        for _ in range(5):
             self.requests_count += 1
 
             if body:
                 if params:
                     if files:
-                        response: Response = getattr(self.request, method)(url=url, headers=self.request.headers, json=body, params=params,
-                                                                           files=files)
+                        response: Response = getattr(self.request, method)(
+                            url=url,
+                            headers=self.request.headers,
+                            json=body,
+                            params=params,
+                            files=files,
+                        )
                     else:
-                        response: Response = getattr(self.request, method)(url=url, headers=self.request.headers, json=body, params=params)
+                        response: Response = getattr(self.request, method)(
+                            url=url, headers=self.request.headers, json=body, params=params
+                        )
                 else:
                     if files:
-                        response: Response = getattr(self.request, method)(url=url, headers=self.request.headers, json=body)
+                        response: Response = getattr(self.request, method)(
+                            url=url, headers=self.request.headers, json=body
+                        )
                     else:
-                        response: Response = getattr(self.request, method)(url=url, headers=self.request.headers, json=body, files=files)
+                        response: Response = getattr(self.request, method)(
+                            url=url, headers=self.request.headers, json=body, files=files
+                        )
             else:
                 if params:
                     if files:
-                        response: Response = getattr(self.request, method)(url=url, headers=self.request.headers, params=params, files=files)
+                        response: Response = getattr(self.request, method)(
+                            url=url, headers=self.request.headers, params=params, files=files
+                        )
                     else:
-                        response: Response = getattr(self.request, method)(url=url, headers=self.request.headers, params=params)
+                        response: Response = getattr(self.request, method)(
+                            url=url, headers=self.request.headers, params=params
+                        )
                 else:
                     if files:
-                        response: Response = getattr(self.request, method)(url=url, headers=self.request.headers, files=files)
+                        response: Response = getattr(self.request, method)(
+                            url=url, headers=self.request.headers, files=files
+                        )
                     else:
-                        response: Response = getattr(self.request, method)(url=url, headers=self.request.headers)
+                        response: Response = getattr(self.request, method)(
+                            url=url, headers=self.request.headers
+                        )
 
             if response.status_code in (200, 201):
                 break
@@ -80,11 +109,14 @@ class StarvellSession:
 
         return response
 
-    def get(self, url: str,
-            body: dict = None,
-            params: dict | None = None,
-            files: dict[str, tuple] | None = None,
-            raise_not_200: bool = True) -> Response:
+    def get(
+        self,
+        url: str,
+        body: dict[str, Any] | None = None,
+        params: dict[str, Any] | None = None,
+        files: dict[str, tuple] | None = None,
+        raise_not_200: bool = True,
+    ) -> Response:
         """
         Отправляет GET запрос к Starvell
 
@@ -97,13 +129,18 @@ class StarvellSession:
         :return: Response
         """
 
-        return self.send_request("get", url, body, params=params, files=files, raise_not_200=raise_not_200)
+        return self.send_request(
+            "get", url, body, params=params, files=files, raise_not_200=raise_not_200
+        )
 
-    def post(self, url: str,
-             body: dict = None,
-             params: dict | None = None,
-             files: dict[str, tuple] | None = None,
-             raise_not_200: bool = True) -> Response:
+    def post(
+        self,
+        url: str,
+        body: dict[str, Any] | None = None,
+        params: dict[str, Any] | None = None,
+        files: dict[str, tuple] | None = None,
+        raise_not_200: bool = True,
+    ) -> Response:
         """
         Отправляет POST запрос к Starvell
 
@@ -116,13 +153,18 @@ class StarvellSession:
         :return: Response
         """
 
-        return self.send_request("post", url, body, params=params, files=files, raise_not_200=raise_not_200)
+        return self.send_request(
+            "post", url, body, params=params, files=files, raise_not_200=raise_not_200
+        )
 
-    def patch(self, url: str,
-              body: dict = None,
-              params: dict | None = None,
-              files: dict[str, tuple] | None = None,
-              raise_not_200: bool = True) -> Response:
+    def patch(
+        self,
+        url: str,
+        body: dict[str, Any] | None = None,
+        params: dict[str, Any] | None = None,
+        files: dict[str, tuple] | None = None,
+        raise_not_200: bool = True,
+    ) -> Response:
         """
         Отправляет PATCH запрос к Starvell
 
@@ -135,4 +177,6 @@ class StarvellSession:
         :return: Response
         """
 
-        return self.send_request("patch", url, body, params=params, files=files, raise_not_200=raise_not_200)
+        return self.send_request(
+            "patch", url, body, params=params, files=files, raise_not_200=raise_not_200
+        )
