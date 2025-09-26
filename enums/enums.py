@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class OrderStatuses(Enum):
     """
     В данном классе перечислены все состояния заказов.
@@ -14,6 +15,7 @@ class OrderStatuses(Enum):
     UNKNOWN = 3
     """Неизвестный тип заказа"""
 
+
 class TransactionDirections(Enum):
     """
     В данном классе перечислены все типы путей транзакций.
@@ -25,6 +27,7 @@ class TransactionDirections(Enum):
     """Пополнение"""
     UNKNOWN = 2
     """Неизвестный тип"""
+
 
 class TransactionTypes(Enum):
     """
@@ -46,6 +49,7 @@ class TransactionTypes(Enum):
     UNKNOWN = 6
     """Неизвестный тип транзакции"""
 
+
 class TransactionStatuses(Enum):
     """
     В данном классе перечислены все статусы транзакции.
@@ -57,6 +61,7 @@ class TransactionStatuses(Enum):
     """Не успешная/Отменённая транзакция"""
     UNKNOWN = 2
     """Неизвестный статус транзакции"""
+
 
 class MessageTypes(Enum):
     """
@@ -96,6 +101,7 @@ class MessageTypes(Enum):
     OTHER = 15
     """Другой тип сообщения"""
 
+
 class PaymentTypes(Enum):
     """
     В данном классе перечислены все типы платёжных систем, на которые возможно осуществить вывод.
@@ -109,6 +115,7 @@ class PaymentTypes(Enum):
     """USDT TRC20"""
     LTC = 3
     """LTC"""
+
 
 class SocketTypes(Enum):
     """
