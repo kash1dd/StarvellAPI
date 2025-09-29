@@ -215,3 +215,28 @@ def identify_ws_starvell_message(data: str, acc: "Account") -> dict[str, Any]:
     )
 
     return dict_with_data
+
+def get_full_lot_title(offer: dict[str, Any], response):
+    full_lot_title = ""
+
+    if offer["game"] and offer["game"]["name"]:
+        full_lot_title += offer["game"]["name"] + ", "
+    if offer["category"] and offer["category"]["name"]:
+        full_lot_title += offer["category"]["name"] + ", "
+    if (
+            offer["descriptions"]
+            and offer["descriptions"].get("rus")
+            and offer["descriptions"]["rus"]
+            and offer["descriptions"]["rus"].get("briefDescription")
+    ):
+        full_lot_title += (
+                offer["descriptions"]["rus"]["briefDescription"] + ", "
+        )
+    if offer["subCategory"] and offer["subCategory"]["name"]:
+        full_lot_title += offer["subCategory"]["name"] + ", "
+
+    full_lot_title += (
+        f"{response['quantity']} шт." if response.get("quantity") else ""
+    )
+
+    return full_lot_title

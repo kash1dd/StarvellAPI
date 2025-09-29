@@ -48,11 +48,14 @@ from .utils import (
     format_payment_methods,
     format_statuses,
     format_types,
+    get_full_lot_title
 )
 
 
 class Account:
-    def __init__(self, session_id: str, proxy: dict[str, str] | None = None) -> None:
+    def __init__(
+        self, session_id: str, proxy: dict[str, str] | None = None
+    ) -> None:
         """
         :param session_id: ID Сессии на Starvell
         :param proxy: Прокси с которого будут осуществляться запросы (пример: {"http": "http://user:password@your_proxy_ip:port"})
@@ -89,7 +92,9 @@ class Account:
         """
 
         url = "https://starvell.com/api/users-profile"
-        response = MyProfile.model_validate(self.request.get(url=url, raise_not_200=True).json())
+        response = MyProfile.model_validate(
+            self.request.get(url=url, raise_not_200=True).json()
+        )
 
         self.username = response.user.username
         self.id = response.user.id
@@ -123,7 +128,10 @@ class Account:
         return PreviewSettings.model_validate(response)
 
     def get_sales(
-        self, offset: int = 0, limit: int = 100000000, filter_sales: dict[str, Any] | None = None
+        self,
+        offset: int = 0,
+        limit: int = 100000000,
+        filter_sales: dict[str, Any] | None = None,
     ) -> list[OrderInfo]:
         """
         Получает продажи.
@@ -157,7 +165,9 @@ class Account:
 
         return list_with_sales
 
-    def get_reviews(self, offset: int = 0, limit: int = 100000000) -> list[ReviewInfo]:
+    def get_reviews(
+        self, offset: int = 0, limit: int = 100000000
+    ) -> list[ReviewInfo]:
         """
         Получает отзывы профиля.
 
@@ -176,7 +186,9 @@ class Account:
 
         return [ReviewInfo.model_validate(i) for i in response]
 
-    def get_transactions(self, offset: int = 0, limit: int = 100000000) -> list[TransactionInfo]:
+    def get_transactions(
+        self, offset: int = 0, limit: int = 100000000
+    ) -> list[TransactionInfo]:
         """
         Получает транзакции.
 
@@ -235,7 +247,10 @@ class Account:
         response = self.request.post(url, body, raise_not_200=True).json()
 
         for r in response:
-            if r["metadata"] is None or "notificationType" not in r["metadata"]:
+            if (
+                r["metadata"] is None
+                or "notificationType" not in r["metadata"]
+            ):
                 r["event_type"] = MessageTypes.NEW_MESSAGE
             else:
                 if r["metadata"]["notificationType"] in (
@@ -246,7 +261,9 @@ class Account:
                     "REVIEW_UPDATED",
                     "REVIEW_DELETED",
                 ):
-                    r["event_type"] = format_message_types(r["metadata"]["notificationType"])
+                    r["event_type"] = format_message_types(
+                        r["metadata"]["notificationType"]
+                    )
                 else:
                     continue
 
@@ -270,31 +287,17 @@ class Account:
         response = self.request.get(url, body, raise_not_200=True).json()
         response["status"] = format_order_status(response["status"])
         response["basePrice"] = (
-            response["basePrice"] / 100 if isinstance(response["basePrice"], int) else 0
+            response["basePrice"] / 100
+            if isinstance(response["basePrice"], int)
+            else 0
         )
         response["totalPrice"] = (
-            response["totalPrice"] / 100 if isinstance(response["totalPrice"], int) else 0
+            response["totalPrice"] / 100
+            if isinstance(response["totalPrice"], int)
+            else 0
         )
         offer = response["offerDetails"]
-
-        full_lot_title = ""
-
-        if offer["game"] and offer["game"]["name"]:
-            full_lot_title += offer["game"]["name"] + ", "
-        if offer["category"] and offer["category"]["name"]:
-            full_lot_title += offer["category"]["name"] + ", "
-        if (
-            offer["descriptions"]
-            and offer["descriptions"].get("rus")
-            and offer["descriptions"]["rus"]
-            and offer["descriptions"]["rus"].get("briefDescription")
-        ):
-            full_lot_title += offer["descriptions"]["rus"]["briefDescription"] + ", "
-        if offer["subCategory"] and offer["subCategory"]["name"]:
-            full_lot_title += offer["subCategory"]["name"] + ", "
-
-        full_lot_title += f"{response['quantity']} шт." if response.get("quantity") else ""
-        response["offerDetails"]["full_lot_title"] = full_lot_title
+        response["offerDetails"]["full_lot_title"] = get_full_lot_title(offer, response)
 
         return Order.model_validate(response)
 
@@ -433,7 +436,9 @@ class Account:
         """
 
         return ExchangeRate.model_validate(
-            self.request.get(url="https://starvell.com/api/exchange-rates/usdt-rub").json()
+            self.request.get(
+                url="https://starvell.com/api/exchange-rates/usdt-rub"
+            ).json()
         )
 
     def get_usdt_ltc_exchange_rate(self) -> ExchangeRate:
@@ -444,7 +449,9 @@ class Account:
         """
 
         return ExchangeRate.model_validate(
-            self.request.get(url="https://starvell.com/api/exchange-rates/usdt-ltc").json()
+            self.request.get(
+                url="https://starvell.com/api/exchange-rates/usdt-ltc"
+            ).json()
         )
 
     def create_lot(self, fields: LotFields) -> LotFields:
@@ -462,7 +469,9 @@ class Account:
         lot_fields = json.loads(fields.model_dump_json(by_alias=True))
         lot_fields["numericAttributes"] = lot_fields["attributes"]
         create_fields = json.loads(
-            CreateLotFields.model_validate(lot_fields).model_dump_json(by_alias=True)
+            CreateLotFields.model_validate(lot_fields).model_dump_json(
+                by_alias=True
+            )
         )
 
         response = self.request.post(url, create_fields, raise_not_200=False)
@@ -489,7 +498,9 @@ class Account:
         if response.status_code != 200:
             raise DeleteLotError(js.get("message"))
 
-    def send_message(self, chat_id: str, content: str, read_chat: bool = True) -> None:
+    def send_message(
+        self, chat_id: str, content: str, read_chat: bool = True
+    ) -> None:
         """
         Отправляет сообщение в чат.
 
@@ -514,7 +525,9 @@ class Account:
         if read_chat:
             self.read_chat(chat_id)
 
-    def send_image(self, chat_id: str, image_bytes: bytes, read_chat: bool = True) -> None:
+    def send_image(
+        self, chat_id: str, image_bytes: bytes, read_chat: bool = True
+    ) -> None:
         """
         Отправляет изображение в чат
 
@@ -529,7 +542,9 @@ class Account:
         param = {"chatId": chat_id}
         files = {"image": ("StarvellAPI.png", image_bytes, "image/png")}
 
-        response = self.request.post(url=url, files=files, params=param, raise_not_200=False)
+        response = self.request.post(
+            url=url, files=files, params=param, raise_not_200=False
+        )
 
         if response.status_code != 201:
             raise SendImageError(response.json().get("message"))
@@ -632,7 +647,13 @@ class Account:
         if response.status_code != 200:
             raise RefundError(response.json().get("message"))
 
-    def withdraw(self, payment_system: PaymentTypes, requisite: str, amount: float, bank=None):
+    def withdraw(
+        self,
+        payment_system: PaymentTypes,
+        requisite: str,
+        amount: float,
+        bank=None,
+    ):
         """
         Создаёт заявку на вывод средств.
 
@@ -650,7 +671,9 @@ class Account:
             "paymentSystemId": format_payment_methods(payment_system),
             "amount": amount * 100,
             "address": requisite,
-            "cardHolder" if payment_system is not PaymentTypes.SBP else "sbpBankId": "StarvellAPI"
+            "cardHolder"
+            if payment_system is not PaymentTypes.SBP
+            else "sbpBankId": "StarvellAPI"
             if payment_system is not PaymentTypes.SBP
             else bank,
         }
@@ -661,7 +684,9 @@ class Account:
             raise WithdrawError(response.get("message"))
 
     def save_settings(
-        self, is_offers_visible: bool, updated_parameter: Optional[dict[str, Any]] = None
+        self,
+        is_offers_visible: bool,
+        updated_parameter: Optional[dict[str, Any]] = None,
     ):
         """
         Сохраняет настройки аккаунта.
@@ -724,7 +749,9 @@ class Account:
         if response.status_code != 200:
             raise UnBlockError(response.json().get("message"))
 
-    def send_typing(self, chat_id: str, is_typing: bool, count: int = 1) -> None:
+    def send_typing(
+        self, chat_id: str, is_typing: bool, count: int = 1
+    ) -> None:
         """
         Отправляет "Печатает..." в чат на 4 секунд
 
@@ -739,7 +766,9 @@ class Account:
         body = {"chatId": chat_id, "isTyping": is_typing}
 
         for i in range(count):
-            response = self.request.post(url=url, body=body, raise_not_200=False)
+            response = self.request.post(
+                url=url, body=body, raise_not_200=False
+            )
 
             if response.status_code != 200:
                 raise SendTypingError(response.json().get("message"))

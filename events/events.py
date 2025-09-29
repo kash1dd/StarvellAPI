@@ -9,6 +9,7 @@ from StarvellAPI.errors import HandlerError
 from StarvellAPI.socket import Socket
 from StarvellAPI.types import NewMessageEvent, OrderEvent, ServiceMessageEvent
 from StarvellAPI.utils import identify_ws_starvell_message
+from StarvellAPI.utils import get_full_lot_title
 
 
 class Runner:
@@ -67,17 +68,17 @@ class Runner:
         self.add_handler(
             SocketTypes.NEW_MESSAGE, handler_filter=lambda msg, *args: msg.startswith("42/chats")
         )(self.msg_process)
-        self.add_handler(SocketTypes.NEW_MESSAGE, handler_filter=lambda msg, ws: msg == "2")(
+        self.add_handler(SocketTypes.NEW_MESSAGE, handler_filter=lambda msg, *args: msg == "2")(
             lambda _, ws: ws.send("3")
         )
 
     @staticmethod
-    def handling(handler: list[list[Any]], *args) -> None:
+    def handling(handler: list[Callable[[Any], None] | dict], *args) -> None:
         """
         Вызывает хэндлер с переданными аргументами
 
         :param handler: Хэндлер который будет обрабатывать
-        :param args: Аргументы к этому хэндеру
+        :param args: Аргументы к этому хэндлеру
 
         :return: None
         """
@@ -94,10 +95,10 @@ class Runner:
 
     def add_handler(
         self,
-        handler_type: MessageTypes | SocketTypes,
-        handler_filter: list[Callable] | Callable | None = None,
-        **kwargs,
-    ):
+            handler_type: MessageTypes | SocketTypes,
+            handler_filter: list[Callable] | Callable | None = None,
+            **kwargs: object,
+    ) -> Callable[[Any], None]:
         """
         Добавляет хэндлер
 
@@ -139,28 +140,7 @@ class Runner:
 
             if dict_with_data.get("order") and dict_with_data["order"].get("offerDetails"):
                 offer = dict_with_data["order"]["offerDetails"]
-                full_lot_title = ""
-
-                if offer["game"] and offer["game"]["name"]:
-                    full_lot_title += offer["game"]["name"] + ", "
-                if offer["category"] and offer["category"]["name"]:
-                    full_lot_title += offer["category"]["name"] + ", "
-                if (
-                    offer["descriptions"]
-                    and offer["descriptions"].get("rus")
-                    and offer["descriptions"]["rus"]
-                    and offer["descriptions"]["rus"].get("briefDescription")
-                ):
-                    full_lot_title += offer["descriptions"]["rus"]["briefDescription"] + ", "
-                if offer["subCategory"] and offer["subCategory"]["name"]:
-                    full_lot_title += offer["subCategory"]["name"] + ", "
-
-                full_lot_title += (
-                    f"{dict_with_data['order']['quantity']} шт."
-                    if dict_with_data["order"].get("quantity")
-                    else ""
-                )
-                dict_with_data["order"]["offerDetails"]["full_lot_title"] = full_lot_title
+                dict_with_data["order"]["offerDetails"]["full_lot_title"] = get_full_lot_title(offer, dict_with_data['order'])
 
             data = self.event_types[dict_with_data["type"]].model_validate(dict_with_data)
 
