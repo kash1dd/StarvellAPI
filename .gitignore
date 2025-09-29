@@ -2,10 +2,10 @@
 /.git
 /.DS_STORE
 /__pycache__
-/errors/__pycache__
-/events/__pycache__
-/types/__pycache__
-/enums/__pycache__
-/utils/__pycache__
-/filters/__pycache__
+/StarvellAPI/errors/__pycache__
+/StarvellAPI/events/__pycache__
+/StarvellAPI/types/__pycache__
+/StarvellAPI/enums/__pycache__
+/StarvellAPI/utils/__pycache__
+/StarvellAPI/filters/__pycache__
 /examples/__pycache__
