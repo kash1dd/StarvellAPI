@@ -24,8 +24,8 @@ from StarvellAPI.enums import MessageTypes
 
 acc = Account("session_id") # создаём экземпляр аккаунта, указывая session_id полученный со starvell.com
 
-print(f"Никнейм - {acc.username}")
-print(f"ID - {acc.id}\n")
+print(f"Никнейм - {acc.info.username}")
+print(f"ID - {acc.info.id}\n")
 
 runner = Runner(acc) # создаём экземпляр раннера
 
