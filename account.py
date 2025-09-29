@@ -426,7 +426,7 @@ class Account:
         elif response.status_code != 200:
             raise RequestFailedError(response)
 
-        return User.model_validate(response)
+        return User.model_validate(response.json())
 
     def get_usdt_rub_exchange_rate(self) -> ExchangeRate:
         """
