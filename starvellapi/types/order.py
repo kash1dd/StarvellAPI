@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
 
-from StarvellAPI.enums import OrderStatuses
+from starvellapi.enums import OrderStatuses
 
 class BaseConfig(BaseModel):
     class Config:

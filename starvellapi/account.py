@@ -5,7 +5,7 @@ from typing import Any
 
 from uuid import UUID
 
-from StarvellAPI.session import StarvellSession
+from starvellapi.session import StarvellSession
 
 from .enums import MessageTypes, PaymentTypes
 from .errors import (
@@ -577,7 +577,7 @@ class Account:
 
         url = "https://starvell.com/api/messages/send-with-image"
         param = {"chatId": str(chat_id)}
-        files = {"image": ("StarvellAPI.png", image_bytes, "image/png")}
+        files = {"image": ("starvellapi.png", image_bytes, "image/png")}
 
         response = self.request.post(
             url=url, files=files, params=param, raise_not_200=False
@@ -719,7 +719,7 @@ class Account:
             "address": requisite,
             "cardHolder"
             if payment_system is not PaymentTypes.SBP
-            else "sbpBankId": "StarvellAPI"
+            else "sbpBankId": "starvellapi"
             if payment_system is not PaymentTypes.SBP
             else bank,
         }

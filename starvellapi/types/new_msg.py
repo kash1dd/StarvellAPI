@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-from StarvellAPI.enums import MessageTypes
+from starvellapi.enums import MessageTypes
 from .chat import MetaData, Author
 
 class BaseConfig(BaseModel):

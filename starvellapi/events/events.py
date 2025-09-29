@@ -3,13 +3,13 @@ from typing import Any, Callable
 
 from websocket import WebSocketApp
 
-from StarvellAPI.account import Account
-from StarvellAPI.enums import MessageTypes, SocketTypes
-from StarvellAPI.errors import HandlerError
-from StarvellAPI.socket import Socket
-from StarvellAPI.types import NewMessageEvent, OrderEvent, ServiceMessageEvent
-from StarvellAPI.utils import identify_ws_starvell_message
-from StarvellAPI.utils import get_full_lot_title
+from starvellapi.account import Account
+from starvellapi.enums import MessageTypes, SocketTypes
+from starvellapi.errors import HandlerError
+from starvellapi.socket import Socket
+from starvellapi.types import NewMessageEvent, OrderEvent, ServiceMessageEvent
+from starvellapi.utils import identify_ws_starvell_message
+from starvellapi.utils import get_full_lot_title
 
 
 class Runner:

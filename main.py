@@ -1,7 +1,7 @@
-from StarvellAPI.enums import MessageTypes
-from StarvellAPI.types import NewMessageEvent
-from StarvellAPI.account import Account
-from StarvellAPI.events import Runner
+from starvellapi.enums import MessageTypes
+from starvellapi.types import NewMessageEvent
+from starvellapi.account import Account
+from starvellapi.events import Runner
 
 acc = Account("41363d86-f386-4e38-818e-a0b546dcee3a")
 runner = Runner(acc)
