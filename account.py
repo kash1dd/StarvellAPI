@@ -62,20 +62,20 @@ class Account:
         """
 
         # информация об аккаунте
-        self.username: str | None = None
-        self.id: int | None = None
+        self.__username: str | None = None
+        self.__id: int | None = None
         self.session_id: str = session_id
-        self.email: str | None = None
-        self.created_date: datetime | None = None
-        self.avatar_id: str | None = None
-        self.banner_id: str | None = None
-        self.description: str | None = None
-        self.is_verified: bool | None = None
-        self.rating: int | float | None = None
-        self.reviews_count: int | None = None
-        self.balance_hold: float | None = None
-        self.balance: float | None = None
-        self.active_orders: int | None = None
+        self.__email: str | None = None
+        self.__created_date: datetime | None = None
+        self.__avatar_id: str | None = None
+        self.__banner_id: str | None = None
+        self.__description: str | None = None
+        self.__is_verified: bool | None = None
+        self.__rating: int | float | None = None
+        self.__reviews_count: int | None = None
+        self.__balance_hold: float | None = None
+        self.__balance: float | None = None
+        self.__active_orders: int | None = None
 
         # прочее
         self.proxy: dict[str, str] | None = proxy
@@ -96,23 +96,23 @@ class Account:
             self.request.get(url=url, raise_not_200=True).json()
         )
 
-        self.username = response.user.username
-        self.id = response.user.id
-        self.email = response.user.email
-        self.created_date = response.user.created_at
-        self.avatar_id = response.user.avatar
-        self.banner_id = response.user.banner
-        self.description = response.user.description
-        self.is_verified = response.user.is_kyc_verified
-        self.rating = response.user.rating
-        self.reviews_count = response.user.reviews_count
-        self.balance_hold = response.holded_balance / 100
-        self.balance = (
+        self.__username = response.user.username
+        self.__id = response.user.id
+        self.__email = response.user.email
+        self.__created_date = response.user.created_at
+        self.__avatar_id = response.user.avatar
+        self.__banner_id = response.user.banner
+        self.__description = response.user.description
+        self.__is_verified = response.user.is_kyc_verified
+        self.__rating = response.user.rating
+        self.__reviews_count = response.user.reviews_count
+        self.__balance_hold = response.holded_balance / 100
+        self.__balance = (
             response.balance.rub_balance / 100
             if isinstance(response.balance.rub_balance, int)
             else None
         )
-        self.active_orders = response.active_orders.sales
+        self.__active_orders = response.active_orders.sales
 
         return response
 
@@ -179,7 +179,7 @@ class Account:
 
         url = "https://starvell.com/api/reviews/list"
         body = {
-            "filter": {"recipientId": self.id},
+            "filter": {"recipientId": self.__id},
             "pagination": {"offset": offset, "limit": limit},
         }
         response = self.request.post(url, body, raise_not_200=True).json()
@@ -700,10 +700,10 @@ class Account:
 
         url = "https://starvell.com/api/user/settings"
         body: dict[str, str | bool | None] = {
-            "avatar": self.avatar_id,
-            "email": self.email,
+            "avatar": self.__avatar_id,
+            "email": self.__email,
             "isOffersVisibleOnlyInProfile": is_offers_visible,
-            "username": self.username,
+            "username": self.__username,
         }
         if updated_parameter:
             body.update(**updated_parameter)
@@ -773,3 +773,82 @@ class Account:
             if response.status_code != 200:
                 raise SendTypingError(response.json().get("message"))
             time.sleep(4)
+
+
+    class MyProfile:
+        def __init__(self, username, id, email, created_date, avatar_id,
+                     banner_id, description, is_verified, rating, review_count,
+                     balance_hold, balance, active_orders):
+            self.__username = username
+            self.__id = id
+            self.__email = email
+            self.__created_date = created_date
+            self.__avatar_id = avatar_id
+            self.__banner_id = banner_id,
+            self.__description = description
+            self.__is_verified = is_verified
+            self.__rating = rating
+            self.__reviews_count = review_count
+            self.__balance_hold = balance_hold
+            self.__balance = balance
+            self.__active_orders = active_orders
+
+        @property
+        def username(self):
+            return self.__username
+
+        @property
+        def id(self):
+            return self.__id
+
+        @property
+        def email(self):
+            return self.__email
+
+        @property
+        def created_date(self):
+            return self.__created_date
+
+        @property
+        def avatar_id(self):
+            return self.__avatar_id
+
+        @property
+        def banner_id(self):
+            return self.__banner_id
+
+        @property
+        def description(self):
+            return self.__description
+
+        @property
+        def is_verified(self):
+            return self.__is_verified
+
+        @property
+        def rating(self):
+            return self.__rating
+
+        @property
+        def reviews_count(self):
+            return self.__reviews_count
+
+        @property
+        def balance_hold(self):
+            return self.__balance_hold
+
+        @property
+        def balance(self):
+            return self.__balance
+
+        @property
+        def active_orders(self):
+            return self.__active_orders
+
+    @property
+    def info(self):
+        return self.MyProfile(self.__username, self.__id, self.__email,
+                              self.__created_date, self.__avatar_id, self.__banner_id,
+                              self.__description, self.__is_verified, self.__rating,
+                              self.__reviews_count, self.__balance_hold, self.__balance,
+                              self.__active_orders)

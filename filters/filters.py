@@ -25,7 +25,7 @@ def not_me(msg: NewMessageEvent, account: Account):
     :return: bool (True - не является, False - Является)
     """
 
-    return not msg.author.username == account.username
+    return not msg.author.username == account.info.username
 
 def has_email(msg: NewMessageEvent):
     """
