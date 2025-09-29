@@ -6,7 +6,8 @@ from .utils import (
     format_statuses,
     format_types,
     identify_ws_starvell_message,
-    get_full_lot_title
+    get_full_lot_title,
+    NOTIFICATION_ORDER_TYPES
 )
 
 __all__ = [
@@ -17,5 +18,6 @@ __all__ = [
     "format_statuses",
     "format_types",
     "identify_ws_starvell_message",
-    "get_full_lot_title"
+    "get_full_lot_title",
+    "NOTIFICATION_ORDER_TYPES"
 ]

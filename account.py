@@ -1,7 +1,9 @@
 import json
 import time
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
+
+from uuid import UUID
 
 from StarvellAPI.session import StarvellSession
 
@@ -48,7 +50,8 @@ from .utils import (
     format_payment_methods,
     format_statuses,
     format_types,
-    get_full_lot_title
+    get_full_lot_title,
+    NOTIFICATION_ORDER_TYPES
 )
 
 
@@ -57,8 +60,10 @@ class Account:
         self, session_id: str, proxy: dict[str, str] | None = None
     ) -> None:
         """
-        :param session_id: ID Сессии на Starvell
+        :param session_id: ID Сессии на Starvell (в куки)
+        :type session_id: str
         :param proxy: Прокси с которого будут осуществляться запросы (пример: {"http": "http://user:password@your_proxy_ip:port"})
+        :type proxy: dict
         """
 
         # информация об аккаунте
@@ -88,7 +93,8 @@ class Account:
         """
         Получает информацию об аккаунте.
 
-        :return: Возвращает модель Profile
+        :return: Модель
+        :rtype: MyProfile
         """
 
         url = "https://starvell.com/api/users-profile"
@@ -120,7 +126,8 @@ class Account:
         """
         Получает настройки аккаунта.
 
-        :return: Настройки пользователя
+        :return: Модель
+        :rtype: PreviewSettings
         """
 
         url = "https://starvell.com/api/user/settings"
@@ -134,13 +141,16 @@ class Account:
         filter_sales: dict[str, Any] | None = None,
     ) -> list[OrderInfo]:
         """
-        Получает продажи.
+        Получает продажи аккаунта.
 
-        :param offset: С какой продажи начинать? (По умолчанию с 0)
-        :param limit: Количество продаж
-        :param filter_sales: Фильтр который можно установить в JSON запроса
-
-        :return: Список с продажами
+        :param offset: С какой продажи начинать?
+        :type offset: int
+        :param limit: Сколько продаж получить?
+        :type limit: int
+        :param filter_sales: Дополнительные фильтры, которые можно передать в тело запроса
+        :type filter_sales: dict
+        :return: Список, объектами которого являются модели OrderInfo
+        :rtype: list[OrderInfo]
         """
 
         default: dict[str, str] = {"userType": "seller"}
@@ -169,12 +179,14 @@ class Account:
         self, offset: int = 0, limit: int = 100000000
     ) -> list[ReviewInfo]:
         """
-        Получает отзывы профиля.
+        Получает отзывы аккаунта.
 
-        :param offset: С какого отзыва начинать? (По умолчанию с 0)
-        :param limit: Количество отзывов, которое надо получить (По умолчанию все)
-
-        :return: Список с отзывами
+        :param offset: С какого отзыва начинать?
+        :type offset: int
+        :param limit: Сколько отзывов получить?
+        :type limit: int
+        :return: Список, объектами которого являются модели ReviewInfo
+        :rtype: list[ReviewInfo]
         """
 
         url = "https://starvell.com/api/reviews/list"
@@ -190,12 +202,14 @@ class Account:
         self, offset: int = 0, limit: int = 100000000
     ) -> list[TransactionInfo]:
         """
-        Получает транзакции.
+        Получает транзакции аккаунта.
 
-        :param offset: С какой транзакции начинать? (По умолчанию с 0)
-        :param limit: Количество транзакций, которое надо получить (По умолчанию все)
-
-        :return: Список с транзакциями
+        :param offset: С какой транзакции начинать?
+        :type offset: int
+        :param limit: Сколько транзакций получить?
+        :type limit: int
+        :return: Список, объектами которого являются модели TransactionInfo
+        :rtype: list[TransactionInfo]
         """
 
         url = "https://starvell.com/api/transactions/list"
@@ -216,12 +230,14 @@ class Account:
 
     def get_chats(self, offset: int, limit: int) -> list[ChatInfo]:
         """
-        Получает чаты.
+        Получает чаты аккаунта.
 
-        :param offset: С какого чата начинать
-        :param limit: Количество чатов, которое надо получить
-
-        :return: Список с чатами
+        :param offset: С какого чата начинать?
+        :type offset: int
+        :param limit: Сколько чатов получить?
+        :type limit: int
+        :return: Список, объектами которого являются модели ChatInfo
+        :rtype: list[ChatInfo]
         """
 
         url = "https://starvell.com/api/chats/list"
@@ -230,14 +246,16 @@ class Account:
 
         return [ChatInfo.model_validate(i) for i in response]
 
-    def get_chat(self, chat_id: str, limit: int) -> list[Message]:
+    def get_chat(self, chat_id: str | UUID, limit: int) -> list[Message]:
         """
         Получает историю сообщений чата.
 
         :param chat_id: ID Чата
-        :param limit: Количество сообщений, которое надо получить
-
-        :return: Список с сообщениями в чате
+        :type chat_id: str | UUID
+        :param limit: Сколько сообщений получить?
+        :type limit: int
+        :return: Список, объектами которого являются модели Message
+        :rtype: list[Message]
         """
 
         url = "https://starvell.com/api/messages/list"
@@ -253,14 +271,7 @@ class Account:
             ):
                 r["event_type"] = MessageTypes.NEW_MESSAGE
             else:
-                if r["metadata"]["notificationType"] in (
-                    "ORDER_PAYMENT",
-                    "REVIEW_CREATED",
-                    "ORDER_COMPLETED",
-                    "ORDER_REFUND",
-                    "REVIEW_UPDATED",
-                    "REVIEW_DELETED",
-                ):
+                if r["metadata"]["notificationType"] in NOTIFICATION_ORDER_TYPES:
                     r["event_type"] = format_message_types(
                         r["metadata"]["notificationType"]
                     )
@@ -272,15 +283,17 @@ class Account:
 
         return messages
 
-    def get_order(self, order_id: str) -> Order:
+    def get_order(self, order_id: str | UUID) -> Order:
         """
-        Получает полную информацию об заказе.
+        Получает заказ.
 
         :param order_id: ID Заказа
-
-        :return: Полная информация об заказе
+        :type order_id: str | UUID
+        :return: Модель
+        :rtype: Order
         """
 
+        order_id = str(order_id)
         url = f"https://starvell.com/api/orders/{order_id}"
         body = {"orderId": order_id}
 
@@ -301,15 +314,17 @@ class Account:
 
         return Order.model_validate(response)
 
-    def get_review(self, order_id: str) -> ReviewInfo:
+    def get_review(self, order_id: str | UUID) -> ReviewInfo:
         """
-        Получает отзыв по ID Заказа
+        Получает отзыв с помощью ID заказа.
 
         :param order_id: ID Заказа
-
-        :return: ReviewInfo
+        :type order_id: str | UUID
+        :return: Модель ReviewInfo
+        :rtype: ReviewInfo
         """
 
+        order_id = str(order_id)
         url = "https://starvell.com/api/reviews/by-order-id"
         param = {"id": order_id}
 
@@ -335,12 +350,17 @@ class Account:
         Получает лоты категории.
 
         :param category_id: ID Категории
-        :param offset: С какого лота начинать (По умолчанию с 0)
-        :param limit: Количество лотов, которое нужно получить (По умолчанию все лоты)
-        :param only_online: Только онлайн продавцы? (По умолчанию False)
-        :param other_filters: Остальные фильтры, которые можно передать в запрос
-
-        :return: Список с лотами
+        :type category_id: int
+        :param offset: С какого лота начинать?
+        :type offset: int
+        :param limit: Сколько лотов получить?
+        :type limit: int
+        :param only_online: Исключить офлайн продавцов?
+        :type only_online: True
+        :param other_filters: Дополнительные фильтры, которые можно передать в тело запроса
+        :type other_filters: dict
+        :return: Список, объектами которого являются модели OfferTableInfo
+        :rtype: list[OfferTableInfo]
         """
 
         url = "https://starvell.com/api/offers/list-by-category"
@@ -367,13 +387,16 @@ class Account:
         self, category_id: int, offset: int = 0, limit: int = 10000000
     ) -> list[LotFields]:
         """
-        Получает свои лоты категории.
+        Получает свои лоты в категории.
 
         :param category_id: ID Категории
-        :param offset: С какого лота начинать (По умолчанию 0)?
-        :param limit: Сколько лотов получить? (По умолчанию все)?
-
-        :return: Список с лотами (list[LotFields])
+        :type category_id: int
+        :param offset: С какого лота начинать?
+        :type offset: int
+        :param limit: Сколько лотов получить?
+        :type limit: int
+        :return: Список, объектами которого являются модели LotFields
+        :rtype: list[LotFields]
         """
 
         url = "https://starvell.com/api/offers/list-my"
@@ -383,13 +406,14 @@ class Account:
 
         return [LotFields.model_validate(i) for i in response]
 
-    def get_lot_fields(self, lot_id: int) -> LotFields:
+    def get_lot_fields(self, lot_id: int | str) -> LotFields:
         """
-        Получает все поля лота.
+        Получает поля своего лота.
 
         :param lot_id: ID Лота
-
-        :return: LotFields
+        :type lot_id: int | str
+        :return: Модель LotFields
+        :rtype: LotFields
         """
 
         url = f"https://starvell.com/api/offers/{lot_id}"
@@ -399,9 +423,10 @@ class Account:
 
     def get_black_list(self) -> list[BlockListedUser]:
         """
-        Получает список заблокированных пользователей на Starvell.
+        Получает список пользователей, в чёрном списке аккаунта.
 
-        :return: List[BlockListedUser]
+        :return: Список, объектами которого являются модели BlockListedUser
+        :rtype: list[BlockListedUser]
         """
 
         url = "https://starvell.com/api/blacklisted-users/list"
@@ -411,11 +436,12 @@ class Account:
 
     def get_user(self, user_id: str | int) -> User:
         """
-        Получает информацию об профиле пользователя.
+        Получает информацию об пользователе.
 
         :param user_id: ID Пользователя
-
-        :return: Полная информация об пользователе
+        :type user_id: int | str
+        :return: Модель User
+        :rtype: User
         """
 
         url = f"https://starvell.com/api/users/{user_id}"
@@ -430,9 +456,10 @@ class Account:
 
     def get_usdt_rub_exchange_rate(self) -> ExchangeRate:
         """
-        Получает курс USDT к рублю на Starvell
+        Получает курс USDT к RUB на Starvell.
 
-        :return: ExchangeRate
+        :return: Модель ExchangeRate
+        :rtype: ExchangeRate
         """
 
         return ExchangeRate.model_validate(
@@ -443,9 +470,10 @@ class Account:
 
     def get_usdt_ltc_exchange_rate(self) -> ExchangeRate:
         """
-        Получает курс USDT к LTC на Starvell
+        Получает курс USDT к LTC на Starvell.
 
-        :return: ExchangeRate
+        :return: Модель ExchangeRate
+        :rtype: ExchangeRate
         """
 
         return ExchangeRate.model_validate(
@@ -458,10 +486,11 @@ class Account:
         """
         Создаёт лот на Starvell.
 
-        :param fields: LotFields
-
-        :return: LotFields созданного лота
-        :raise CreateLotError: Если произошла ошибка при создании лота
+        :param fields: Поля лота
+        :type fields: LotFields
+        :return: Поля (LotFields модель) созданного лота
+        :rtype: LotFields
+        :raise CreateLotError: В случае возникновения ошибки
         """
 
         url = "https://starvell.com/api/offers-operations/create"
@@ -481,14 +510,15 @@ class Account:
 
         return LotFields.model_validate(response.json())
 
-    def delete_lot(self, lot_id: int):
+    def delete_lot(self, lot_id: int | str) -> None:
         """
         Удаляет лот со Starvell.
 
         :param lot_id: ID Лота
-
+        :type lot_id: int | str
         :return: None
-        :raise DeleteLotError: Если произошла ошибка при удалении лота
+        :rtype: None
+        :raise DeleteLotError: В случае возникновения ошибки
         """
 
         url = f"https://starvell.com/api/offers/{lot_id}/delete"
@@ -499,23 +529,26 @@ class Account:
             raise DeleteLotError(js.get("message"))
 
     def send_message(
-        self, chat_id: str, content: str, read_chat: bool = True
+        self, chat_id: str | UUID, content: Any, read_chat: bool = True
     ) -> None:
         """
-        Отправляет сообщение в чат.
+        Отправляет сообщение в чат Starvell.
 
         :param chat_id: ID Чата
-        :param content: Текст, который нужно отправить
+        :type chat_id: str | UUID
+        :param content: Текст сообщения
+        :type content: Any
         :param read_chat: Прочитывать-ли чат, после отправки сообщения?
-
+        :type read_chat: bool
         :return: None
-        :raise SendMessageError: Если произошла ошибка при отправке сообщения
+        :rtype: None
+        :raise SendMessageError: В случае возникновения ошибки
         """
 
         url = "https://starvell.com/api/messages/send"
         body = {
-            "chatId": chat_id,
-            "content": f"‎{content}",
+            "chatId": str(chat_id),
+            "content": f"‎{str(content)}",
         }
         response = self.request.post(url, body, raise_not_200=False)
 
@@ -526,20 +559,24 @@ class Account:
             self.read_chat(chat_id)
 
     def send_image(
-        self, chat_id: str, image_bytes: bytes, read_chat: bool = True
+        self, chat_id: str | UUID, image_bytes: bytes, read_chat: bool = True
     ) -> None:
         """
-        Отправляет изображение в чат
+        Отправляет изображение в чат Starvell.
 
         :param chat_id: ID Чата
+        :type chat_id: str | UUID
         :param image_bytes: Байты изображения
-        :param read_chat: Прочитывать-ли чат, после отправки изображения?
-
+        :type image_bytes: bytes
+        :param read_chat: Прочитывать-ли чат, после отправки сообщения?
+        :type read_chat: bool
         :return: None
+        :rtype: None
+        :raise SendImageError: В случае возникновения ошибки
         """
 
         url = "https://starvell.com/api/messages/send-with-image"
-        param = {"chatId": chat_id}
+        param = {"chatId": str(chat_id)}
         files = {"image": ("StarvellAPI.png", image_bytes, "image/png")}
 
         response = self.request.post(
@@ -552,18 +589,19 @@ class Account:
         if read_chat:
             self.read_chat(chat_id)
 
-    def read_chat(self, chat_id: str) -> None:
+    def read_chat(self, chat_id: str | UUID) -> None:
         """
-        Помечает чат прочитанным.
+        Отмечает чат прочитанным.
 
         :param chat_id: ID Чата
-
+        :type chat_id: str | UUID
         :return: None
-        :raise ReadChatError: Если произошла ошибка при чтении чата
+        :rtype: None
+        :raise ReadChatError: В случае возникновения ошибки
         """
 
         url = "https://starvell.com/api/chats/read"
-        body = {"chatId": chat_id}
+        body = {"chatId": str(chat_id)}
 
         response = self.request.post(url, body, raise_not_200=False)
 
@@ -572,11 +610,12 @@ class Account:
 
     def save_lot(self, lot: LotFields) -> None:
         """
-        Сохраняет лот с переданными полями.
+        Сохраняет лот, с переданными полями.
 
-        :param lot: Поля лота (Класс LotFields)
-
+        :param lot: Поля лота (Модель LotFields)
+        :type lot: LotFields
         :return: None
+        :rtype: None
         """
 
         url = f"https://starvell.com/api/offers-operations/{lot.id}/update"
@@ -591,56 +630,59 @@ class Account:
 
         self.request.post(url, data, raise_not_200=False)
 
-    def send_review(self, review_id: str, content: str) -> None:
+    def send_review(self, review_id: str | UUID, content: Any) -> None:
         """
         Отправляет ответ на отзыв только в том случае, если на отзыв ещё нет ответа.
 
-        :param review_id: ID Отзыва, на который нужно ответить
+        :param review_id: ID Отзыва
+        :type review_id: str | UUID
         :param content: Текст ответа
-
+        :type content: Any
         :return: None
-        :raise SendReviewError: Если произошла ошибка при отправке отзыва
+        :rtype: None
+        :raise SendReviewError: В случае возникновения ошибки
         """
 
         url = "https://starvell.com/api/review-responses/create"
-        body = {"content": content, "reviewId": review_id}
+        body = {"content": str(content), "reviewId": str(review_id)}
         response = self.request.post(url, body, raise_not_200=False)
 
         if response.status_code != 200:
             raise SendReviewError(response.json().get("message"))
 
-    def edit_review(self, review_id: str, content: str):
+    def edit_review(self, review_id: str | UUID, content: Any) -> None:
         """
-        Редактирует ответ на отзыв.
+        Редактирует существующий ответ на отзыв.
 
-        Именно редактирует, если на отзыв ещё нет ответа, может возникнуть ошибка
-
-        :param review_id: ID Отзыва, на который нужно изменить ответ
+        :param review_id: ID Отзыва
+        :type review_id: str | uuid
         :param content: Текст ответа
-
+        :type content: Any
         :return: None
-        :raise EditReviewError: Если произошла ошибка при редактировании отзыва
+        :rtype: None
+        :raise EditReviewError: В случае возникновения ошибки
         """
 
         url = f"https://starvell.com/api/review-responses/{review_id}/update"
-        body = {"content": content, "reviewId": review_id}
+        body = {"content": content, "reviewId": str(review_id)}
         response = self.request.post(url, body, raise_not_200=False)
 
         if response.status_code != 200:
             raise EditReviewError(response.json().get("message"))
 
-    def refund(self, order_id: str):
+    def refund(self, order_id: str | UUID) -> None:
         """
-        Оформляет возврат в заказе.
+        Оформляет возврат средств в заказе.
 
         :param order_id: ID Заказа
-
+        :type order_id: str | UUID
         :return: None
-        :raise RefundError: Если произошла ошибка при возврате
+        :rtype: None
+        :raise RefundError: В случае возникновения ошибки
         """
 
         url = "https://starvell.com/api/orders/refund"
-        body = {"orderId": order_id}
+        body = {"orderId": str(order_id)}
 
         response = self.request.post(url, body, raise_not_200=False)
 
@@ -651,19 +693,23 @@ class Account:
         self,
         payment_system: PaymentTypes,
         requisite: str,
-        amount: float,
-        bank=None,
-    ):
+        amount: int | float,
+        bank: str | int | None =None,
+    ) -> None:
         """
         Создаёт заявку на вывод средств.
 
         :param payment_system: Тип платёжной системы для вывода
+        :type payment_system:PaymentTypes
         :param requisite: Реквизиты для вывода (Номер карты / Номер СБП / Адрес крипты)
-        :param amount: Сумма для вывода
-        :param bank: Только если вывод с помощью СБП, тогда указывай там айди банка, иначе даже не трогай
-
+        :type requisite: str
+        :param amount: Сумма к выводу
+        :type amount: int | float
+        :param bank: Только если вывод с помощью СБП, тогда указывать айди банка, иначе пропустить
+        :type bank: str | int
         :return: None
-        :raise WithdrawError: Если произошла ошибка при выводе
+        :rtype: None
+        :raise WithdrawError: В случае возникновения ошибки
         """
 
         url = "https://starvell.com/api/payouts/create"
@@ -686,16 +732,18 @@ class Account:
     def save_settings(
         self,
         is_offers_visible: bool,
-        updated_parameter: Optional[dict[str, Any]] = None,
-    ):
+        updated_parameter: dict[str, Any] | None = None,
+    ) -> None:
         """
         Сохраняет настройки аккаунта.
 
         :param is_offers_visible: Отображать-ли лоты в профиле?
+        :type is_offers_visible: bool
         :param updated_parameter: Обновлённый параметр (словарь (обновлённый параметр: значение)), если требовалось изменение только видимости лотов, то можно не указывать
-
-        :raise SaveSettingsError: При какой-либо ошибке сохранения настроек
+        :type updated_parameter: dict
         :return: None
+        :rtype: None
+        :raise SaveSettingsError: В случае возникновения ошибки
         """
 
         url = "https://starvell.com/api/user/settings"
@@ -713,14 +761,15 @@ class Account:
         if response.status_code != 200:
             raise SaveSettingsError(response.json().get("message"))
 
-    def block(self, user_id: int):
+    def block(self, user_id: int) -> None:
         """
-        Отправляет пользователя в ЧС на Starvell.
+        Добавляет пользователя в ЧС Аккаунта на Starvell.
 
-        :param user_id: ID Пользователя, которого нужно заблокировать
-
+        :param user_id: ID Пользователя
+        :type user_id: int
         :return: None
-        :raise BlockError: Если произошла ошибка при блокировке
+        :rtype: None
+        :raise BlockError: В случае возникновения ошибки
         """
 
         url = "https://starvell.com/api/blacklisted-users/block"
@@ -731,14 +780,15 @@ class Account:
         if response.status_code != 200:
             raise BlockError(response.json().get("message"))
 
-    def unblock(self, user_id: int):
+    def unblock(self, user_id: int) -> None:
         """
-        Удаляет пользователя из ЧС на Starvell.
+        Удаляет пользователя из ЧС Аккаунта Starvell.
 
-        :param user_id: ID Пользователя, которого нужно удалить
-
+        :param user_id: ID Пользователя
+        :type user_id: int
         :return: None
-        :raise UnBlockError: Если произошла ошибка при разблокировке
+        :rtype: None
+        :raise UnBlockError: В случае возникновения ошибки
         """
 
         url = "https://starvell.com/api/blacklisted-users/unblock"
@@ -750,20 +800,23 @@ class Account:
             raise UnBlockError(response.json().get("message"))
 
     def send_typing(
-        self, chat_id: str, is_typing: bool, count: int = 1
+        self, chat_id: str | UUID, is_typing: bool, count: int = 1
     ) -> None:
         """
-        Отправляет "Печатает..." в чат на 4 секунд
+        Отправляет "Печатает..." в чат на 4 секунды
 
         :param chat_id: ID Чата
-        :param is_typing: bool - Отправляет "Печатает...", False - Останавливает "Печатает..."
-        :param count: 1 раз - 4 секунд
-
+        :type chat_id: str | UUID
+        :param is_typing: True - Отправляет "Печатает...", False - Останавливает "Печатает..."
+        :type is_typing: bool
+        :param count: 1 раз - 4 секунды
+        :type count: int
         :return: None
+        :rtype: None
         """
 
         url = "https://starvell.com/api/chats/send-typing"
-        body = {"chatId": chat_id, "isTyping": is_typing}
+        body = {"chatId": str(chat_id), "isTyping": is_typing}
 
         for i in range(count):
             response = self.request.post(
