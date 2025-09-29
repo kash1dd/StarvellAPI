@@ -1,9 +1,11 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
 
+
 class BaseConfig(BaseModel):
     class Config:
         validate_by_name = True
+
 
 class MyProfileUser(BaseModel):
     id: int
@@ -23,14 +25,17 @@ class MyProfileUser(BaseModel):
     is_phone_linked: bool = Field(alias="isPhoneLinked")
     has_password: bool = Field(alias="hasPassword")
 
+
 class Balance(BaseModel):
     rub_balance: int | None = Field(None, alias="rubBalance")
     usd_balance: int | None = Field(None, alias="usdBalance")
     eur_balance: int | None = Field(None, alias="eurBalance")
 
+
 class OrdersCount(BaseModel):
     purchases: int = Field(alias="purchaseOrdersCount")
     sales: int = Field(alias="salesOrdersCount")
+
 
 class MyProfile(BaseModel):
     user: MyProfileUser
@@ -40,5 +45,7 @@ class MyProfile(BaseModel):
     balance: Balance
     holded_balance: int = Field(alias="holdedAmount")
     active_orders: OrdersCount = Field(alias="orderCountsByType")
-    has_at_least_one_completed_order: bool = Field(alias="hasAtLeastOneCompletedOrder")
+    has_at_least_one_completed_order: bool = Field(
+        alias="hasAtLeastOneCompletedOrder"
+    )
     unread_chat_ids: list[str | None] = Field(alias="unreadChatIds")

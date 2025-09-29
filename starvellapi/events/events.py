@@ -23,7 +23,9 @@ class Runner:
 
         self.socket: Socket = Socket(acc.session_id, always_online)
         self.socket.handlers[SocketTypes.OPEN].append(self.on_open_process)
-        self.socket.handlers[SocketTypes.NEW_MESSAGE].append(self.on_new_message)
+        self.socket.handlers[SocketTypes.NEW_MESSAGE].append(
+            self.on_new_message
+        )
 
         self.handlers: dict[MessageTypes | SocketTypes, list] = {
             MessageTypes.NEW_MESSAGE: [],
@@ -46,7 +48,8 @@ class Runner:
         }
 
         self.event_types: dict[
-            MessageTypes, type[NewMessageEvent | OrderEvent | ServiceMessageEvent]
+            MessageTypes,
+            type[NewMessageEvent | OrderEvent | ServiceMessageEvent],
         ] = {
             MessageTypes.NEW_MESSAGE: NewMessageEvent,
             MessageTypes.NEW_ORDER: OrderEvent,
@@ -66,11 +69,13 @@ class Runner:
         }
 
         self.add_handler(
-            SocketTypes.NEW_MESSAGE, handler_filter=lambda msg, *args: msg.startswith("42/chats")
+            SocketTypes.NEW_MESSAGE,
+            handler_filter=lambda msg, *args: msg.startswith("42/chats"),
         )(self.msg_process)
-        self.add_handler(SocketTypes.NEW_MESSAGE, handler_filter=lambda msg, *args: msg == "2")(
-            lambda _, ws: ws.send("3")
-        )
+        self.add_handler(
+            SocketTypes.NEW_MESSAGE,
+            handler_filter=lambda msg, *args: msg == "2",
+        )(lambda _, ws: ws.send("3"))
 
     @staticmethod
     def handling(handler: list[Callable[[Any], None] | dict], *args) -> None:
@@ -95,9 +100,9 @@ class Runner:
 
     def add_handler(
         self,
-            handler_type: MessageTypes | SocketTypes,
-            handler_filter: list[Callable] | Callable | None = None,
-            **kwargs: object,
+        handler_type: MessageTypes | SocketTypes,
+        handler_filter: list[Callable] | Callable | None = None,
+        **kwargs: object,
     ) -> Callable[[Any], None]:
         """
         Добавляет хэндлер
@@ -138,11 +143,17 @@ class Runner:
             if not dict_with_data:
                 return
 
-            if dict_with_data.get("order") and dict_with_data["order"].get("offerDetails"):
+            if dict_with_data.get("order") and dict_with_data["order"].get(
+                "offerDetails"
+            ):
                 offer = dict_with_data["order"]["offerDetails"]
-                dict_with_data["order"]["offerDetails"]["full_lot_title"] = get_full_lot_title(offer, dict_with_data['order'])
+                dict_with_data["order"]["offerDetails"]["full_lot_title"] = (
+                    get_full_lot_title(offer, dict_with_data["order"])
+                )
 
-            data = self.event_types[dict_with_data["type"]].model_validate(dict_with_data)
+            data = self.event_types[dict_with_data["type"]].model_validate(
+                dict_with_data
+            )
 
             for handler in self.handlers[dict_with_data["type"]]:
                 try:

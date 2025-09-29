@@ -70,7 +70,10 @@ class Socket:
 
         url = "wss://starvell.com/socket.io/?EIO=4&transport=websocket"
         ws = websocket.WebSocketApp(
-            url=url, cookie=f"session={self.s}", on_message=self.on_message, on_open=self.on_open
+            url=url,
+            cookie=f"session={self.s}",
+            on_message=self.on_message,
+            on_open=self.on_open,
         )
         ws.run_forever(reconnect=True)
 

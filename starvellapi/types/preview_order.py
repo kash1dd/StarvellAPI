@@ -4,14 +4,17 @@ from datetime import datetime
 from .order import SubCategory, DeliveryTime, Descriptions, Game
 from starvellapi.enums import OrderStatuses
 
+
 class BaseConfig(BaseModel):
     class Config:
         validate_by_name = True
+
 
 class Category(BaseConfig):
     id: int
     name: str
     slug: str
+
 
 class OfferDetailsPreview(BaseConfig):
     game: Game
@@ -23,6 +26,7 @@ class OfferDetailsPreview(BaseConfig):
     delivery_time: DeliveryTime = Field(alias="deliveryTime")
     descriptions: Descriptions
     is_auto_delivery: bool = Field(alias="instantDelivery")
+
 
 class UserPreviewOrder(BaseConfig):
     id: int
@@ -37,6 +41,7 @@ class UserPreviewOrder(BaseConfig):
     reviews_count: int = Field(alias="reviewsCount")
     last_online_at: datetime = Field(alias="lastOnlineAt")
     created_at: datetime = Field(alias="createdAt")
+
 
 class OrderInfo(BaseConfig):
     id: str

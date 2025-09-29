@@ -3,35 +3,43 @@ from datetime import datetime
 
 from starvellapi.enums import OrderStatuses
 
+
 class BaseConfig(BaseModel):
     class Config:
         validate_by_name = True
+
 
 class Game(BaseConfig):
     id: int
     name: str
     slug: str
 
-class GameCategory(Game):
-    ...
+
+class GameCategory(Game): ...
+
 
 class SubCategory(BaseConfig):
     name: str
+
 
 class TimeRange(BaseConfig):
     unit: str
     value: int
 
+
 class DeliveryTime(BaseConfig):
     from_: TimeRange = Field(alias="from")
     to: TimeRange
+
 
 class Description(BaseConfig):
     description: str
     lot_title: str | None = Field(None, alias="briefDescription")
 
+
 class Descriptions(BaseConfig):
     rus: Description
+
 
 class OfferDetails(BaseConfig):
     full_lot_title: str
@@ -43,6 +51,7 @@ class OfferDetails(BaseConfig):
     delivery_time: DeliveryTime | None = Field(None, alias="deliveryTime")
     descriptions: Descriptions
     is_auto_delivery: bool = Field(alias="instantDelivery")
+
 
 class Order(BaseConfig):
     id: str

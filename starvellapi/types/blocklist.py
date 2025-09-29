@@ -1,9 +1,11 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
 
+
 class BaseConfig(BaseModel):
     class Config:
         validate_by_name = True
+
 
 class BlockListedUser(BaseModel):
     id: int

@@ -1,11 +1,17 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
 
-from starvellapi.enums import TransactionDirections, TransactionTypes, TransactionStatuses
+from starvellapi.enums import (
+    TransactionDirections,
+    TransactionTypes,
+    TransactionStatuses,
+)
+
 
 class BaseConfig(BaseModel):
     class Config:
         validate_by_name = True
+
 
 class PayOut(BaseConfig):
     payout_id: str = Field(alias="id")
@@ -19,14 +25,17 @@ class PayOut(BaseConfig):
     external_error: str | None = Field(alias="externalError")
     requestedAmount: int
 
+
 class PayOutSystemIcon(BaseConfig):
     icon_id: str = Field(alias="id")
     file_extension: str = Field(alias="extension")
+
 
 class PayOutSystem(BaseConfig):
     system_id: int = Field(alias="id")
     name: str
     icon: PayOutSystemIcon
+
 
 class TransactionInfo(BaseConfig):
     transaction_id: str = Field(alias="id")
@@ -43,5 +52,7 @@ class TransactionInfo(BaseConfig):
     updated_at: datetime = Field(alias="updatedAt")
     topup: dict | None
     payout: PayOut | None
-    payout_payment_system: PayOutSystem | None = Field(alias="payoutPaymentSystem")
+    payout_payment_system: PayOutSystem | None = Field(
+        alias="payoutPaymentSystem"
+    )
     topup_payment_system: dict | None = Field(alias="topupPaymentSystem")

@@ -63,7 +63,10 @@ class StarvellSession:
                         )
                     else:
                         response: Response = getattr(self.request, method)(
-                            url=url, headers=self.request.headers, json=body, params=params
+                            url=url,
+                            headers=self.request.headers,
+                            json=body,
+                            params=params,
                         )
                 else:
                     if files:
@@ -72,17 +75,25 @@ class StarvellSession:
                         )
                     else:
                         response: Response = getattr(self.request, method)(
-                            url=url, headers=self.request.headers, json=body, files=files
+                            url=url,
+                            headers=self.request.headers,
+                            json=body,
+                            files=files,
                         )
             else:
                 if params:
                     if files:
                         response: Response = getattr(self.request, method)(
-                            url=url, headers=self.request.headers, params=params, files=files
+                            url=url,
+                            headers=self.request.headers,
+                            params=params,
+                            files=files,
                         )
                     else:
                         response: Response = getattr(self.request, method)(
-                            url=url, headers=self.request.headers, params=params
+                            url=url,
+                            headers=self.request.headers,
+                            params=params,
                         )
                 else:
                     if files:
@@ -130,7 +141,12 @@ class StarvellSession:
         """
 
         return self.send_request(
-            "get", url, body, params=params, files=files, raise_not_200=raise_not_200
+            "get",
+            url,
+            body,
+            params=params,
+            files=files,
+            raise_not_200=raise_not_200,
         )
 
     def post(
@@ -154,7 +170,12 @@ class StarvellSession:
         """
 
         return self.send_request(
-            "post", url, body, params=params, files=files, raise_not_200=raise_not_200
+            "post",
+            url,
+            body,
+            params=params,
+            files=files,
+            raise_not_200=raise_not_200,
         )
 
     def patch(
@@ -178,5 +199,10 @@ class StarvellSession:
         """
 
         return self.send_request(
-            "patch", url, body, params=params, files=files, raise_not_200=raise_not_200
+            "patch",
+            url,
+            body,
+            params=params,
+            files=files,
+            raise_not_200=raise_not_200,
         )

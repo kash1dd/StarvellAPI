@@ -51,7 +51,10 @@ def format_directions(direction: str) -> TransactionDirections:
     :return: TransactionDirections (Enum)
     """
 
-    directions = {"EXPENSE": TransactionDirections.EXPENSE, "INCOME": TransactionDirections.INCOME}
+    directions = {
+        "EXPENSE": TransactionDirections.EXPENSE,
+        "INCOME": TransactionDirections.INCOME,
+    }
 
     return directions.get(direction, TransactionDirections.UNKNOWN)
 
@@ -172,13 +175,16 @@ def identify_ws_starvell_message(data: str, acc: "Account") -> dict[str, Any]:
 
     dict_with_data = json.loads(data[len('42/chats,["message_created",') : -1])
 
-    if dict_with_data["metadata"] is None or "notificationType" not in dict_with_data["metadata"]:
+    if (
+        dict_with_data["metadata"] is None
+        or "notificationType" not in dict_with_data["metadata"]
+    ):
         dict_with_data["is_auto_response"] = False
         dict_with_data["by_admin"] = False
 
-        if dict_with_data.get("metadata") is not None and "isAutoResponse" in dict_with_data.get(
+        if dict_with_data.get(
             "metadata"
-        ):
+        ) is not None and "isAutoResponse" in dict_with_data.get("metadata"):
             dict_with_data["is_auto_response"] = True
 
         if (
@@ -190,7 +196,9 @@ def identify_ws_starvell_message(data: str, acc: "Account") -> dict[str, Any]:
         ):
             dict_with_data["by_admin"] = True
 
-        dict_with_data["by_api"] = True if dict_with_data["content"].startswith("‎") else False
+        dict_with_data["by_api"] = (
+            True if dict_with_data["content"].startswith("‎") else False
+        )
         dict_with_data["type"] = MessageTypes.NEW_MESSAGE
 
     elif dict_with_data["metadata"]["notificationType"] in NOTIFICATION_TYPES:
@@ -204,17 +212,25 @@ def identify_ws_starvell_message(data: str, acc: "Account") -> dict[str, Any]:
 
         dict_with_data["type"] = format_message_types(nt)
 
-    elif dict_with_data["metadata"]["notificationType"] not in NOTIFICATION_TYPES:
+    elif (
+        dict_with_data["metadata"]["notificationType"]
+        not in NOTIFICATION_TYPES
+    ):
         dict_with_data["type"] = MessageTypes.OTHER
 
     dict_with_data["author"] = (
-        dict_with_data["author"] if "author" in dict_with_data else dict_with_data["buyer"]
+        dict_with_data["author"]
+        if "author" in dict_with_data
+        else dict_with_data["buyer"]
     )
     dict_with_data["buyer"] = (
-        dict_with_data["buyer"] if dict_with_data.get("buyer") else dict_with_data["seller"]
+        dict_with_data["buyer"]
+        if dict_with_data.get("buyer")
+        else dict_with_data["seller"]
     )
 
     return dict_with_data
+
 
 def get_full_lot_title(offer: dict[str, Any], response):
     full_lot_title = ""
@@ -224,13 +240,13 @@ def get_full_lot_title(offer: dict[str, Any], response):
     if offer["category"] and offer["category"]["name"]:
         full_lot_title += offer["category"]["name"] + ", "
     if (
-            offer["descriptions"]
-            and offer["descriptions"].get("rus")
-            and offer["descriptions"]["rus"]
-            and offer["descriptions"]["rus"].get("briefDescription")
+        offer["descriptions"]
+        and offer["descriptions"].get("rus")
+        and offer["descriptions"]["rus"]
+        and offer["descriptions"]["rus"].get("briefDescription")
     ):
         full_lot_title += (
-                offer["descriptions"]["rus"]["briefDescription"] + ", "
+            offer["descriptions"]["rus"]["briefDescription"] + ", "
         )
     if offer["subCategory"] and offer["subCategory"]["name"]:
         full_lot_title += offer["subCategory"]["name"] + ", "

@@ -4,13 +4,16 @@ from typing import Any
 
 from .order import Descriptions, DeliveryTime, SubCategory
 
+
 class BaseConfig(BaseModel):
     class Config:
         validate_by_name = True
 
+
 class Attributes(BaseModel):
     id: str
     numericValue: int
+
 
 class LotFields(BaseConfig):
     id: int

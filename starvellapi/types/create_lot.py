@@ -2,9 +2,11 @@ from pydantic import BaseModel
 
 from .offer_fields import Attributes, DeliveryTime, Descriptions
 
+
 class BaseConfig(BaseModel):
     class Config:
         validate_by_name = True
+
 
 class CreateLotFields(BaseModel):
     attributes: list[Attributes] | None = None

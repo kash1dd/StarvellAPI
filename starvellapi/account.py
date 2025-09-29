@@ -51,7 +51,7 @@ from .utils import (
     format_statuses,
     format_types,
     get_full_lot_title,
-    NOTIFICATION_ORDER_TYPES
+    NOTIFICATION_ORDER_TYPES,
 )
 
 
@@ -271,7 +271,10 @@ class Account:
             ):
                 r["event_type"] = MessageTypes.NEW_MESSAGE
             else:
-                if r["metadata"]["notificationType"] in NOTIFICATION_ORDER_TYPES:
+                if (
+                    r["metadata"]["notificationType"]
+                    in NOTIFICATION_ORDER_TYPES
+                ):
                     r["event_type"] = format_message_types(
                         r["metadata"]["notificationType"]
                     )
@@ -310,7 +313,9 @@ class Account:
             else 0
         )
         offer = response["offerDetails"]
-        response["offerDetails"]["full_lot_title"] = get_full_lot_title(offer, response)
+        response["offerDetails"]["full_lot_title"] = get_full_lot_title(
+            offer, response
+        )
 
         return Order.model_validate(response)
 
@@ -694,7 +699,7 @@ class Account:
         payment_system: PaymentTypes,
         requisite: str,
         amount: int | float,
-        bank: str | int | None =None,
+        bank: str | int | None = None,
     ) -> None:
         """
         Создаёт заявку на вывод средств.
@@ -827,17 +832,29 @@ class Account:
                 raise SendTypingError(response.json().get("message"))
             time.sleep(4)
 
-
     class MyProfile:
-        def __init__(self, username, id, email, created_date, avatar_id,
-                     banner_id, description, is_verified, rating, review_count,
-                     balance_hold, balance, active_orders):
+        def __init__(
+            self,
+            username,
+            id,
+            email,
+            created_date,
+            avatar_id,
+            banner_id,
+            description,
+            is_verified,
+            rating,
+            review_count,
+            balance_hold,
+            balance,
+            active_orders,
+        ):
             self.__username = username
             self.__id = id
             self.__email = email
             self.__created_date = created_date
             self.__avatar_id = avatar_id
-            self.__banner_id = banner_id,
+            self.__banner_id = (banner_id,)
             self.__description = description
             self.__is_verified = is_verified
             self.__rating = rating
@@ -900,8 +917,18 @@ class Account:
 
     @property
     def info(self):
-        return self.MyProfile(self.__username, self.__id, self.__email,
-                              self.__created_date, self.__avatar_id, self.__banner_id,
-                              self.__description, self.__is_verified, self.__rating,
-                              self.__reviews_count, self.__balance_hold, self.__balance,
-                              self.__active_orders)
+        return self.MyProfile(
+            self.__username,
+            self.__id,
+            self.__email,
+            self.__created_date,
+            self.__avatar_id,
+            self.__banner_id,
+            self.__description,
+            self.__is_verified,
+            self.__rating,
+            self.__reviews_count,
+            self.__balance_hold,
+            self.__balance,
+            self.__active_orders,
+        )

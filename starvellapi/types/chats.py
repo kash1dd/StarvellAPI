@@ -1,9 +1,11 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
 
+
 class BaseConfig(BaseModel):
     class Config:
         validate_by_name = True
+
 
 class UserChatInfo(BaseConfig):
     id: int
@@ -12,6 +14,7 @@ class UserChatInfo(BaseConfig):
     is_online: bool = Field(alias="isOnline")
     is_operator: bool = Field(alias="isOperator")
     last_online_at: datetime = Field(alias="lastOnlineAt")
+
 
 class MessagePreview(BaseConfig):
     id: str
@@ -24,6 +27,7 @@ class MessagePreview(BaseConfig):
     admin: dict | None
     order: dict | None
     images: list | None
+
 
 class ChatInfo(BaseConfig):
     id: str

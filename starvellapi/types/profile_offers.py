@@ -2,9 +2,11 @@ from pydantic import BaseModel, Field
 
 from .order import SubCategory, Descriptions
 
+
 class BaseConfig(BaseModel):
     class Config:
         validate_by_name = True
+
 
 class OfferInfoShortCut(BaseConfig):
     id: int
