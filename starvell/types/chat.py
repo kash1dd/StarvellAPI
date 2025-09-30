@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
 
-from starvellapi.enums.enums import MessageTypes
+from starvell.enums.enums import MessageTypes
 from .order import OfferDetails
 
 

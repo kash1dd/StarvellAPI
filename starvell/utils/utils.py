@@ -1,7 +1,7 @@
 import json
 from typing import TYPE_CHECKING, Any, Optional
 
-from starvellapi.enums import (
+from starvell.enums import (
     MessageTypes,
     OrderStatuses,
     PaymentTypes,
@@ -11,7 +11,7 @@ from starvellapi.enums import (
 )
 
 if TYPE_CHECKING:
-    from starvellapi.account import Account
+    from starvell.account import Account
 
 NOTIFICATION_TYPES = (
     "ORDER_PAYMENT",

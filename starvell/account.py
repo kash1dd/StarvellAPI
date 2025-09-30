@@ -6,7 +6,7 @@ from typing import Any
 
 from uuid import UUID
 
-from starvellapi.session import StarvellSession
+from starvell.session import StarvellSession
 
 from .enums import MessageTypes, PaymentTypes
 from .errors import (
@@ -584,7 +584,7 @@ class Account:
 
         url = "https://starvell.com/api/messages/send-with-image"
         param = {"chatId": str(chat_id)}
-        files = {"image": ("starvellapi.png", image_bytes, "image/png")}
+        files = {"image": ("starvell.png", image_bytes, "image/png")}
 
         response = self.request.post(
             url=url, files=files, params=param, raise_not_200=False
@@ -726,7 +726,7 @@ class Account:
             "address": requisite,
             "cardHolder"
             if payment_system is not PaymentTypes.SBP
-            else "sbpBankId": "starvellapi"
+            else "sbpBankId": "starvell"
             if payment_system is not PaymentTypes.SBP
             else bank,
         }
@@ -853,13 +853,16 @@ class Account:
         )
 
     @classmethod
-    def from_json_cookie(cls, cookie_json: list[dict], **kwargs) -> "Account":
+    def from_json_cookie(
+        cls, cookie_json: list[dict], proxy: dict[str, str] | None = None
+    ) -> "Account":
         """
         Инициализирует аккаунт с помощью полного JSON'а с куками (Полученные например с расширения cookie-editor)
 
         :param cookie_json: Полностью скопированные куки с расширения в формате JSON
         :type cookie_json: list[dict]
-        :param kwargs: Дополнительные параметры, которые можно передать в класс Account
+        :param proxy: Прокси с которого будут осуществляться запросы (пример: {"http": "http://user:password@your_proxy_ip:port"})
+        :type proxy: dict[str, str] | None
 
         :return: Экземпляр Account
         :raise ValueError: В случае, если формат куки неправильный
@@ -875,18 +878,19 @@ class Account:
         if not session_id:
             raise ValueError("формат куки неправильный")
 
-        return cls(session_id=session_id, **kwargs)
+        return cls(session_id=session_id, proxy=proxy)
 
     @classmethod
     def from_header_string_cookie(
-        cls, cookie_header_string: str, **kwargs
+        cls, cookie_header_string: str, proxy: dict[str, str] | None = None
     ) -> "Account":
         """
         Инициализирует аккаунт с помощью полного Header String'а с куками (Полученные например с расширения cookie-editor)
 
         :param cookie_header_string: Полностью скопированные куки с расширения в формате Header-String
         :type cookie_header_string: str
-        :param kwargs: Дополнительные параметры, которые можно передать в класс Account
+        :param proxy: Прокси с которого будут осуществляться запросы (пример: {"http": "http://user:password@your_proxy_ip:port"})
+        :type proxy: dict[str, str] | None
 
         :return: Экземпляр Account
         :raise ValueError: В случае, если формат куки неправильный
@@ -897,4 +901,4 @@ class Account:
         if not regex:
             raise ValueError("формат куки неправильный")
 
-        return cls(regex.group(1), **kwargs)
+        return cls(regex.group(1), proxy=proxy)

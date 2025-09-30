@@ -3,7 +3,7 @@ from typing import Any
 
 from requests import Response, Session
 
-from starvellapi.errors import RequestFailedError, UnauthorizedError
+from starvell.errors import RequestFailedError, UnauthorizedError
 
 
 class StarvellSession:

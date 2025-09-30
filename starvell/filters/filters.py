@@ -1,5 +1,5 @@
-from starvellapi.types import NewMessageEvent
-from starvellapi.account import Account
+from starvell.types import NewMessageEvent
+from starvell.account import Account
 
 import re
 

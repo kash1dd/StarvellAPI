@@ -1,27 +1,37 @@
 # Starvell API на Python
 
 ---
+
 ### 📕 _Информация_
+
 * __API Полностью синхронное__
 * __API Полностью написано с использованием ООП__
 * __Все JSON Ответы от Starvell валидируются с помощью `Pydantic`__
 * __API Активно разрабатывается, и постепенно улучшается__
+
 ---
+
 ### 👨‍💻 Стек
+
 * __`pydantic`__
 * __`websocket-client`__
 * __`requests`__
+
 ___
+
 ### 👑 Требования
+
 * __Python >= 3.10__
 * __Рекомендуемая версия Python: [3.13.7](https://www.python.org/downloads/release/python-3137/)__
+
 ___
+
 ### _🤖 Пример использования_
 
 ```python
-from starvellapi import Account, Runner
-from starvellapi.types import NewMessageEvent, OrderEvent
-from starvellapi.enums import MessageTypes
+from starvell import Account, Runner
+from starvell.types import NewMessageEvent, OrderEvent
+from starvell.enums import MessageTypes
 
 acc = Account("session_id")  # создаём экземпляр аккаунта, указывая session_id полученный со starvell.com
 
@@ -48,10 +58,15 @@ def order_handler(order: OrderEvent):
 
     print(f"Покупатель {order.buyer.username} оплатил заказ {order.order.id}")
 ```
+
 * [Все примеры использования](https://github.com/kash1dd/StarvellAPI/tree/main/examples)
+
 ___
+
 ### ❓ _Прочее_
+
 * [Чат в Telegram](https://t.me/starvell_api)
 
 ### ⭐ Звездочки
+
 * Если тебе показалось удобным использование этого API - Поставь звезду (__Star it__), мне будет приятно :)

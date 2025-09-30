@@ -1,7 +1,7 @@
-from starvellapi import Account, Runner
-from starvellapi.enums import MessageTypes
-from starvellapi.types import NewMessageEvent
-from starvellapi.filters import not_me
+from starvell import Account, Runner
+from starvell.enums import MessageTypes
+from starvell.types import NewMessageEvent
+from starvell.filters import not_me
 
 acc = Account("session_id")  # session_id со Starvell
 print(f"Привет {acc.username}!\n")
