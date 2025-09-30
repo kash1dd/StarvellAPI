@@ -63,7 +63,7 @@ class TransactionStatuses(Enum):
     """Неизвестный статус транзакции"""
 
 
-class MessageTypes(Enum):
+class MessageType(Enum):
     """
     В данном классе перечислены все типы сообщений.
     """

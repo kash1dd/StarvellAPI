@@ -8,7 +8,7 @@ from uuid import UUID
 
 from starvell.session import StarvellSession
 
-from .enums import MessageTypes, PaymentTypes
+from .enums import MessageType, PaymentTypes
 from .errors import (
     BlockError,
     CreateLotError,
@@ -52,7 +52,6 @@ from .utils import (
     format_payment_methods,
     format_statuses,
     format_types,
-    get_full_lot_title,
     NOTIFICATION_ORDER_TYPES,
 )
 
@@ -271,7 +270,7 @@ class Account:
                 r["metadata"] is None
                 or "notificationType" not in r["metadata"]
             ):
-                r["event_type"] = MessageTypes.NEW_MESSAGE
+                r["event_type"] = MessageType.NEW_MESSAGE
             else:
                 if (
                     r["metadata"]["notificationType"]
@@ -314,10 +313,6 @@ class Account:
             if isinstance(response["totalPrice"], int)
             else 0
         )
-        offer = response["offerDetails"]
-        response["offerDetails"]["full_lot_title"] = get_full_lot_title(
-            offer, response
-        )
 
         return Order.model_validate(response)
 
@@ -333,7 +328,7 @@ class Account:
 
         order_id = str(order_id)
         url = "https://starvell.com/api/reviews/by-order-id"
-        param = {"id": order_id}
+        param = {"id": str(order_id)}
 
         response = self.request.get(url=url, params=param, raise_not_200=False)
 

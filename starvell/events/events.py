@@ -4,12 +4,10 @@ from typing import Any, Callable
 from websocket import WebSocketApp
 
 from starvell.account import Account
-from starvell.enums import MessageTypes, SocketTypes
+from starvell.enums import MessageType, SocketTypes
 from starvell.errors import HandlerError
 from starvell.socket import Socket
 from starvell.types import NewMessageEvent, OrderEvent, ServiceMessageEvent
-from starvell.utils import identify_ws_starvell_message
-from starvell.utils import get_full_lot_title
 
 
 class Runner:
@@ -27,45 +25,45 @@ class Runner:
             self.on_new_message
         )
 
-        self.handlers: dict[MessageTypes | SocketTypes, list] = {
-            MessageTypes.NEW_MESSAGE: [],
-            MessageTypes.NEW_ORDER: [],
-            MessageTypes.CONFIRM_ORDER: [],
-            MessageTypes.ORDER_REOPENED: [],
-            MessageTypes.ORDER_REFUND: [],
-            MessageTypes.NEW_REVIEW: [],
-            MessageTypes.REVIEW_DELETED: [],
-            MessageTypes.REVIEW_CHANGED: [],
-            MessageTypes.REVIEW_RESPONSE_EDITED: [],
-            MessageTypes.REVIEW_RESPONSE_CREATED: [],
-            MessageTypes.REVIEW_RESPONSE_DELETED: [],
-            MessageTypes.BLACKLIST_YOU_ADDED: [],
-            MessageTypes.BLACKLIST_USER_ADDED: [],
-            MessageTypes.BLACKLIST_YOU_REMOVED: [],
-            MessageTypes.BLACKLIST_USER_REMOVED: [],
+        self.handlers: dict[MessageType | SocketTypes, list] = {
+            MessageType.NEW_MESSAGE: [],
+            MessageType.NEW_ORDER: [],
+            MessageType.CONFIRM_ORDER: [],
+            MessageType.ORDER_REOPENED: [],
+            MessageType.ORDER_REFUND: [],
+            MessageType.NEW_REVIEW: [],
+            MessageType.REVIEW_DELETED: [],
+            MessageType.REVIEW_CHANGED: [],
+            MessageType.REVIEW_RESPONSE_EDITED: [],
+            MessageType.REVIEW_RESPONSE_CREATED: [],
+            MessageType.REVIEW_RESPONSE_DELETED: [],
+            MessageType.BLACKLIST_YOU_ADDED: [],
+            MessageType.BLACKLIST_USER_ADDED: [],
+            MessageType.BLACKLIST_YOU_REMOVED: [],
+            MessageType.BLACKLIST_USER_REMOVED: [],
             SocketTypes.OPEN: [],
             SocketTypes.NEW_MESSAGE: [],
         }
 
         self.event_types: dict[
-            MessageTypes,
+            MessageType,
             type[NewMessageEvent | OrderEvent | ServiceMessageEvent],
         ] = {
-            MessageTypes.NEW_MESSAGE: NewMessageEvent,
-            MessageTypes.NEW_ORDER: OrderEvent,
-            MessageTypes.CONFIRM_ORDER: OrderEvent,
-            MessageTypes.ORDER_REFUND: OrderEvent,
-            MessageTypes.ORDER_REOPENED: OrderEvent,
-            MessageTypes.NEW_REVIEW: OrderEvent,
-            MessageTypes.REVIEW_DELETED: OrderEvent,
-            MessageTypes.REVIEW_CHANGED: OrderEvent,
-            MessageTypes.REVIEW_RESPONSE_EDITED: OrderEvent,
-            MessageTypes.REVIEW_RESPONSE_CREATED: OrderEvent,
-            MessageTypes.REVIEW_RESPONSE_DELETED: OrderEvent,
-            MessageTypes.BLACKLIST_YOU_REMOVED: ServiceMessageEvent,
-            MessageTypes.BLACKLIST_USER_REMOVED: ServiceMessageEvent,
-            MessageTypes.BLACKLIST_YOU_ADDED: ServiceMessageEvent,
-            MessageTypes.BLACKLIST_USER_ADDED: ServiceMessageEvent,
+            MessageType.NEW_MESSAGE: NewMessageEvent,
+            MessageType.NEW_ORDER: OrderEvent,
+            MessageType.CONFIRM_ORDER: OrderEvent,
+            MessageType.ORDER_REFUND: OrderEvent,
+            MessageType.ORDER_REOPENED: OrderEvent,
+            MessageType.NEW_REVIEW: OrderEvent,
+            MessageType.REVIEW_DELETED: OrderEvent,
+            MessageType.REVIEW_CHANGED: OrderEvent,
+            MessageType.REVIEW_RESPONSE_EDITED: OrderEvent,
+            MessageType.REVIEW_RESPONSE_CREATED: OrderEvent,
+            MessageType.REVIEW_RESPONSE_DELETED: OrderEvent,
+            MessageType.BLACKLIST_YOU_REMOVED: ServiceMessageEvent,
+            MessageType.BLACKLIST_USER_REMOVED: ServiceMessageEvent,
+            MessageType.BLACKLIST_YOU_ADDED: ServiceMessageEvent,
+            MessageType.BLACKLIST_USER_ADDED: ServiceMessageEvent,
         }
 
         self.add_handler(
@@ -100,7 +98,7 @@ class Runner:
 
     def add_handler(
         self,
-        handler_type: MessageTypes | SocketTypes,
+        handler_type: MessageType | SocketTypes,
         handler_filter: list[Callable] | Callable | None = None,
         **kwargs: object,
     ) -> Callable[[Any], None]:
@@ -109,11 +107,11 @@ class Runner:
 
         Примеры:
 
-        ``@add_handler(MessageTypes.NEW_MESSAGE)``
+        ``@add_handler(MessageType.NEW_MESSAGE)``
 
         ``@add_handler(SocketTypes.NEW_MESSAGE)``
 
-        :param handler_type: MessageTypes либо SocketTypes
+        :param handler_type: MessageType либо SocketTypes
         :param handler_filter: Функция-фильтр, указывать необязательно, в случае если эта функция вернёт False, хэндлер не сработает
 
         :return: Callable
@@ -136,32 +134,7 @@ class Runner:
 
         :return: None
         """
-
-        try:
-            dict_with_data = identify_ws_starvell_message(msg, self.acc)
-
-            if not dict_with_data:
-                return
-            if dict_with_data.get("order") and dict_with_data["order"].get(
-                "offerDetails"
-            ):
-                offer = dict_with_data["order"]["offerDetails"]
-                dict_with_data["order"]["offerDetails"]["full_lot_title"] = (
-                    get_full_lot_title(offer, dict_with_data["order"])
-                )
-
-            data = self.event_types[dict_with_data["type"]].model_validate(
-                dict_with_data
-            )
-
-            for handler in self.handlers[dict_with_data["type"]]:
-                try:
-                    self.handling(handler, data)
-                except Exception as e:
-                    print(f"Ошибка в хэндлере {handler[0].__name__}: {e}")
-
-        except Exception as e:
-            raise HandlerError(str(e))
+        ...
 
     def on_open_process(self, ws: WebSocketApp) -> None:
         """

@@ -1,5 +1,5 @@
 from .enums import (
-    MessageTypes,
+    MessageType,
     OrderStatuses,
     PaymentTypes,
     SocketTypes,
@@ -9,7 +9,7 @@ from .enums import (
 )
 
 __all__ = [
-    "MessageTypes",
+    "MessageType",
     "OrderStatuses",
     "PaymentTypes",
     "SocketTypes",

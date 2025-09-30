@@ -1,5 +1,4 @@
-import json
-from typing import TYPE_CHECKING, Any, Optional
+from typing import Optional
 
 from starvell.enums import (
     MessageTypes,
@@ -9,9 +8,6 @@ from starvell.enums import (
     TransactionStatuses,
     TransactionTypes,
 )
-
-if TYPE_CHECKING:
-    from starvell.account import Account
 
 NOTIFICATION_TYPES = (
     "ORDER_PAYMENT",
@@ -161,98 +157,3 @@ def format_payment_methods(method: PaymentTypes) -> Optional[int]:
     }
 
     return p_types.get(method)
-
-
-def identify_ws_starvell_message(data: str, acc: "Account") -> dict[str, Any]:
-    """
-    Определяет тип нового сообщения со Starvell в чате, полученного с веб-сокета
-
-    :param data: Сообщение с веб-сокета (Должно быть именно новым сообщением)
-    :param acc: Экземпляр аккаунта
-
-    :return: Отформатированный словарь
-    """
-
-    dict_with_data = json.loads(data[len('42/chats,["message_created",') : -1])
-
-    if (
-        dict_with_data["metadata"] is None
-        or "notificationType" not in dict_with_data["metadata"]
-    ):
-        dict_with_data["is_auto_response"] = False
-        dict_with_data["by_admin"] = False
-
-        if dict_with_data.get(
-            "metadata"
-        ) is not None and "isAutoResponse" in dict_with_data.get("metadata"):
-            dict_with_data["is_auto_response"] = True
-
-        if (
-            dict_with_data.get("author")
-            and "MODERATOR" in dict_with_data["author"]["roles"]
-            or "SUPPORT" in dict_with_data["author"]["roles"]
-            or "ARBITRAGE" in dict_with_data["author"]["roles"]
-            or "ADMIN" in dict_with_data["author"]["roles"]
-        ):
-            dict_with_data["by_admin"] = True
-
-        dict_with_data["by_api"] = (
-            True if dict_with_data["content"].startswith("‎") else False
-        )
-        dict_with_data["type"] = MessageTypes.NEW_MESSAGE
-
-    elif dict_with_data["metadata"]["notificationType"] in NOTIFICATION_TYPES:
-        nt = dict_with_data["metadata"]["notificationType"]
-
-        if nt in NOTIFICATION_ORDER_TYPES:
-            order = acc.get_order(dict_with_data["order"]["id"])
-            dict_with_data["order"]["price_for_me"] = order.price_for_me
-            dict_with_data["order"]["price_for_buyer"] = order.price_for_buyer
-            dict_with_data["order"]["offer_id"] = order.offer_id
-
-        dict_with_data["type"] = format_message_types(nt)
-
-    elif (
-        dict_with_data["metadata"]["notificationType"]
-        not in NOTIFICATION_TYPES
-    ):
-        dict_with_data["type"] = MessageTypes.OTHER
-
-    dict_with_data["author"] = (
-        dict_with_data["author"]
-        if "author" in dict_with_data
-        else dict_with_data["buyer"]
-    )
-    dict_with_data["buyer"] = (
-        dict_with_data["buyer"]
-        if dict_with_data.get("buyer")
-        else dict_with_data.get("seller")
-    )
-
-    return dict_with_data
-
-
-def get_full_lot_title(offer: dict[str, Any], response):
-    full_lot_title = ""
-
-    if offer["game"] and offer["game"]["name"]:
-        full_lot_title += offer["game"]["name"] + ", "
-    if offer["category"] and offer["category"]["name"]:
-        full_lot_title += offer["category"]["name"] + ", "
-    if (
-        offer["descriptions"]
-        and offer["descriptions"].get("rus")
-        and offer["descriptions"]["rus"]
-        and offer["descriptions"]["rus"].get("briefDescription")
-    ):
-        full_lot_title += (
-            offer["descriptions"]["rus"]["briefDescription"] + ", "
-        )
-    if offer["subCategory"] and offer["subCategory"]["name"]:
-        full_lot_title += offer["subCategory"]["name"] + ", "
-
-    full_lot_title += (
-        f"{response['quantity']} шт." if response.get("quantity") else ""
-    )
-
-    return full_lot_title
