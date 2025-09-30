@@ -88,7 +88,7 @@ class Account:
         self.proxy: dict[str, str] | None = proxy
         self.request: StarvellSession = StarvellSession(session_id, self.proxy)
 
-        # авто запуск
+        # авто запускh
         self.get_info()
 
     def get_info(self) -> MyProfile:
