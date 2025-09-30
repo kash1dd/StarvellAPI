@@ -43,9 +43,7 @@ from .types import (
     TransactionInfo,
     User,
 )
-from .propertys import (
-    MyProfile
-)
+from .propertys import MyProfileProperty
 from .utils import (
     format_directions,
     format_message_types,
@@ -837,7 +835,7 @@ class Account:
 
     @property
     def user(self):
-        return MyProfile(
+        return MyProfileProperty(
             self.__username,
             self.__id,
             self.__email,

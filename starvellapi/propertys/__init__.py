@@ -1,3 +1,3 @@
-__all__ = ["MyProfile"]
+__all__ = ["MyProfileProperty"]
 
-from .my_profile import MyProfile
+from .my_profile import MyProfileProperty

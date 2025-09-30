@@ -1,19 +1,19 @@
-class MyProfile:
+class MyProfileProperty:
     def __init__(
-            self,
-            username,
-            id,
-            email,
-            created_date,
-            avatar_id,
-            banner_id,
-            description,
-            is_verified,
-            rating,
-            review_count,
-            balance_hold,
-            balance,
-            active_orders,
+        self,
+        username,
+        id,
+        email,
+        created_date,
+        avatar_id,
+        banner_id,
+        description,
+        is_verified,
+        rating,
+        review_count,
+        balance_hold,
+        balance,
+        active_orders,
     ):
         self.__username = username
         self.__id = id
