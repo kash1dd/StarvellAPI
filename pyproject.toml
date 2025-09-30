@@ -1,3 +1,13 @@
+[project]
+name = "StarvellAPI"
+version = "0.0.1"
+description = "API Для Starvell на Python"
+dependencies = [
+    "pydantic>=2.11.9",
+    "requests>=2.32.5",
+    "websocket-client>=1.8.0",
+]
+
 [tool.ruff]
 fix = true
 line-length = 79
@@ -8,3 +18,8 @@ preview = true
 quote-style = "double"
 indent-style = "space"
 line-ending = "auto"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.13.2",
+]
