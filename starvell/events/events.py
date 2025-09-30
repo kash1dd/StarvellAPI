@@ -142,7 +142,6 @@ class Runner:
 
             if not dict_with_data:
                 return
-
             if dict_with_data.get("order") and dict_with_data["order"].get(
                 "offerDetails"
             ):

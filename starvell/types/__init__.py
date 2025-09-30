@@ -45,6 +45,8 @@ __all__ = [
     "UserInfoExtendedLow",
     "User",
     "ExchangeRate",
+    "Attributes",
+    "OrderArgs",
 ]
 
 from .blocklist import BlockListedUser
@@ -63,6 +65,8 @@ from .order import (
     DeliveryTime,
     OfferDetails,
     Order,
+    Attributes,
+    OrderArgs,
 )
 from .order_event import OrderEvent
 from .preview_order import (

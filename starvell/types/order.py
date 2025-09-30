@@ -41,6 +41,19 @@ class Descriptions(BaseConfig):
     rus: Description
 
 
+class AttributesValue(BaseConfig):
+    id: str
+    name_ru: str | None = Field(None, alias="nameRu")
+    name_en: str | None = Field(None, alias="nameEn")
+
+
+class Attributes(BaseConfig):
+    id: str
+    value: AttributesValue
+    name_ru: str | None = Field(None, alias="nameRu")
+    name_en: str | None = Field(None, alias="nameEn")
+
+
 class OfferDetails(BaseConfig):
     full_lot_title: str
     game: Game
@@ -51,6 +64,14 @@ class OfferDetails(BaseConfig):
     delivery_time: DeliveryTime | None = Field(None, alias="deliveryTime")
     descriptions: Descriptions
     is_auto_delivery: bool = Field(alias="instantDelivery")
+    attributes: list[Attributes] = Field(alias="attributes")
+
+
+class OrderArgs(BaseConfig):
+    id: str
+    value: str
+    name_ru: str | None = Field(None, alias="nameRu")
+    name_en: str | None = Field(None, alias="nameEn")
 
 
 class Order(BaseConfig):
@@ -61,7 +82,7 @@ class Order(BaseConfig):
     buyer_id: int = Field(alias="buyerId")
     offer_id: int | None = Field(alias="offerId")
     offer: OfferDetails = Field(alias="offerDetails")
-    order_args: list[str] = Field(alias="orderArgs")
+    order_args: list[OrderArgs] = Field(alias="orderArgs")
     quantity: int
     review_visible_after_refund: bool = Field(alias="reviewVisibleAfterRefund")
     created_at: datetime = Field(alias="createdAt")

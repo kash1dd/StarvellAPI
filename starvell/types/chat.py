@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field
 from datetime import datetime
 
 from starvell.enums.enums import MessageTypes
-from .order import OfferDetails
+from .order import OfferDetails, OrderArgs
 
 
 class BaseConfig(BaseModel):
@@ -22,6 +22,7 @@ class MiniOrder(BaseConfig):
     price_for_buyer: float | None = None
     offer_id: int | None = None
     offer_details: OfferDetails = Field(alias="offerDetails")
+    order_args: list[OrderArgs] = Field(alias="orderArgs")
 
 
 class MetaData(BaseConfig):

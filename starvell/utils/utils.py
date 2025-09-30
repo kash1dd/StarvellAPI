@@ -226,7 +226,7 @@ def identify_ws_starvell_message(data: str, acc: "Account") -> dict[str, Any]:
     dict_with_data["buyer"] = (
         dict_with_data["buyer"]
         if dict_with_data.get("buyer")
-        else dict_with_data["seller"]
+        else dict_with_data.get("seller")
     )
 
     return dict_with_data
