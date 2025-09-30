@@ -40,7 +40,7 @@ class OrdersCount(BaseModel):
 class MyProfile(BaseModel):
     user: MyProfileUser
     is_imitated: bool = Field(alias="isImitated")
-    is_offers_hide: None = Field(alias="offersHide")
+    is_offers_hide: None = Field(None, alias="offersHide")
     offers_in_hide: list[str | int] = Field(alias="offersHides")
     balance: Balance
     holded_balance: int = Field(alias="holdedAmount")
