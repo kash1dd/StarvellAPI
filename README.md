@@ -1,4 +1,4 @@
-# Starvell API на Python
+# Starvell SDK Для Python
 
 ---
 
@@ -35,8 +35,8 @@ from starvell.enums import MessageTypes
 
 acc = Account("session_id")  # создаём экземпляр аккаунта, указывая session_id полученный со starvell.com
 
-print(f"Никнейм - {acc.info.username}")
-print(f"ID - {acc.info.id}\n")
+print(f"Никнейм - {acc.user.username}")
+print(f"ID - {acc.user.id}\n")
 
 runner = Runner(acc)  # создаём экземпляр раннера
 
