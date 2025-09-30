@@ -1,4 +1,5 @@
 import json
+import re
 import time
 from datetime import datetime
 from typing import Any
@@ -852,7 +853,7 @@ class Account:
         )
 
     @classmethod
-    def from_json_cookie(cls, cookie_json: list[dict], **kwargs):
+    def from_json_cookie(cls, cookie_json: list[dict], **kwargs) -> "Account":
         """
         Инициализирует аккаунт с помощью полного JSON'а с куками (Полученные например с расширения cookie-editor)
 
@@ -861,6 +862,7 @@ class Account:
         :param kwargs: Дополнительные параметры, которые можно передать в класс Account
 
         :return: Экземпляр Account
+        :raise ValueError: В случае, если формат куки неправильный
         """
 
         session_id = None
@@ -874,3 +876,23 @@ class Account:
             raise ValueError("формат куки неправильный")
 
         return cls(session_id=session_id, **kwargs)
+
+    @classmethod
+    def from_header_string_cookie(cls, cookie_header_string: str, **kwargs):
+        """
+        Инициализирует аккаунт с помощью полного Header String'а с куками (Полученные например с расширения cookie-editor)
+
+        :param cookie_header_string: Полностью скопированные куки с расширения в формате Header-String
+        :type cookie_header_string: str
+        :param kwargs: Дополнительные параметры, которые можно передать в класс Account
+
+        :return: Экземпляр Account
+        :raise ValueError: В случае, если формат куки неправильный
+        """
+
+        regex = re.search(r"session=([^;]+)", cookie_header_string, flags=re.I)
+
+        if not regex:
+            raise ValueError("формат куки неправильный")
+
+        return cls(regex.group(1), **kwargs)
