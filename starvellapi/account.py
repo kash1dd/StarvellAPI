@@ -878,7 +878,9 @@ class Account:
         return cls(session_id=session_id, **kwargs)
 
     @classmethod
-    def from_header_string_cookie(cls, cookie_header_string: str, **kwargs) -> "Account":
+    def from_header_string_cookie(
+        cls, cookie_header_string: str, **kwargs
+    ) -> "Account":
         """
         Инициализирует аккаунт с помощью полного Header String'а с куками (Полученные например с расширения cookie-editor)
 
