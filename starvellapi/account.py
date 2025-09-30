@@ -850,3 +850,27 @@ class Account:
             self.__balance,
             self.__active_orders,
         )
+
+    @classmethod
+    def from_json_cookie(cls, cookie_json: list[dict], **kwargs):
+        """
+        Инициализирует аккаунт с помощью полного JSON'а с куками (Полученные например с расширения cookie-editor)
+
+        :param cookie_json: Полностью скопированные куки с расширения в формате JSON
+        :type cookie_json: list[dict]
+        :param kwargs: Дополнительные параметры, которые можно передать в класс Account
+
+        :return: Экземпляр Account
+        """
+
+        session_id = None
+
+        for value in cookie_json:
+            if value["name"] == "session":
+                session_id = value["value"]
+                break
+
+        if not session_id:
+            raise ValueError("формат куки неправильный")
+
+        return cls(session_id=session_id, **kwargs)
