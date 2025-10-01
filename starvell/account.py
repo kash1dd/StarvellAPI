@@ -181,7 +181,6 @@ class Account:
 
         return [ReviewInfo.model_validate(i) for i in response]
 
-
     def get_chats(self, offset: int, limit: int) -> list[ChatInfo]:
         """
         Получает чаты аккаунта.

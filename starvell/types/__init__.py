@@ -7,7 +7,7 @@ __all__ = [
     "OrderShortCut",
     "NewMessageEvent",
     "OrderEvent",
-    "OrderFull"
+    "OrderFull",
 ]
 
 from .user import MessageAuthor, User

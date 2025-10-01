@@ -126,5 +126,6 @@ class Order(OrderShortCut):
     offer_id: int | None = Field(alias="offerId")
     """ID Оплаченного лота"""
 
+
 class OrderFull(Order):
     user: User
