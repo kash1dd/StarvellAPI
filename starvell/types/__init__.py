@@ -1,4 +1,4 @@
-__all__ = ["MessageAuthor", "User", "BaseMessage"]
+__all__ = ["MessageAuthor", "User", "BaseMessage", "Message"]
 
 from .user import MessageAuthor, User
-from .messages import BaseMessage
+from .messages import BaseMessage, Message

@@ -8,7 +8,7 @@ from uuid import UUID
 
 from starvell.session import StarvellSession
 
-from .enums import MessageType, PaymentTypes
+from .enums import PaymentTypes
 from .errors import (
     BlockError,
     CreateLotError,
@@ -47,12 +47,11 @@ from .types import (
 from .propertys import MyProfileProperty
 from .utils import (
     format_directions,
-    format_message_types,
     format_order_status,
     format_payment_methods,
     format_statuses,
     format_types,
-    NOTIFICATION_ORDER_TYPES,
+    set_user,
 )
 
 
@@ -265,25 +264,9 @@ class Account:
 
         response = self.request.post(url, body, raise_not_200=True).json()
 
-        for r in response:
-            if (
-                r["metadata"] is None
-                or "notificationType" not in r["metadata"]
-            ):
-                r["event_type"] = MessageType.NEW_MESSAGE
-            else:
-                if (
-                    r["metadata"]["notificationType"]
-                    in NOTIFICATION_ORDER_TYPES
-                ):
-                    r["event_type"] = format_message_types(
-                        r["metadata"]["notificationType"]
-                    )
-                else:
-                    continue
-
-            r["author"] = r["author"] if r["author"] else r["buyer"]
-            messages.append(Message.model_validate(r))
+        for msg in response:
+            msg['user'] = set_user(msg)
+            messages.append(Message.model_validate(msg, by_alias=True))
 
         return messages
 

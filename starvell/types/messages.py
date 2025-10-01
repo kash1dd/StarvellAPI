@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, AliasChoices, field_validator
+from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
 
 from starvell.enums import MessageType
@@ -11,9 +11,7 @@ class BaseMessage(BaseModel):
     id: str
     chat_id: str = Field(alias="chatId")
     created_at: datetime = Field(alias="createdAt")
-    user: MessageAuthor = Field(
-        validation_alias=AliasChoices("author", "buyer", "seller", "admin")
-    )
+    user: MessageAuthor
 
     @field_validator("metadata", mode="before")
     @classmethod
@@ -25,6 +23,11 @@ class BaseMessage(BaseModel):
         return format_message_types(data)
 
 
-class NewMessageEvent(BaseMessage):
+class Message(BaseMessage):
     content: str
     images: list[str]
+
+
+class NewMessageEvent(Message):
+    ...
+

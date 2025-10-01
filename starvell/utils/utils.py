@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Any
 
 from starvell.enums import (
     MessageType,
@@ -8,6 +8,7 @@ from starvell.enums import (
     TransactionStatuses,
     TransactionTypes,
 )
+from starvell.types import MessageAuthor
 
 NOTIFICATION_TYPES = (
     "ORDER_PAYMENT",
@@ -158,3 +159,23 @@ def format_payment_methods(method: PaymentTypes) -> Optional[int]:
     }
 
     return p_types.get(method)
+
+
+def set_user(data: dict[str, Any]) -> MessageAuthor:
+    """
+    Устанавливает автора сообщения
+
+    :param data: Полный объект сообщения в виде словаря
+    :type data: dict
+    :return: Модель pydantic'а
+    :rtype: MessageAuthor
+    """
+
+    user = None
+
+    for name in ("author", "buyer", "seller", "admin"):
+        if data.get(name):
+            user = data.get(name)
+            break
+
+    return MessageAuthor.model_validate(user, by_alias=True)

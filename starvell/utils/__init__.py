@@ -5,6 +5,7 @@ from .utils import (
     format_payment_methods,
     format_statuses,
     format_types,
+    set_user,
     NOTIFICATION_ORDER_TYPES,
 )
 
@@ -15,5 +16,6 @@ __all__ = [
     "format_order_status",
     "format_statuses",
     "format_types",
+    "set_user",
     "NOTIFICATION_ORDER_TYPES",
 ]
