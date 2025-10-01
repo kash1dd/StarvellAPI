@@ -6,9 +6,10 @@ __all__ = [
     "Order",
     "OrderShortCut",
     "NewMessageEvent",
-    "OrderEvent"
+    "OrderEvent",
+    "OrderFull"
 ]
 
 from .user import MessageAuthor, User
 from .messages import BaseMessage, Message, NewMessageEvent, OrderEvent
-from .order import Order, OrderShortCut
+from .order import Order, OrderShortCut, OrderFull

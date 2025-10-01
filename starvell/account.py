@@ -38,19 +38,14 @@ from .types import (
     MyProfile,
     OfferTableInfo,
     Order,
-    OrderInfo,
-    PreviewSettings,
+    OrderFull,
     ReviewInfo,
-    TransactionInfo,
     User,
 )
 from .propertys import MyProfileProperty
 from .utils import (
-    format_directions,
     format_order_status,
     format_payment_methods,
-    format_statuses,
-    format_types,
     set_user,
 )
 
@@ -122,24 +117,12 @@ class Account:
 
         return response
 
-    def get_settings(self) -> PreviewSettings:
-        """
-        Получает настройки аккаунта.
-
-        :return: Модель
-        :rtype: PreviewSettings
-        """
-
-        url = "https://starvell.com/api/user/settings"
-        response = self.request.get(url=url, raise_not_200=True).json()
-        return PreviewSettings.model_validate(response)
-
     def get_sales(
         self,
         offset: int = 0,
         limit: int = 100000000,
         filter_sales: dict[str, Any] | None = None,
-    ) -> list[OrderInfo]:
+    ) -> list[OrderFull]:
         """
         Получает продажи аккаунта.
 
@@ -149,8 +132,8 @@ class Account:
         :type limit: int
         :param filter_sales: Дополнительные фильтры, которые можно передать в тело запроса
         :type filter_sales: dict
-        :return: Список, объектами которого являются модели OrderInfo
-        :rtype: list[OrderInfo]
+        :return: Список, объектами которого являются модели OrderFull
+        :rtype: list[OrderFull]
         """
 
         default: dict[str, str] = {"userType": "seller"}
@@ -170,7 +153,7 @@ class Account:
 
         for obj in orders:
             obj["status"] = format_order_status(obj["status"])
-            ord_2 = OrderInfo.model_validate(obj)
+            ord_2 = OrderFull.model_validate(obj)
             list_with_sales.append(ord_2)
 
         return list_with_sales
@@ -198,35 +181,6 @@ class Account:
 
         return [ReviewInfo.model_validate(i) for i in response]
 
-    def get_transactions(
-        self, offset: int = 0, limit: int = 100000000
-    ) -> list[TransactionInfo]:
-        """
-        Получает транзакции аккаунта.
-
-        :param offset: С какой транзакции начинать?
-        :type offset: int
-        :param limit: Сколько транзакций получить?
-        :type limit: int
-        :return: Список, объектами которого являются модели TransactionInfo
-        :rtype: list[TransactionInfo]
-        """
-
-        url = "https://starvell.com/api/transactions/list"
-        body = {"filter": {}, "limit": limit, "offset": offset}
-        response = self.request.post(url, body, raise_not_200=True)
-
-        list_with_transactions = []
-        transactions = response.json()
-
-        for t in transactions:
-            t["direction"] = format_directions(t["direction"])
-            t["type"] = format_types(t["type"])
-            t["status"] = format_statuses(t["status"])
-            t = TransactionInfo.model_validate(t)
-            list_with_transactions.append(t)
-
-        return list_with_transactions
 
     def get_chats(self, offset: int, limit: int) -> list[ChatInfo]:
         """

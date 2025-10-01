@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 from starvell.enums import OrderStatuses
+from starvell.types import User
 from datetime import datetime
 
 
@@ -124,3 +125,6 @@ class OrderShortCut(BaseModel):
 class Order(OrderShortCut):
     offer_id: int | None = Field(alias="offerId")
     """ID Оплаченного лота"""
+
+class OrderFull(Order):
+    user: User
