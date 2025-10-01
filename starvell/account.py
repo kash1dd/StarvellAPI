@@ -36,7 +36,7 @@ from .types import (
     LotFields,
     Message,
     Profile,
-    OfferTableInfo,
+    OfferShortCut,
     Order,
     OrderFull,
     ReviewInfo,
@@ -283,7 +283,7 @@ class Account:
         limit: int = 100000000,
         only_online: bool = False,
         other_filters: dict[str, str] | None = None,
-    ) -> list[OfferTableInfo]:
+    ) -> list[OfferShortCut]:
         """
         Получает лоты категории.
 
@@ -297,8 +297,8 @@ class Account:
         :type only_online: True
         :param other_filters: Дополнительные фильтры, которые можно передать в тело запроса
         :type other_filters: dict
-        :return: Список, объектами которого являются модели OfferTableInfo
-        :rtype: list[OfferTableInfo]
+        :return: Список, объектами которого являются модели OfferShortCut
+        :rtype: list[OfferShortCut]
         """
 
         url = "https://starvell.com/api/offers/list-by-category"
@@ -319,7 +319,7 @@ class Account:
 
         response = self.request.post(url, body, raise_not_200=True).json()
 
-        return [OfferTableInfo.model_validate(i) for i in response]
+        return [OfferShortCut.model_validate(i) for i in response]
 
     def get_my_category_lots(
         self, category_id: int, offset: int = 0, limit: int = 10000000
