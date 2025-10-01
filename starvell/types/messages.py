@@ -7,7 +7,7 @@ from starvell.utils import format_message_types
 
 
 class BaseMessage(BaseModel):
-    type: MessageType = Field(alias="metadata")
+    metadata: MessageType
     id: str
     chat_id: str = Field(alias="chatId")
     created_at: datetime = Field(alias="createdAt")
@@ -15,7 +15,7 @@ class BaseMessage(BaseModel):
         validation_alias=AliasChoices("author", "buyer", "seller", "admin")
     )
 
-    @field_validator("type", mode="before")
+    @field_validator("metadata", mode="before")
     @classmethod
     def identify_msg(cls, field: dict[str, str | bool] | None):
         if not field:
