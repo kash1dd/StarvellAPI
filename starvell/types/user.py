@@ -19,3 +19,20 @@ class User(MessageAuthor):
     roles: list[str]
     rating: int | float
     reviews: int = Field(alias="reviewsCount")
+
+
+class Balance(BaseModel):
+    rub: int = Field(alias="rubBalance")
+
+
+class ActiveOrders(BaseModel):
+    purchases: int = Field(alias="purchaseOrdersCount")
+    sales: int = Field(alias="salesOrdersCount")
+
+
+class Profile(BaseModel):
+    user: User
+    balance: Balance
+    balance_hold: int
+    orders: ActiveOrders
+    unreadChatIds: list[str]

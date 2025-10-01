@@ -35,7 +35,7 @@ from .types import (
     ExchangeRate,
     LotFields,
     Message,
-    MyProfile,
+    Profile,
     OfferTableInfo,
     Order,
     OrderFull,
@@ -84,16 +84,16 @@ class Account:
         # авто запуск
         self.get_info()
 
-    def get_info(self) -> MyProfile:
+    def get_info(self) -> Profile:
         """
         Получает информацию об аккаунте.
 
         :return: Модель
-        :rtype: MyProfile
+        :rtype: Profile
         """
 
         url = "https://starvell.com/api/users-profile"
-        response = MyProfile.model_validate(
+        response = Profile.model_validate(
             self.request.get(url=url, raise_not_200=True).json()
         )
 
