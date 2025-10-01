@@ -135,7 +135,7 @@ def format_message_types(msg_type: str) -> MessageType:
         "BLACKLIST_USER_ADDED": MessageType.BLACKLIST_USER_ADDED,
         "BLACKLIST_YOU_REMOVED": MessageType.BLACKLIST_YOU_REMOVED,
         "BLACKLIST_USER_REMOVED": MessageType.BLACKLIST_USER_REMOVED,
-        "isAutoResponse": MessageType.AUTO_RESPONSE,
+        True: MessageType.AUTO_RESPONSE,
     }
 
     return msg_types.get(msg_type, MessageType.OTHER)
