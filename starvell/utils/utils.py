@@ -1,7 +1,7 @@
 from typing import Optional
 
 from starvell.enums import (
-    MessageTypes,
+    MessageType,
     OrderStatuses,
     PaymentTypes,
     TransactionDirections,
@@ -111,33 +111,34 @@ def format_order_status(status: str) -> OrderStatuses:
     return order_statuses.get(status, OrderStatuses.UNKNOWN)
 
 
-def format_message_types(msg_type: str) -> MessageTypes:
+def format_message_types(msg_type: str) -> MessageType:
     """
-    Форматирует строку с notification_type на MessageTypes (Enum)
+    Форматирует строку с notification_type на MessageType (Enum)
 
     :param msg_type: notification_type строка с ответа от Starvell
 
-    :return: MessageTypes (Enum)
+    :return: MessageType (Enum)
     """
 
     msg_types = {
-        "ORDER_PAYMENT": MessageTypes.NEW_ORDER,
-        "REVIEW_CREATED": MessageTypes.NEW_REVIEW,
-        "ORDER_COMPLETED": MessageTypes.CONFIRM_ORDER,
-        "ORDER_REFUND": MessageTypes.ORDER_REFUND,
-        "ORDER_REOPENED": MessageTypes.ORDER_REOPENED,
-        "REVIEW_UPDATED": MessageTypes.REVIEW_CHANGED,
-        "REVIEW_DELETED": MessageTypes.REVIEW_DELETED,
-        "REVIEW_RESPONSE_CREATED": MessageTypes.REVIEW_RESPONSE_CREATED,
-        "REVIEW_RESPONSE_UPDATED": MessageTypes.REVIEW_RESPONSE_EDITED,
-        "REVIEW_RESPONSE_DELETED": MessageTypes.REVIEW_RESPONSE_DELETED,
-        "BLACKLIST_YOU_ADDED": MessageTypes.BLACKLIST_YOU_ADDED,
-        "BLACKLIST_USER_ADDED": MessageTypes.BLACKLIST_USER_ADDED,
-        "BLACKLIST_YOU_REMOVED": MessageTypes.BLACKLIST_YOU_REMOVED,
-        "BLACKLIST_USER_REMOVED": MessageTypes.BLACKLIST_USER_REMOVED,
+        "ORDER_PAYMENT": MessageType.NEW_ORDER,
+        "REVIEW_CREATED": MessageType.NEW_REVIEW,
+        "ORDER_COMPLETED": MessageType.CONFIRM_ORDER,
+        "ORDER_REFUND": MessageType.ORDER_REFUND,
+        "ORDER_REOPENED": MessageType.ORDER_REOPENED,
+        "REVIEW_UPDATED": MessageType.REVIEW_CHANGED,
+        "REVIEW_DELETED": MessageType.REVIEW_DELETED,
+        "REVIEW_RESPONSE_CREATED": MessageType.REVIEW_RESPONSE_CREATED,
+        "REVIEW_RESPONSE_UPDATED": MessageType.REVIEW_RESPONSE_EDITED,
+        "REVIEW_RESPONSE_DELETED": MessageType.REVIEW_RESPONSE_DELETED,
+        "BLACKLIST_YOU_ADDED": MessageType.BLACKLIST_YOU_ADDED,
+        "BLACKLIST_USER_ADDED": MessageType.BLACKLIST_USER_ADDED,
+        "BLACKLIST_YOU_REMOVED": MessageType.BLACKLIST_YOU_REMOVED,
+        "BLACKLIST_USER_REMOVED": MessageType.BLACKLIST_USER_REMOVED,
+        "isAutoResponse": MessageType.AUTO_RESPONSE,
     }
 
-    return msg_types.get(msg_type, MessageTypes.OTHER)
+    return msg_types.get(msg_type, MessageType.OTHER)
 
 
 def format_payment_methods(method: PaymentTypes) -> Optional[int]:
