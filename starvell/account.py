@@ -265,7 +265,7 @@ class Account:
         response = self.request.post(url, body, raise_not_200=True).json()
 
         for msg in response:
-            msg['user'] = set_user(msg)
+            msg["user"] = set_user(msg)
             messages.append(Message.model_validate(msg, by_alias=True))
 
         return messages

@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
 
 from starvell.enums import MessageType
-from starvell.types import MessageAuthor
+from starvell.types import MessageAuthor, OrderShortCut
 from starvell.utils import format_message_types
 
 
@@ -28,6 +28,8 @@ class Message(BaseMessage):
     images: list[str]
 
 
-class NewMessageEvent(Message):
-    ...
+class NewMessageEvent(Message): ...
 
+
+class OrderEvent(BaseMessage):
+    order: OrderShortCut
