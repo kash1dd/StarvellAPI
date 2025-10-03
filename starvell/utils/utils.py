@@ -154,6 +154,9 @@ def format_payment_methods(method: PaymentTypes) -> Optional[int]:
 
     p_types = {
         PaymentTypes.BANK_CARD_RU: 13,
+        PaymentTypes.BANK_CARD_KZ: 16,
+        PaymentTypes.BANK_CARD_BY: 17,
+        PaymentTypes.BANK_CARD_WORLD: 18,
         PaymentTypes.SBP: 15,
         PaymentTypes.USDT_TRC20: 11,
         PaymentTypes.LTC: 12,

@@ -111,11 +111,17 @@ class PaymentTypes(Enum):
 
     BANK_CARD_RU = 0
     """Банковская карта RU"""
-    SBP = 1
+    BANK_CARD_KZ = 1
+    """Банковская карта KZ"""
+    BANK_CARD_BY = 2
+    """Банковская карта BY"""
+    BANK_CARD_WORLD = 3
+    """Банковские карты World"""
+    SBP = 4
     """СБП"""
-    USDT_TRC20 = 2
+    USDT_TRC20 = 5
     """USDT TRC20"""
-    LTC = 3
+    LTC = 6
     """LTC"""
 
 
