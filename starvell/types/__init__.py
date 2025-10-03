@@ -12,10 +12,11 @@ __all__ = [
     "OfferShortCut",
     "ExchangeRate",
     "UserShortCut",
-    "ChatShortCut"
+    "ChatShortCut",
+    "BlockListedUser"
 ]
 
-from .user import MessageAuthor, User, Profile, UserShortCut
+from .user import MessageAuthor, User, Profile, UserShortCut, BlockListedUser
 from .messages import BaseMessage, Message, NewMessageEvent, OrderEvent
 from .order import Order, OrderShortCut, OrderFull
 from .table import OfferShortCut
