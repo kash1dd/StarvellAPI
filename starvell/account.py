@@ -30,7 +30,7 @@ from .errors import (
 )
 from .types import (
     BlockListedUser,
-    ChatInfo,
+    ChatShortCut,
     CreateLotFields,
     ExchangeRate,
     LotFields,
@@ -181,7 +181,7 @@ class Account:
 
         return [ReviewInfo.model_validate(i) for i in response]
 
-    def get_chats(self, offset: int, limit: int) -> list[ChatInfo]:
+    def get_chats(self, offset: int, limit: int) -> list[ChatShortCut]:
         """
         Получает чаты аккаунта.
 
@@ -189,15 +189,15 @@ class Account:
         :type offset: int
         :param limit: Сколько чатов получить?
         :type limit: int
-        :return: Список, объектами которого являются модели ChatInfo
-        :rtype: list[ChatInfo]
+        :return: Список, объектами которого являются модели ChatShortCut
+        :rtype: list[ChatShortCut]
         """
 
         url = "https://starvell.com/api/chats/list"
         body = {"offset": offset, "limit": limit}
         response = self.request.post(url, body=body, raise_not_200=True).json()
 
-        return [ChatInfo.model_validate(i) for i in response]
+        return [ChatShortCut.model_validate(i) for i in response]
 
     def get_chat(self, chat_id: str | UUID, limit: int) -> list[Message]:
         """

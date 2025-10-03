@@ -6,16 +6,18 @@ class MessageAuthor(BaseModel):
     id: int
     username: str
 
-
-class User(MessageAuthor):
+class UserShortCut(MessageAuthor):
+    avatar_id: str | None = Field(alias="avatar")
     is_online: bool = Field(alias="isOnline")
+    is_banned: bool = Field(alias="isBanned")
     last_online_at: datetime = Field(alias="lastOnlineAt")
     created_at: datetime = Field(alias="createdAt")
-    avatar_id: str | None = Field(alias="avatar")
+
+
+class User(UserShortCut):
     banner_id: str | None = Field(alias="banner")
     description: str | None
     is_verified: bool = Field(alias="isKycVerified")
-    is_banned: bool = Field(alias="isBanned")
     roles: list[str]
     rating: int | float
     reviews: int = Field(alias="reviewsCount")
