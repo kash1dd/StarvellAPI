@@ -101,19 +101,21 @@ class Account:
         self.__id = response.user.id
         self.__email = response.user.email
         self.__created_date = response.user.created_at
-        self.__avatar_id = response.user.avatar
-        self.__banner_id = response.user.banner
+        self.__avatar_id = response.user.avatar_id
+        self.__banner_id = response.user.banner_id
         self.__description = response.user.description
-        self.__is_verified = response.user.is_kyc_verified
+        self.__is_verified = response.user.is_verified
         self.__rating = response.user.rating
-        self.__reviews_count = response.user.reviews_count
-        self.__balance_hold = response.holded_balance / 100
+        self.__reviews_count = response.user.reviews
+        self.__balance_hold = (
+            response.balance_hold / 100 if response.balance_hold else 0
+        )
         self.__balance = (
-            response.balance.rub_balance / 100
-            if isinstance(response.balance.rub_balance, int)
+            response.balance.rub / 100
+            if isinstance(response.balance.rub, int)
             else None
         )
-        self.__active_orders = response.active_orders.sales
+        self.__active_orders = response.orders.sales if response.orders else 0
 
         return response
 

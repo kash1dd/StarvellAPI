@@ -27,6 +27,7 @@ class User(UserShortCut):
     roles: list[str]
     rating: int | float
     reviews: int = Field(alias="reviewsCount")
+    email: str | None = Field(None)
 
 
 class Balance(BaseModel):
@@ -41,6 +42,6 @@ class ActiveOrders(BaseModel):
 class Profile(BaseModel):
     user: User
     balance: Balance
-    balance_hold: int
-    orders: ActiveOrders
+    balance_hold: int | None = None
+    orders: ActiveOrders | None = None
     unreadChatIds: list[str]

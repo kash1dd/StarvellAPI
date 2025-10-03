@@ -2,7 +2,8 @@ from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
 
 from starvell.enums import MessageType
-from starvell.types import MessageAuthor, OrderShortCut
+from .order import OrderShortCut
+from .user import MessageAuthor
 from starvell.utils import format_message_types
 
 
