@@ -13,7 +13,9 @@ __all__ = [
     "ExchangeRate",
     "UserShortCut",
     "ChatShortCut",
-    "BlockListedUser"
+    "BlockListedUser",
+    "CreatedOfferFields",
+    "OfferFields",
 ]
 
 from .user import MessageAuthor, User, Profile, UserShortCut, BlockListedUser
@@ -22,3 +24,4 @@ from .order import Order, OrderShortCut, OrderFull
 from .table import OfferShortCut
 from .exchange_rate import ExchangeRate
 from .chats import ChatShortCut
+from .offer import OfferFields, CreatedOfferFields

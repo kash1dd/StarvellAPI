@@ -31,9 +31,9 @@ from .errors import (
 from .types import (
     BlockListedUser,
     ChatShortCut,
-    CreateLotFields,
+    CreatedOfferFields,
     ExchangeRate,
-    LotFields,
+    OfferFields,
     Message,
     Profile,
     OfferShortCut,
@@ -323,7 +323,7 @@ class Account:
 
     def get_my_category_lots(
         self, category_id: int, offset: int = 0, limit: int = 10000000
-    ) -> list[LotFields]:
+    ) -> list[OfferFields]:
         """
         Получает свои лоты в категории.
 
@@ -333,8 +333,8 @@ class Account:
         :type offset: int
         :param limit: Сколько лотов получить?
         :type limit: int
-        :return: Список, объектами которого являются модели LotFields
-        :rtype: list[LotFields]
+        :return: Список, объектами которого являются модели OfferFields
+        :rtype: list[OfferFields]
         """
 
         url = "https://starvell.com/api/offers/list-my"
@@ -342,22 +342,22 @@ class Account:
 
         response = self.request.post(url, body=body, raise_not_200=True).json()
 
-        return [LotFields.model_validate(i) for i in response]
+        return [OfferFields.model_validate(i) for i in response]
 
-    def get_lot_fields(self, lot_id: int | str) -> LotFields:
+    def get_lot_fields(self, lot_id: int | str) -> OfferFields:
         """
         Получает поля своего лота.
 
         :param lot_id: ID Лота
         :type lot_id: int | str
-        :return: Модель LotFields
-        :rtype: LotFields
+        :return: Модель OfferFields
+        :rtype: OfferFields
         """
 
         url = f"https://starvell.com/api/offers/{lot_id}"
         response = self.request.get(url, raise_not_200=True).json()
 
-        return LotFields.model_validate(response)
+        return OfferFields.model_validate(response)
 
     def get_black_list(self) -> list[BlockListedUser]:
         """
@@ -420,14 +420,14 @@ class Account:
             ).json()
         )
 
-    def create_lot(self, fields: LotFields) -> LotFields:
+    def create_lot(self, fields: OfferFields) -> OfferFields:
         """
         Создаёт лот на Starvell.
 
         :param fields: Поля лота
-        :type fields: LotFields
-        :return: Поля (LotFields модель) созданного лота
-        :rtype: LotFields
+        :type fields: OfferFields
+        :return: Поля (OfferFields модель) созданного лота
+        :rtype: OfferFields
         :raise CreateLotError: В случае возникновения ошибки
         """
 
@@ -436,7 +436,7 @@ class Account:
         lot_fields = json.loads(fields.model_dump_json(by_alias=True))
         lot_fields["numericAttributes"] = lot_fields["attributes"]
         create_fields = json.loads(
-            CreateLotFields.model_validate(lot_fields).model_dump_json(
+            CreatedOfferFields.model_validate(lot_fields).model_dump_json(
                 by_alias=True
             )
         )
@@ -446,7 +446,7 @@ class Account:
         if response.status_code != 201:
             raise CreateLotError(response.json().get("message"))
 
-        return LotFields.model_validate(response.json())
+        return OfferFields.model_validate(response.json())
 
     def delete_lot(self, lot_id: int | str) -> None:
         """
@@ -546,12 +546,12 @@ class Account:
         if response.status_code != 200:
             raise ReadChatError(response.json().get("message"))
 
-    def save_lot(self, lot: LotFields) -> None:
+    def save_lot(self, lot: OfferFields) -> None:
         """
         Сохраняет лот, с переданными полями.
 
-        :param lot: Поля лота (Модель LotFields)
-        :type lot: LotFields
+        :param lot: Поля лота (Модель OfferFields)
+        :type lot: OfferFields
         :return: None
         :rtype: None
         """

@@ -6,9 +6,11 @@ class MessageAuthor(BaseModel):
     id: int
     username: str
 
+
 class BlockListedUser(MessageAuthor):
     avatar_id: str | None = Field(alias="avatar")
     block_listed_at: datetime = Field(alias="blacklistedAt")
+
 
 class UserShortCut(MessageAuthor):
     avatar_id: str | None = Field(alias="avatar")
