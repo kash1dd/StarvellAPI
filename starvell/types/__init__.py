@@ -16,6 +16,7 @@ __all__ = [
     "BlockListedUser",
     "CreatedOfferFields",
     "OfferFields",
+    "Review",
 ]
 
 from .user import MessageAuthor, User, Profile, UserShortCut, BlockListedUser
@@ -25,3 +26,4 @@ from .table import OfferShortCut
 from .exchange_rate import ExchangeRate
 from .chats import ChatShortCut
 from .offer import OfferFields, CreatedOfferFields
+from .review import Review

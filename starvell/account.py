@@ -39,7 +39,7 @@ from .types import (
     OfferShortCut,
     Order,
     OrderFull,
-    ReviewInfo,
+    Review,
     User,
 )
 from .propertys import MyProfileProperty
@@ -160,7 +160,7 @@ class Account:
 
     def get_reviews(
         self, offset: int = 0, limit: int = 100000000
-    ) -> list[ReviewInfo]:
+    ) -> list[Review]:
         """
         Получает отзывы аккаунта.
 
@@ -168,8 +168,8 @@ class Account:
         :type offset: int
         :param limit: Сколько отзывов получить?
         :type limit: int
-        :return: Список, объектами которого являются модели ReviewInfo
-        :rtype: list[ReviewInfo]
+        :return: Список, объектами которого являются модели Review
+        :rtype: list[Review]
         """
 
         url = "https://starvell.com/api/reviews/list"
@@ -179,7 +179,7 @@ class Account:
         }
         response = self.request.post(url, body, raise_not_200=True).json()
 
-        return [ReviewInfo.model_validate(i) for i in response]
+        return [Review.model_validate(i) for i in response]
 
     def get_chats(self, offset: int, limit: int) -> list[ChatShortCut]:
         """
@@ -252,14 +252,14 @@ class Account:
 
         return Order.model_validate(response)
 
-    def get_review(self, order_id: str | UUID) -> ReviewInfo:
+    def get_review(self, order_id: str | UUID) -> Review:
         """
         Получает отзыв с помощью ID заказа.
 
         :param order_id: ID Заказа
         :type order_id: str | UUID
-        :return: Модель ReviewInfo
-        :rtype: ReviewInfo
+        :return: Модель Review
+        :rtype: Review
         """
 
         order_id = str(order_id)
@@ -274,7 +274,7 @@ class Account:
         if response.status_code != 200:
             raise GetReviewError(response.json().get("message"))
 
-        return ReviewInfo.model_validate(response.json())
+        return Review.model_validate(response.json())
 
     def get_category_lots(
         self,

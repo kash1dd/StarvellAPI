@@ -7,7 +7,7 @@ from starvell.account import Account
 from starvell.enums import MessageType, SocketTypes
 from starvell.errors import HandlerError
 from starvell.socket import Socket
-from starvell.types import NewMessageEvent, OrderEvent, ServiceMessageEvent
+from starvell.types import NewMessageEvent, OrderEvent, BaseMessage
 
 
 class Runner:
@@ -47,7 +47,7 @@ class Runner:
 
         self.event_types: dict[
             MessageType,
-            type[NewMessageEvent | OrderEvent | ServiceMessageEvent],
+            type[NewMessageEvent | OrderEvent | BaseMessage],
         ] = {
             MessageType.NEW_MESSAGE: NewMessageEvent,
             MessageType.NEW_ORDER: OrderEvent,
@@ -60,10 +60,10 @@ class Runner:
             MessageType.REVIEW_RESPONSE_EDITED: OrderEvent,
             MessageType.REVIEW_RESPONSE_CREATED: OrderEvent,
             MessageType.REVIEW_RESPONSE_DELETED: OrderEvent,
-            MessageType.BLACKLIST_YOU_REMOVED: ServiceMessageEvent,
-            MessageType.BLACKLIST_USER_REMOVED: ServiceMessageEvent,
-            MessageType.BLACKLIST_YOU_ADDED: ServiceMessageEvent,
-            MessageType.BLACKLIST_USER_ADDED: ServiceMessageEvent,
+            MessageType.BLACKLIST_YOU_REMOVED: BaseMessage,
+            MessageType.BLACKLIST_USER_REMOVED: BaseMessage,
+            MessageType.BLACKLIST_YOU_ADDED: BaseMessage,
+            MessageType.BLACKLIST_USER_ADDED: BaseMessage,
         }
 
         self.add_handler(
