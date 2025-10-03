@@ -1,3 +1,3 @@
-from .events import Runner
+from .events import EventListener
 
-__all__ = ["Runner"]
+__all__ = ["EventListener"]

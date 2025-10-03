@@ -3,7 +3,7 @@ from typing import Any, Callable
 
 from websocket import WebSocketApp
 
-from starvell.account import Account
+from starvell.account import Bot
 from starvell.enums import MessageType, SocketTypes
 from starvell.errors import HandlerError
 from starvell.socket import Socket
@@ -11,14 +11,14 @@ from starvell.types import NewMessageEvent, OrderEvent, BaseMessage
 from starvell.utils import get_clear_dict
 
 
-class Runner:
-    def __init__(self, acc: Account, always_online: bool = True):
+class EventListener:
+    def __init__(self, acc: Bot, always_online: bool = True):
         """
-        :param acc: Экземпляр класса Account
+        :param acc: Экземпляр класса Bot
         :param always_online: Поддерживать-ли постоянный онлайн? (True - при использовании API, аккаунт всегда будет онлайн)
         """
 
-        self.acc: Account = acc
+        self.acc: Bot = acc
 
         self.socket: Socket = Socket(acc.session_id, always_online)
         self.socket.handlers[SocketTypes.OPEN].append(self.on_open_process)

@@ -50,7 +50,7 @@ from .utils import (
 )
 
 
-class Account:
+class Bot:
     def __init__(
         self, session_id: str, proxy: dict[str, str] | None = None
     ) -> None:
@@ -788,7 +788,7 @@ class Account:
     @classmethod
     def from_json_cookie(
         cls, cookie_json: list[dict], proxy: dict[str, str] | None = None
-    ) -> "Account":
+    ) -> "Bot":
         """
         Инициализирует аккаунт с помощью полного JSON'а с куками (Полученные например с расширения cookie-editor)
 
@@ -797,7 +797,7 @@ class Account:
         :param proxy: Прокси с которого будут осуществляться запросы (пример: {"http": "http://user:password@your_proxy_ip:port"})
         :type proxy: dict[str, str] | None
 
-        :return: Экземпляр Account
+        :return: Экземпляр Bot
         :raise ValueError: В случае, если формат куки неправильный
         """
 
@@ -816,7 +816,7 @@ class Account:
     @classmethod
     def from_header_string_cookie(
         cls, cookie_header_string: str, proxy: dict[str, str] | None = None
-    ) -> "Account":
+    ) -> "Bot":
         """
         Инициализирует аккаунт с помощью полного Header String'а с куками (Полученные например с расширения cookie-editor)
 
@@ -825,7 +825,7 @@ class Account:
         :param proxy: Прокси с которого будут осуществляться запросы (пример: {"http": "http://user:password@your_proxy_ip:port"})
         :type proxy: dict[str, str] | None
 
-        :return: Экземпляр Account
+        :return: Экземпляр Bot
         :raise ValueError: В случае, если формат куки неправильный
         """
 

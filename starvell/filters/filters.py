@@ -1,5 +1,5 @@
 from starvell.types import NewMessageEvent
-from starvell.account import Account
+from starvell.account import Bot
 
 import re
 
@@ -17,17 +17,17 @@ def is_command(msg: NewMessageEvent, symbol: str = "!"):
     return msg.content.startswith(symbol)
 
 
-def not_me(msg: NewMessageEvent, account: Account):
+def not_me(msg: NewMessageEvent, Bot: Bot):
     """
     Являюсь автором сообщения я?
 
     :param msg: NewMessageEvent
-    :param account: Экземпляр Account
+    :param Bot: Экземпляр Bot
 
     :return: bool (True - не является, False - Является)
     """
 
-    return not msg.author.username == account.info.username
+    return not msg.author.username == Bot.info.username
 
 
 def has_email(msg: NewMessageEvent):
