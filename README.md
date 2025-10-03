@@ -29,19 +29,20 @@ ___
 ### _🤖 Пример использования_
 
 ```python
-from starvell import Account, Runner
+from starvell import Bot, EventListener
 from starvell.types import NewMessageEvent, OrderEvent
-from starvell.enums import MessageTypes
+from starvell.enums import MessageType
 
-acc = Account("session_id")  # создаём экземпляр аккаунта, указывая session_id полученный со starvell.com
+acc = Bot("session_id")  # создаём экземпляр аккаунта, указывая session_id полученный со starvell.com
 
 print(f"Никнейм - {acc.user.username}")
 print(f"ID - {acc.user.id}\n")
 
-runner = Runner(acc)  # создаём экземпляр раннера
+listener = EventListener(acc)  # создаём экземпляр раннера
 
 
-@runner.add_handler(MessageTypes.NEW_MESSAGE)  # с помощью декоратора, добавляем нашу функцию в хэндлеры новых сообщений
+@listener.add_handler(
+    MessageType.NEW_MESSAGE)  # с помощью декоратора, добавляем нашу функцию в хэндлеры новых сообщений
 def msg_handler(msg: NewMessageEvent):
     """
     Хэндлер (функция), которая будет вызываться при новом сообщении
@@ -50,7 +51,7 @@ def msg_handler(msg: NewMessageEvent):
     print(f"{msg.author.username}: {msg.content}")
 
 
-@runner.add_handler(MessageTypes.NEW_ORDER)  # с помощью декоратора, добавляем нашу функцию в хэндлеры новых заказов
+@listener.add_handler(MessageType.NEW_ORDER)  # с помощью декоратора, добавляем нашу функцию в хэндлеры новых заказов
 def order_handler(order: OrderEvent):
     """
     Хэндлер (функция), которая будет вызываться при новом заказе
