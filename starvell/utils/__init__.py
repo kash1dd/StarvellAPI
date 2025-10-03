@@ -6,6 +6,7 @@ from .utils import (
     format_statuses,
     format_types,
     set_user,
+    get_clear_dict,
     NOTIFICATION_ORDER_TYPES,
 )
 
@@ -17,5 +18,6 @@ __all__ = [
     "format_statuses",
     "format_types",
     "set_user",
+    "get_clear_dict",
     "NOTIFICATION_ORDER_TYPES",
 ]

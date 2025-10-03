@@ -8,6 +8,7 @@ from starvell.enums import MessageType, SocketTypes
 from starvell.errors import HandlerError
 from starvell.socket import Socket
 from starvell.types import NewMessageEvent, OrderEvent, BaseMessage
+from starvell.utils import get_clear_dict
 
 
 class Runner:
@@ -136,7 +137,17 @@ class Runner:
 
         :return: None
         """
-        ...
+        data = get_clear_dict(msg)
+
+        model = BaseMessage.model_validate(data, by_alias=True)
+        translate = self.event_types[model.metadata]
+        new = translate.model_validate(data, by_alias=True)
+
+        for handler in self.handlers[model.metadata]:
+            try:
+                self.handling(handler, new)
+            except Exception as e:
+                raise HandlerError(f"error in {handler[0].__name__}: {e}")
 
     def on_open_process(self, ws: WebSocketApp) -> None:
         """

@@ -1,3 +1,4 @@
+import json
 from typing import Optional, Any
 
 from starvell.enums import (
@@ -179,3 +180,18 @@ def set_user(data: dict[str, Any]) -> MessageAuthor:
             break
 
     return MessageAuthor.model_validate(user, by_alias=True)
+
+
+def get_clear_dict(raw_dict: str) -> dict:
+    """
+    С грязного якобы словаря с сообщения в вебсокете, получает чистенький
+
+    :param raw_dict: Грязный словарь
+    :type raw_dict: str
+    :return: Чистенький словарик
+    :rtype: dict
+    """
+    data = json.loads(raw_dict[28:-1])
+    data["user"] = set_user(data)
+
+    return data
